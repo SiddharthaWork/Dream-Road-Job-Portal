@@ -11,15 +11,14 @@ const Navbar = () => {
               <div className='w-10 h-10 rounded-lg bg-[#255cf4] overflow-hidden'>
             <Link href={"/"}>
                 <img src="/dreamroad.svg" alt="" className='w-full h-full object-cover' />
-
             </Link>
               </div>
                 <h1 className='text-2xl text-[#255cf4] uppercase font-bold'>DREAMROAD</h1>
             </div>
 
             <div className='flex items-center'>
-            <Button variant={'link'} size={'custom'} className='hover:text-[#255cf4]'>
-              Employer Login
+            <Button variant={'link'} size={'custom'} className='hover:text-[#255cf4] cursor-pointer'>
+              Employers Login
             </Button>
             <Link href="/login">
             <Button variant={'custom'} size={'custom'}>

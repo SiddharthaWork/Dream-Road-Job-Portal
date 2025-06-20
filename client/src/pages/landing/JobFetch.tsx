@@ -8,7 +8,7 @@ const sampleJobs: JobListing[] = [
     location: "San Francisco, CA",
     jobType: "Full-time",
     salary: 80000,
-    postedDate: "2024-01-15",
+    postedDate: "2024-06-09",
     isUrgent: true,
   },
   {
@@ -18,7 +18,7 @@ const sampleJobs: JobListing[] = [
     location: "New York, NY",
     jobType: "Remote",
     salary: 80000,
-    postedDate: "2024-01-12",
+    postedDate: "2024-06-09",
   },
   {
     id: "3",
@@ -27,7 +27,7 @@ const sampleJobs: JobListing[] = [
     location: "Austin, TX",
     jobType: "Hybrid",
     salary: 80000,
-    postedDate: "2024-01-10",
+    postedDate: "2024-06-09",
   },
   {
     id: "4",
@@ -36,7 +36,7 @@ const sampleJobs: JobListing[] = [
     location: "Seattle, WA",
     jobType: "Full-time",
     salary: 80000,
-    postedDate: "2024-01-08",
+    postedDate: "2024-06-09",
   },
   {
     id: "5",
@@ -45,7 +45,7 @@ const sampleJobs: JobListing[] = [
     location: "Los Angeles, CA",
     jobType: "Part-time",
     salary: 80000,
-    postedDate: "2024-01-05",
+    postedDate: "2024-06-09",
   },
   {
     id: "6",
@@ -54,7 +54,7 @@ const sampleJobs: JobListing[] = [
     location: "Denver, CO",
     jobType: "Contract",
     salary: 80000,
-    postedDate: "2024-01-03",
+    postedDate: "2024-06-09",
   },
 
   {
@@ -64,7 +64,7 @@ const sampleJobs: JobListing[] = [
     location: "Denver, CO",
     jobType: "Contract",
     salary: 80000,
-    postedDate: "2024-01-03",
+    postedDate: "2024-06-09",
   },
   {
     id: "8",
@@ -73,7 +73,7 @@ const sampleJobs: JobListing[] = [
     location: "Denver, CO",
     jobType: "Contract",
     salary: 80000,
-    postedDate: "2024-01-03",
+    postedDate: "2024-06-09",
   },
   {
     id: "9",
@@ -82,7 +82,7 @@ const sampleJobs: JobListing[] = [
     location: "Denver, CO",
     jobType: "Contract",
     salary: 80000,
-    postedDate: "2024-01-03",
+    postedDate: "2024-06-09",
   },
 ]
 
@@ -110,7 +110,7 @@ export default function JobListingsDemo() {
         <h1 className="text-4xl font-bold tracking-tighter text-black/80">Log in to explores <span className="text-[#255cf4] "> 1000+</span> Jobs!</h1>
           <button className="bg-[#255cf4]  text-white px-6 h-10 rounded-md text-lg tracking-tight flex items-center gap-2 cursor-pointer font-semibold">
             <Icon icon="ic:outline-lock" />
-            Sign In Now
+            Log In Now
           </button>
         </div>
       </div>
