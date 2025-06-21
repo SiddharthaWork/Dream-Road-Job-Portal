@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "DreamRoad - Job Portal",
   description: "One Stop Solution For Your Dream Job",
+  icons: {
+    icon: "/dreamroad.svg"
+  }
 };
 
 export default function RootLayout({
