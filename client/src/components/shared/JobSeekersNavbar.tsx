@@ -56,19 +56,19 @@ const JobSeekersNavbar = () => {
             </div>
             <div className='flex items-center gap-4'>
 
-            <Link href="/jobs">
+            <Link href="/">
             <Button variant={'link'} className='hover:text-[#255cf4] text-[#121224] px-0 text-[17px] tracking-tight'>
             Explore
             </Button>
 
             </Link>
-            <Link href="/saved">
+            <Link href="/job">
             <Button variant={'link'} className='hover:text-[#255cf4] text-[#121224] px-0 text-[17px] tracking-tight'>
              Find Jobs
             </Button>
             </Link>
 
-            <Link href="/saved">
+            <Link href="/company">
             <Button variant={'link'} className='hover:text-[#255cf4] text-[#121224] px-0 text-[17px] tracking-tight'>
               Companies
             </Button>

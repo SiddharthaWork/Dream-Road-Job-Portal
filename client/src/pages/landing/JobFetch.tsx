@@ -1,4 +1,4 @@
-import JobCard, { type JobListing } from "@/components/job-card"
+import JobCard, { type JobListing } from "@/components/job-card-landing"
 import { Icon } from "@iconify/react/dist/iconify.js"
 const sampleJobs: JobListing[] = [
   {

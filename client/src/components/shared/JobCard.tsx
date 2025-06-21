@@ -46,7 +46,7 @@ export default function JobCardTable({ job, onJobClick, onApply, onSave }: JobCa
 
   return (
     <Card
-      className="hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 border-l-transparent hover:border-l-blue-500"
+      className="hover:shadow-lg transition-all duration-200 cursor-pointer "
       onClick={() => onJobClick?.(job.id)}
     >
       <CardContent className="px-6">
