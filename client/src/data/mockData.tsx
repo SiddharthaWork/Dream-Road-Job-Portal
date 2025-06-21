@@ -243,3 +243,62 @@ export const statsData = [
     { id: 5, name: "Other", active: false },
   ]
   
+
+  export const sampleJobPosts = [
+    {
+      id: 1,
+      companyName: "Google",
+      latestJobTitle: "Senior Software Engineer",
+      companyInitials: "G",
+      avatarColor: "bg-blue-500 text-white",
+      jobCount: 12,
+    },
+    {
+      id: 2,
+      companyName: "Microsoft",
+      latestJobTitle: "Product Manager",
+      companyInitials: "M",
+      avatarColor: "bg-green-500 text-white",
+      jobCount: 8,
+    },
+    {
+      id: 3,
+      companyName: "Apple",
+      latestJobTitle: "iOS Developer",
+      companyInitials: "A",
+      avatarColor: "bg-gray-800 text-white",
+      jobCount: 5,
+    },
+    {
+      id: 4,
+      companyName: "Amazon",
+      latestJobTitle: "Data Scientist",
+      companyInitials: "A",
+      avatarColor: "bg-orange-500 text-white",
+      jobCount: 15,
+    },
+    {
+      id: 5,
+      companyName: "Netflix",
+      latestJobTitle: "UX Designer",
+      companyInitials: "N",
+      avatarColor: "bg-red-500 text-white",
+      jobCount: 3,
+    },
+    {
+      id: 6,
+      companyName: "Tesla",
+      latestJobTitle: "Mechanical Engineer",
+      companyInitials: "T",
+      avatarColor: "bg-red-600 text-white",
+      jobCount: 7,
+    },
+    {
+      id: 7,
+      companyName: "Meta",
+      latestJobTitle: "Frontend Developer",
+      companyInitials: "M",
+      avatarColor: "bg-blue-600 text-white",
+      jobCount: 9,
+    },
+  ]

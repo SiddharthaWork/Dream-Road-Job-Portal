@@ -1,11 +1,11 @@
-import Navbar from '@/components/shared/Navbar'
 import JobPortal from '@/pages/jobSeekers/MainJobPortal'
+import JobSeekersNavbar from '@/components/shared/JobSeekersNavbar'
 import React from 'react'
 
 const JobSeekers = () => {
   return (
     <>
-    <Navbar/>
+    <JobSeekersNavbar/>
     <div className='bg-[#f8f9fa]'>
     <JobPortal/>
     </div>

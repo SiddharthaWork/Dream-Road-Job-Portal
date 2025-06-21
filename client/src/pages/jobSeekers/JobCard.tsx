@@ -46,7 +46,7 @@ export default function JobCard({ job, onJobClick, onApply, onSave }: JobCardPro
 
   return (
     <Card
-      className="hover:shadow-lg transition-all duration-200 cursor-pointer "
+      className="hover:shadow-lg transition-all duration-200 cursor-pointer py-4 "
       onClick={() => onJobClick?.(job.id)}
     >
       <CardContent className="px-6">

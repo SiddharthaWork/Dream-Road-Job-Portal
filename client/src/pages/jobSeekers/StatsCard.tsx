@@ -31,7 +31,7 @@ export default function StatsCards({ stats }: StatsCardsProps) {
       {stats.map((stat) => {
         const IconComponent = getIcon(stat.icon)
         return (
-          <Card key={stat.id}>
+          <Card key={stat.id} className="py-4">
             <CardContent className="px-4">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 ${stat.bgColor} rounded-lg flex items-center justify-center`}>

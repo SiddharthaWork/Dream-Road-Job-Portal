@@ -14,32 +14,33 @@ export default function HowItWorks() {
         estimatedTime: string
       }
       
-  const steps = [
-    {
-      id: 1,
-      icon: "✓",
-      title: "Create your Profile",
-      description: "by telling us about yourself",
-      bgColor: "bg-blue-100",
-      textColor: "text-blue-600",
-    },
-    {
-      id: 2,
-      icon: <Award className="w-4 h-4" />,
-      title: "Apply to Jobs & Projects",
-      description: "to build proof of work",
-      bgColor: "bg-purple-100",
-      textColor: "text-purple-600",
-    },
-    {
-      id: 3,
-      icon: <DollarSign className="w-4 h-4" />,
-      title: "Get Paid for Your Work",
-      description: "in global standards",
-      bgColor: "bg-green-100",
-      textColor: "text-green-600",
-    },
-  ]
+      const steps = [
+        {
+          id: 1,
+          icon: "✓",
+          title: "Build Your Profile",
+          description: "Showcase your skills and experience",
+          bgColor: "bg-blue-100",
+          textColor: "text-blue-600",
+        },
+        {
+          id: 2,
+          icon: <Award className="w-4 h-4" />,
+          title: "Explore & Apply to Jobs",
+          description: "Find opportunities that match your goals",
+          bgColor: "bg-purple-100",
+          textColor: "text-purple-600",
+        },
+        {
+          id: 3,
+          icon: <DollarSign className="w-4 h-4" />,
+          title: "Get Shortlisted & Hired",
+          description: "Get hired and grow professionally",
+          bgColor: "bg-green-100",
+          textColor: "text-green-600",
+        },
+      ];
+      
 
   const profileSteps: ProfileStep[] = [
     {
@@ -116,7 +117,7 @@ export default function HowItWorks() {
 
 
   return (
-    <Card>
+    <Card className="py-6">
       <CardContent className="px-6">
 
         {/* Progress Bar */}
@@ -125,7 +126,7 @@ export default function HowItWorks() {
               <span className="text-gray-600">
                 {completedSteps} of {totalSteps} steps completed
               </span>
-              <span className={`font-semibold ${getProgressTextColor(completionPercentage)}`}>
+              <span className={`font-semibold text-[#255cf4]`}>
                 {completionPercentage}%
               </span>
             </div>

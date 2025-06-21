@@ -17,7 +17,7 @@ const Navbar = () => {
             </div>
 
             <div className='flex items-center'>
-            <Button variant={'link'} size={'custom'} className='hover:text-[#255cf4] cursor-pointer'>
+            <Button variant={'link'} size={'custom'} className='hover:text-[#255cf4]'>
               Employers Login
             </Button>
             <Link href="/login">
