@@ -252,20 +252,7 @@ export function CompanyListings({
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-gray-900 mb-1 truncate">{company.name}</h3>
 
-                          {company.rating > 0 && (
-                            <div className="flex items-center space-x-2 mb-2">
-                              <div className="flex items-center">{renderStars(company.rating)}</div>
-                              <span className="text-sm font-medium text-gray-900">{company.rating}</span>
-                              <span className="text-sm text-gray-500">{company.reviews} reviews</span>
-                            </div>
-                          )}
-
-                          {company.rating === 0 && (
-                            <div className="mb-2">
-                              <span className="text-sm text-gray-500">{company.reviews} reviews</span>
-                            </div>
-                          )}
-
+                      
                           <div className="flex flex-wrap gap-2 mb-2">
                             {company.tags.slice(0, 2).map((tag, index) => (
                               <Badge key={index} variant="secondary" className="text-xs">

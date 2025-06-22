@@ -1,5 +1,6 @@
 import { Building, Briefcase } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { useRouter } from "next/navigation"
 
 interface StatItem {
   id: number
@@ -26,13 +27,15 @@ export default function StatsCards({ stats }: StatsCardsProps) {
     }
   }
 
+  const router = useRouter()
+
   return (
     <div className="grid grid-cols-2 gap-4">
       {stats.map((stat) => {
         const IconComponent = getIcon(stat.icon)
         return (
           <Card key={stat.id} className="py-4">
-            <CardContent className="px-4">
+            <CardContent className="px-4 cursor-pointer" onClick={() => router.push("/job/applied")}>
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 ${stat.bgColor} rounded-lg flex items-center justify-center`}>
                   <IconComponent className={`w-5 h-5 ${stat.iconColor}`} />

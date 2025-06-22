@@ -3,6 +3,7 @@ import React from 'react'
 import { CompanyListings } from './CompanyListing'
 import { CompaniesPageHeader } from './CompanyPageHeader'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 const categories = [
     { name: "MNCs", count: "2.1K+", companies: "Companies" },
@@ -200,6 +201,7 @@ const CompanyPage = () => {
     const [selectedCompanyTypes, setSelectedCompanyTypes] = useState<string[]>([])
     const [selectedLocations, setSelectedLocations] = useState<string[]>([])
     const [isLoading, setIsLoading] = useState(false)
+    const router = useRouter()
   
     const handleCompanyTypeChange = (type: string, checked: boolean) => {
       setIsLoading(true)
@@ -229,7 +231,7 @@ const CompanyPage = () => {
     }
   
     const handleCompanyClick = (company: any) => {
-      console.log("Company clicked:", company)
+      router.push(`/company/${company.id}`)
       // Navigate to company detail page
     }
   

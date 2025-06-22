@@ -44,7 +44,7 @@ export default function RecentJobPosts({ jobPosts, onViewAllJobs }: RecentJobPos
           </motion.div>
         </div>
 
-        <div className="relative h-[25rem] overflow-hidden cursor-pointer">
+        <div className="relative h-[26rem] overflow-hidden cursor-pointer">
           <motion.div
             className="space-y-3"
             animate={{

@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Mail, Lock, User, AlertCircle, CheckCircle2, Phone } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-import { number } from "motion"
 
 interface FormErrors {
   email?: string
@@ -21,6 +20,9 @@ interface FormErrors {
 }
 
 export default function AuthForm() {
+
+
+
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -398,7 +400,7 @@ export default function AuthForm() {
                 </button>
               </div>
             )}
-
+            <Link href={"/"}>
             <Button
               type="submit"
               className="w-full h-12 bg-black hover:bg-gray-800 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
@@ -415,12 +417,14 @@ export default function AuthForm() {
                 "Create account"
               )}
             </Button>
+            </Link>
           </form>
 
           {/* Switch between login/register */}
           <div className="text-center">
             <p className="text-sm text-gray-600">
               {isLogin ? "Not registered? " : "Already have an account? "}
+              <Link href={"/"}>
               <button
                 onClick={() => {
                   setIsLogin(!isLogin)
@@ -439,6 +443,7 @@ export default function AuthForm() {
               >
                 {isLogin ? "Create an Account" : "Log in"}
               </button>
+              </Link>
             </p>
           </div>
         </div>
