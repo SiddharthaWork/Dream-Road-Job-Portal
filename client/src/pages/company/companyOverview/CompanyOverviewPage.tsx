@@ -320,7 +320,7 @@ export default function CompanyOverview() {
   }
 
   return (
-    <div className="bg-[#f8f9fa]">
+    <div className="bg-[#f8f9fa] py-6">
     <div className="min-h-screen bg-[#f8f9fa] w-full max-w-7xl mx-auto">
       {/* Company Header */}
       <div className="relative w-full h-64 bg-gradient-to-r rounded-xl from-blue-900  to-blue-700 overflow-hidden">
