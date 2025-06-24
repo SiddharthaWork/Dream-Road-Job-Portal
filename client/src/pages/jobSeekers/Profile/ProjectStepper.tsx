@@ -46,7 +46,7 @@ export function ProgressStepper({ steps, currentStep, onStepClick }: ProgressSte
               <div
                 className={`
                 w-12 h-0.5 mx-2
-                ${currentStep > step.id ? "bg-black" : "bg-gray-200"}
+                ${currentStep > step.id ? "bg-[#255cf4]" : "bg-gray-200"}
               `}
               />
             )}

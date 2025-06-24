@@ -175,6 +175,6 @@ export function SummaryStep() {
         </Card>
       </div>
     </motion.div>
-    </ScrollArea>
+    </ScrollArea> 
   )
 }

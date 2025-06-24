@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { motion } from "framer-motion"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Upload, X, Bold, Italic, Underline } from "lucide-react"
+import { Upload, File, X, Bold, Italic, Underline } from "lucide-react"
 import { useFormContext } from "@/contexts/form-context"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
@@ -30,6 +30,10 @@ export function AboutYourselfStep() {
   const { formData, updateFormData } = useFormContext()
   const [selectedSectors, setSelectedSectors] = useState<string[]>(formData.sectors || [])
   const [textFormat, setTextFormat] = useState({ bold: false, italic: false, underline: false })
+  const profilePicInputRef = useRef<HTMLInputElement>(null)
+  const resumeInputRef = useRef<HTMLInputElement>(null)
+  const [profilePic, setProfilePic] = useState<File | null>(null)
+  const [resume, setResume] = useState<File | null>(null)
 
   const handleSectorToggle = (sector: string) => {
     const newSectors = selectedSectors.includes(sector)
@@ -45,7 +49,7 @@ export function AboutYourselfStep() {
   }
 
   return (
-    <ScrollArea className="h-full w-full">
+    <ScrollArea className="h-full w-full ">
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 ">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">About yourself</h2>
@@ -55,16 +59,39 @@ export function AboutYourselfStep() {
       {/* Profile Picture Upload */}
       <div className="flex items-center space-x-4">
         <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
-          <Upload className="w-8 h-8 text-gray-400" />
+          {profilePic ? (
+            <img
+              src={URL.createObjectURL(profilePic)}
+              alt="Profile"
+              className="w-20 h-20 rounded-full object-cover"
+            />
+          ) : (
+            <Upload className="w-8 h-8 text-gray-400" />
+          )}
         </div>
-        <Button variant="outline" className="bg-black">
+        <Button
+          variant="outline"
+          className="bg-black"
+          onClick={() => profilePicInputRef.current?.click()}
+        >
           <Upload className="w-4 h-4 mr-2" />
-          Upload Profile Picture
+          {profilePic ? "Profile Picture Uploaded" : "Upload Profile Picture"}
         </Button>
+        <input
+          type="file"
+          accept="image/*"
+          ref={profilePicInputRef}
+          className="hidden"
+          onChange={e => {
+            if (e.target.files && e.target.files[0]) {
+              setProfilePic(e.target.files[0])
+            }
+          }}
+        />
       </div>
 
       {/* Name Fields */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
         <div className="space-y-2">
           <Label htmlFor="firstName">
             First Name <span className="text-red-500">*</span>
@@ -92,7 +119,7 @@ export function AboutYourselfStep() {
       </div>
 
       {/* Gender and Date of Birth */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
         <div className="space-y-2">
           <Label>
             Gender <span className="text-red-500">*</span>
@@ -125,7 +152,7 @@ export function AboutYourselfStep() {
       </div>
 
       {/* Phone Number */}
-      <div className="space-y-2">
+      <div className="space-y-2 px-4">
         <Label htmlFor="phoneNumber">
           Phone Number <span className="text-red-500">*</span>
         </Label>
@@ -140,7 +167,7 @@ export function AboutYourselfStep() {
       </div>
 
       {/* Sectors */}
-      <div className="space-y-2">
+      <div className="space-y-2 px-4">
         <Label>
           Sectors <span className="text-red-500">*</span>
         </Label>
@@ -162,7 +189,7 @@ export function AboutYourselfStep() {
       </div>
 
       {/* Designation */}
-      <div className="space-y-2">
+      <div className="space-y-2 px-4">
         <Label htmlFor="designation">
           Designation <span className="text-red-500">*</span>
         </Label>
@@ -176,7 +203,7 @@ export function AboutYourselfStep() {
       </div>
 
       {/* About Me */}
-      <div className="space-y-2">
+      <div className="space-y-2 px-4">
         <Label htmlFor="aboutMe">
           About Me <span className="text-red-500">*</span>
         </Label>
@@ -223,6 +250,33 @@ export function AboutYourselfStep() {
             }}
           />
         </div>
+      </div>
+      <div className="flex items-center space-x-4 px-4">
+        <div className="w-10 h-10 bg-gray-200 rounded-xl flex items-center justify-center">
+          <File className="w-6 h-6 text-gray-400" />
+        </div>
+        <Button
+          variant="outline"
+          className="bg-black"
+          onClick={() => resumeInputRef.current?.click()}
+        >
+          <Upload className="w-4 h-4 mr-2" />
+          {resume ? "Resume Uploaded" : "Upload Your Resume"}
+        </Button>
+        <input
+          type="file"
+          accept=".pdf,.doc,.docx"
+          ref={resumeInputRef}
+          className="hidden"
+          onChange={e => {
+            if (e.target.files && e.target.files[0]) {
+              setResume(e.target.files[0])
+            }
+          }}
+        />
+        {resume && (
+          <span className="ml-2 text-[#255cf4] font-medium">{resume.name}</span>
+        )}
       </div>
     </motion.div>
     </ScrollArea>

@@ -16,7 +16,7 @@ interface FormErrors {
   password?: string
   confirmPassword?: string
   firstName?: string
-  lastName?: string
+lastName?: string
 }
 
 export default function AuthForm() {
@@ -424,7 +424,6 @@ export default function AuthForm() {
           <div className="text-center">
             <p className="text-sm text-gray-600">
               {isLogin ? "Not registered? " : "Already have an account? "}
-              <Link href={"/"}>
               <button
                 onClick={() => {
                   setIsLogin(!isLogin)
@@ -443,7 +442,6 @@ export default function AuthForm() {
               >
                 {isLogin ? "Create an Account" : "Log in"}
               </button>
-              </Link>
             </p>
           </div>
         </div>
