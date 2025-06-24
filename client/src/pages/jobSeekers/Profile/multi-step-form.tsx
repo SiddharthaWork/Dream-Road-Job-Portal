@@ -14,6 +14,7 @@ import { AchievementsStep } from "./steps/achivements"
 import { SummaryStep } from "./steps/summary"
 import { ProjectsStep } from "./steps/project-step"
 import { ProgressStepper } from "./ProjectStepper"
+import { useRouter } from "next/navigation"
 
 const steps = [
   { id: 1, title: "About Yourself", component: AboutYourselfStep },
@@ -28,7 +29,7 @@ const steps = [
 export function MultiStepForm() {
   const [currentStep, setCurrentStep] = useState(1)
   const [direction, setDirection] = useState(0)
-
+  const router = useRouter();
   const nextStep = () => {
     if (currentStep < steps.length) {
       setDirection(1)
@@ -110,7 +111,7 @@ export function MultiStepForm() {
                 <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button className="bg-[#255cf4] hover:bg-blue-500 text-white">Submit Application</Button>
+              <Button onClick={() => router.push("/")} className="bg-[#255cf4] hover:bg-blue-500 text-white">Complete Profile</Button>
             )}
           </div>
         </Card>

@@ -2,7 +2,7 @@ import { Award, CheckCircle, Clock, DollarSign, User } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
-
+import { useRouter } from "next/navigation"
 export default function HowItWorks() {
 
     interface ProfileStep {
@@ -96,6 +96,7 @@ export default function HowItWorks() {
   const completedSteps = profileSteps.filter((step) => step.isCompleted).length
   const totalSteps = profileSteps.length
   const completionPercentage = Math.round((completedSteps / totalSteps) * 100)
+  const router = useRouter();
 
   // Get next incomplete step
   const nextStep = profileSteps.find((step) => !step.isCompleted)
@@ -136,7 +137,7 @@ export default function HowItWorks() {
                 className={`absolute top-0 left-0 h-3 rounded-full transition-all duration-500 ${getProgressColor(completionPercentage)}`}
                 style={{ width: `${completionPercentage}%` }}
               /> */}
-              <Button variant={'default'} size={'custom'} className='bg-[#255cf4] cursor-pointer'>Complete Profile</Button>
+              <Button onClick={() => router.push("/profile")} variant={'default'} size={'custom'} className='bg-[#255cf4] cursor-pointer'>Complete Profile</Button>
             </div>
           </div>
 
