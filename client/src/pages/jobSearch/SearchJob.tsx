@@ -17,6 +17,7 @@ import JobSearch from "@/components/shared/Jobsearch"
 import { jobsData } from "@/data/mockData"
 import JobCardTable from "@/components/shared/JobCard"
 import { div } from "motion/react-client"
+import { Job } from "@/types/_type-Job"
 
 // Mock data arrays for easy backend integration
 const jobListings = [
@@ -252,22 +253,15 @@ export default function SearchJob() {
             <p className="text-lg opacity-90">Find opportunities that match your skills and aspirations</p>
 
             {/* Search Bar */}
-            {/* <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4 max-w-2xl mx-auto">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <Input
-                  type="text"
-                  placeholder="Search jobs, companies, or keywords..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-12 text-gray-900"
-                />
-              </div>
-              <Button type="submit" size="lg" className="bg-white text-blue-600 hover:bg-gray-100 h-12 px-8">
-                Search Jobs
-              </Button>
-            </form> */}
-            <JobSearch/>
+            <JobSearch
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              selectedExperience={selectedExperience}
+              setSelectedExperience={setSelectedExperience}
+              selectedLocation={selectedLocation}
+              setSelectedLocation={setSelectedLocation}
+              onSearch={handleSearch}
+            />
           </div>
         </div>
       </div>
@@ -447,9 +441,9 @@ export default function SearchJob() {
 
             {/* Job Cards */}
             <div className="flex flex-col gap-4">
-            {jobsData.map((job) => (
-              <JobCardTable key={job.id} job={job} />
-            ))}
+              {paginatedJobs.map((job) => (
+                <JobCardTable key={job.id} job={job as unknown as Job} />
+              ))}
             </div>
            
             {/* Pagination */}

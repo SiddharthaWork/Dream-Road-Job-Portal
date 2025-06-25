@@ -82,15 +82,22 @@ const keySkills = [
 
 export default function JobOverviewPage() {
   const [applying, setApplying] = useState(false)
+  const [applied, setApplied] = useState(false)
   const handleApply = () => {
     setApplying(true);
+  }
+  const handleApplied = () => {
+    setApplied(true);
+    setApplying(false);
   }
 
   return (
     <div className="w-full h-full bg-[#f8f9fa]">
-      {applying && <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center">
-        <JobApplicationModal />
-      </div>}
+      {applying && (
+        <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center">
+          <JobApplicationModal onApplied={handleApplied} />
+        </div>
+      )}
       <div className="min-h-screen bg-gray-50 w-full max-w-7xl mx-auto py-6">
         {/* Banner */}
         <div className="relative w-full h-48 overflow-hidden rounded-xl">
@@ -185,7 +192,9 @@ export default function JobOverviewPage() {
                         <Bookmark className="w-4 h-4 mr-1" />
                         Save
                       </Button>
-                      <Button onClick={handleApply} size="sm">Apply</Button>
+                      <Button onClick={handleApply} size="sm" disabled={applied}>
+                        {applied ? 'Applied' : 'Apply'}
+                      </Button>
                     </div>
                   </div>
 

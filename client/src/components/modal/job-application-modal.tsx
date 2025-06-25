@@ -43,7 +43,7 @@ const Confetti = ({ isActive }: { isActive: boolean }) => {
   )
 }
 
-export default function JobApplicationModal() {
+export default function JobApplicationModal({ onApplied }: { onApplied?: () => void }) {
   const [isOpen, setIsOpen] = useState(true)
   const [isApplying, setIsApplying] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
@@ -67,6 +67,7 @@ export default function JobApplicationModal() {
       setShowSuccess(false)
       setShowConfetti(false)
       setIsOpen(false)
+      if (onApplied) onApplied();
     }, 3000)
   }
 
