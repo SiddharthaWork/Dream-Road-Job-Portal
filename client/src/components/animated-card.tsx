@@ -22,7 +22,7 @@ let jobPostings: JobItem[] = [
   {
     title: "Product Designer",
     company: "Design Studio",
-    location: "New York, NY",
+    location: "Kathmandu, Nepal",
     salary: "NPR 90k - NPR 130k",
     type: "Full-time",
     isNew: true,
@@ -33,7 +33,7 @@ let jobPostings: JobItem[] = [
   {
     title: "DevOps Engineer",
     company: "CloudTech Solutions",
-    location: "Austin, TX",
+    location: "Kathmandu, Nepal",
     salary: "NPR 110k - NPR 150k",
     type: "Full-time",
     isNew: false,
@@ -44,7 +44,7 @@ let jobPostings: JobItem[] = [
   {
     title: "Data Scientist",
     company: "AI Innovations",
-    location: "Seattle, WA",
+    location: "Kathmandu, Nepal",
     salary: "NPR 130k - NPR 170k",
     type: "Full-time",
     isNew: true,
@@ -55,7 +55,7 @@ let jobPostings: JobItem[] = [
   {
     title: "Marketing Manager",
     company: "Growth Co.",
-    location: "Los Angeles, CA",
+    location: "Kathmandu, Nepal",
     salary: "NPR 80k - NPR 110k",
     type: "Full-time",
     isNew: false,
@@ -66,7 +66,7 @@ let jobPostings: JobItem[] = [
   {
     title: "Full Stack Developer",
     company: "StartupXYZ",
-    location: "Remote",
+    location: "Kathmandu, Nepal",
     salary: "NPR 100k - NPR 140k",
     type: "Remote",
     isNew: true,

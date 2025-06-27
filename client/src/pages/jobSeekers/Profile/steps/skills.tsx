@@ -42,9 +42,9 @@ export function SkillsStep() {
         <p className="text-gray-600">Add your technical and soft skills.</p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 px-4">
         <div className="flex space-x-2">
-          <div className="flex-1">
+          <div className="flex-1 ">
             <Label htmlFor="newSkill">Add Skill</Label>
             <Input
               id="newSkill"
@@ -52,7 +52,7 @@ export function SkillsStep() {
               onChange={(e) => setNewSkill(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Enter a skill (e.g., JavaScript, Communication)"
-              className="rounded-lg"
+              className="rounded-lg mt-4"
             />
           </div>
           <div className="flex items-end">

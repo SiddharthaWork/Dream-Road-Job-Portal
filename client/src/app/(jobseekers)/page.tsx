@@ -1,6 +1,7 @@
 import JobPortal from '@/pages/jobSeekers/MainJobPortal'
 import JobSeekersNavbar from '@/components/shared/JobSeekersNavbar'
 import React from 'react'
+import Footer from '@/components/shared/Footer'
 
 const JobSeekers = () => {
   return (

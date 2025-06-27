@@ -55,6 +55,7 @@ export default function HowItWorks() {
       id: "professional-summary",
       name: "Professional Summary",
       description: "Write a compelling summary of your experience",
+      // isCompleted: true,
       isCompleted: true,
       icon: <Award className="w-4 h-4" />,
       estimatedTime: "5 min",
@@ -137,7 +138,7 @@ export default function HowItWorks() {
                 className={`absolute top-0 left-0 h-3 rounded-full transition-all duration-500 ${getProgressColor(completionPercentage)}`}
                 style={{ width: `${completionPercentage}%` }}
               /> */}
-              <Button onClick={() => router.push("/profile")} variant={'default'} size={'custom'} className='bg-[#255cf4] cursor-pointer'>Complete Profile</Button>
+              <Button onClick={() => router.push("/profile")} variant={'default'} size={'custom'} className='bg-[#255cf4] cursor-pointer'>View Profile</Button>
             </div>
           </div>
 

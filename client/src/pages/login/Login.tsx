@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Mail, Lock, User, AlertCircle, CheckCircle2, Phone } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Toaster, toast } from "react-hot-toast"
 
 interface FormErrors {
   email?: string
@@ -16,12 +18,11 @@ interface FormErrors {
   password?: string
   confirmPassword?: string
   firstName?: string
-lastName?: string
+  lastName?: string
 }
 
 export default function AuthForm() {
-
-
+  const router = useRouter();
 
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
@@ -41,7 +42,7 @@ export default function AuthForm() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(email)
   }
-  
+
   const validateNumber = (number: string) => {
     const numberRegex = /^[0-9]+$/
     return numberRegex.test(number)
@@ -109,7 +110,8 @@ export default function AuthForm() {
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
     setIsLoading(false)
-    console.log(isLogin ? "Login successful" : "Registration successful", formData)
+
+   
   }
 
   const handleGoogleLogin = () => {
@@ -118,6 +120,7 @@ export default function AuthForm() {
 
   return (
     <div className="min-h-screen flex">
+      <Toaster position="top-center" />
       {/* Left Side - Form */}
       <div className="flex-1 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md space-y-8">
@@ -400,24 +403,26 @@ export default function AuthForm() {
                 </button>
               </div>
             )}
-            <Link href={"/"}>
-            <Button
-              type="submit"
-              className="w-full h-12 bg-black hover:bg-gray-800 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  {isLogin ? "Logging in..." : "Creating account..."}
-                </div>
-              ) : isLogin ? (
-                "Log in"
-              ) : (
-                "Create account"
-              )}
-            </Button>
-            </Link>
+              <Button
+                type="submit"
+                onClick={() => 
+                  {toast.success(isLogin ? "Login successful!" : "Registration successful!")
+                    setTimeout(() => router.push("/"), 2200)
+                  handleSubmit}}
+                className="w-full h-12 bg-black hover:bg-gray-800 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    {isLogin ? "Logging in..." : "Creating account..."}
+                  </div>
+                ) : isLogin ? (
+                  "Log in"
+                ) : (
+                  "Create account"
+                )}
+              </Button>
           </form>
 
           {/* Switch between login/register */}

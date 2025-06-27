@@ -51,12 +51,10 @@ export default function AppliedTable({ job, onJobClick, onApply, onSave }: JobCa
     >
       <CardContent className="px-6">
         <div className="flex items-start gap-4 mb-2">
-          <div
-            className={`w-12 h-12 bg-gradient-to-br ${job.logoColors} rounded-lg flex items-center justify-center shadow-sm`}
+        <div
+            className={`w-12 h-12 bg-gradient-to-br ${job.logoColors} rounded-md overflow-hidden flex items-center justify-center shadow-sm`}
           >
-            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-              <span className="text-xs font-bold text-gray-600">{job.companyLogo}</span>
-            </div>
+            <img src={job.companyLogo} alt="" className="w-full h-full object-cover"/>
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900 mb-1 text-lg hover:text-blue-600 transition-colors">
@@ -98,20 +96,9 @@ export default function AppliedTable({ job, onJobClick, onApply, onSave }: JobCa
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 font-medium"
             >
               <Send className="w-4 h-4 mr-2" />
-              Apply Now
+              Applied
             </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleSave}
-              className={`px-3 py-2 border-2 transition-all ${
-                isSaved
-                  ? "bg-yellow-50 border-yellow-300 text-yellow-700 hover:bg-yellow-100"
-                  : "bg-white border-gray-300 text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              <Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
-            </Button>
+           
           </div>
         </div>
       </CardContent>

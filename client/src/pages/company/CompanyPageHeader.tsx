@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ChevronRight, ChevronLeft, Star } from "lucide-react"
+import { ChevronRight, ChevronLeft, Star, Building2 } from "lucide-react"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -91,14 +91,15 @@ export function CompaniesPageHeader({
                 className="min-w-[200px] cursor-pointer hover:shadow-md transition-shadow flex-shrink-0"
                 onClick={() => onCategoryClick?.(category)}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-2 flex items-center justify-center gap-2">
+                <Building2 className="w-8 h-8 mb-2" color="#3b82f6"/>
                   <h3 className="font-semibold text-gray-900 mb-1">{category.name}</h3>
-                  <div className="flex items-center text-blue-600 text-sm">
+                  {/* <div className="flex items-center text-blue-600 text-sm">
                     <span className="font-medium">
                       {category.count} {category.companies}
                     </span>
                     <ChevronRight className="w-4 h-4 ml-1" />
-                  </div>
+                  </div> */}
                 </CardContent>
               </Card>
             ))}
@@ -107,7 +108,7 @@ export function CompaniesPageHeader({
       </div>
 
       {/* Top Companies Carousel Section */}
-      <div className="bg-[#f8f9fa] border-t">
+      {/* <div className="bg-[#f8f9fa] border-t">
         <div className="max-w-7xl mx-auto py-12">
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -200,7 +201,7 @@ export function CompaniesPageHeader({
           </div>
 
           {/* Carousel Indicators */}
-          {totalSlides > 1 && (
+          {/* {totalSlides > 1 && (
             <div className="flex justify-center space-x-2 mt-8">
               {Array.from({ length: totalSlides }, (_, index) => (
                 <button
@@ -215,9 +216,9 @@ export function CompaniesPageHeader({
                 />
               ))}
             </div>
-          )}
-        </div>
-      </div>
+          )} */}
+        {/* </div> */}
+      {/* </div> */}
     </>
   )
 }

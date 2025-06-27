@@ -19,161 +19,27 @@ import JobCardTable from "@/components/shared/JobCard"
 import { div } from "motion/react-client"
 import { Job } from "@/types/_type-Job"
 
-// Mock data arrays for easy backend integration
-const jobListings = [
-  {
-    id: 1,
-    title: "Senior Frontend Developer",
-    company: "TechCorp Solutions",
-    location: "San Francisco, CA",
-    type: "Full-time",
-    industry: "Technology",
-    experienceLevel: "Senior",
-    salaryMin: 120000,
-    salaryMax: 150000,
-    description:
-      "Join our dynamic team to build cutting-edge web applications using React, TypeScript, and modern development practices.",
-    postedDate: "2 days ago",
-    rating: 4.5,
-    logo: "TC",
-    featured: true,
-    skills: ["React", "TypeScript", "Node.js"],
-    benefits: ["Health Insurance", "401k", "Remote Work"],
-  },
-  {
-    id: 2,
-    title: "Product Manager",
-    company: "InnovateLabs",
-    location: "New York, NY",
-    type: "Full-time",
-    industry: "Technology",
-    experienceLevel: "Mid-level",
-    salaryMin: 100000,
-    salaryMax: 130000,
-    description:
-      "Lead product strategy and development for our flagship SaaS platform. Work closely with engineering and design teams.",
-    postedDate: "1 day ago",
-    rating: 4.2,
-    logo: "IL",
-    featured: false,
-    skills: ["Product Strategy", "Agile", "Analytics"],
-    benefits: ["Health Insurance", "Stock Options", "Flexible Hours"],
-  },
-  {
-    id: 3,
-    title: "UX/UI Designer",
-    company: "DesignStudio Pro",
-    location: "Remote",
-    type: "Contract",
-    industry: "Design",
-    experienceLevel: "Mid-level",
-    salaryMin: 80000,
-    salaryMax: 100000,
-    description:
-      "Create intuitive and beautiful user experiences for mobile and web applications. Strong portfolio required.",
-    postedDate: "3 days ago",
-    rating: 4.7,
-    logo: "DS",
-    featured: true,
-    skills: ["Figma", "Sketch", "Prototyping"],
-    benefits: ["Flexible Schedule", "Creative Freedom"],
-  },
-  {
-    id: 4,
-    title: "Data Scientist",
-    company: "Analytics Plus",
-    location: "Austin, TX",
-    type: "Full-time",
-    industry: "Technology",
-    experienceLevel: "Senior",
-    salaryMin: 110000,
-    salaryMax: 140000,
-    description:
-      "Analyze complex datasets and build machine learning models to drive business insights and decision-making.",
-    postedDate: "1 week ago",
-    rating: 4.3,
-    logo: "AP",
-    featured: false,
-    skills: ["Python", "Machine Learning", "SQL"],
-    benefits: ["Health Insurance", "Learning Budget", "Gym Membership"],
-  },
-  {
-    id: 5,
-    title: "Marketing Specialist",
-    company: "BrandBoost Agency",
-    location: "Los Angeles, CA",
-    type: "Part-time",
-    industry: "Marketing",
-    experienceLevel: "Entry-level",
-    salaryMin: 50000,
-    salaryMax: 65000,
-    description:
-      "Develop and execute marketing campaigns across digital channels. Experience with social media and content marketing preferred.",
-    postedDate: "4 days ago",
-    rating: 4.0,
-    logo: "BB",
-    featured: false,
-    skills: ["Social Media", "Content Marketing", "Analytics"],
-    benefits: ["Flexible Hours", "Creative Environment"],
-  },
-  {
-    id: 6,
-    title: "DevOps Engineer",
-    company: "CloudTech Systems",
-    location: "Seattle, WA",
-    type: "Full-time",
-    industry: "Technology",
-    experienceLevel: "Senior",
-    salaryMin: 130000,
-    salaryMax: 160000,
-    description:
-      "Manage cloud infrastructure and CI/CD pipelines. Experience with AWS, Docker, and Kubernetes required.",
-    postedDate: "5 days ago",
-    rating: 4.6,
-    logo: "CT",
-    featured: true,
-    skills: ["AWS", "Docker", "Kubernetes"],
-    benefits: ["Health Insurance", "Stock Options", "Remote Work"],
-  },
-  {
-    id: 7,
-    title: "Junior Software Developer",
-    company: "StartupTech Inc",
-    location: "Boston, MA",
-    type: "Full-time",
-    industry: "Technology",
-    experienceLevel: "Entry-level",
-    salaryMin: 70000,
-    salaryMax: 85000,
-    description:
-      "Join our growing team to develop innovative software solutions. Great opportunity for recent graduates to learn and grow.",
-    postedDate: "6 days ago",
-    rating: 4.1,
-    logo: "ST",
-    featured: false,
-    skills: ["JavaScript", "Python", "Git"],
-    benefits: ["Mentorship Program", "Learning Budget", "Health Insurance"],
-  },
-  {
-    id: 8,
-    title: "Sales Manager",
-    company: "SalesForce Pro",
-    location: "Chicago, IL",
-    type: "Full-time",
-    industry: "Sales",
-    experienceLevel: "Senior",
-    salaryMin: 90000,
-    salaryMax: 120000,
-    description:
-      "Lead and manage a team of sales representatives. Drive revenue growth and develop strategic partnerships.",
-    postedDate: "1 week ago",
-    rating: 4.4,
-    logo: "SF",
-    featured: false,
-    skills: ["Team Leadership", "CRM", "Negotiation"],
-    benefits: ["Commission", "Car Allowance", "Health Insurance"],
-  },
-]
+// Map jobsData to match the jobListings structure
+const jobListings = jobsData.map((job) => ({
+  id: job.id,
+  title: job.title,
+  company: job.company,
+  location: job.location,
+  type: job.type,
+  industry: "Technology", // Default or map if available
+  experienceLevel: "Mid-level", // Default or map if available
+  salaryMin: parseInt(job.salary.replace(/[^\d]/g, "").split("–")[0]) || 0,
+  salaryMax: parseInt(job.salary.replace(/[^\d]/g, "").split("–")[1]) || 0,
+  description: `${job.title} at ${job.company} in ${job.location}`,
+  postedDate: job.dueDate || "1 day ago",
+  rating: 4.2, // Default or map if available
+  logo: job.company[0], // Use first letter of company as logo fallback
+  featured: false, // Default or map if available
+  skills: [job.title], // Use job title as a skill, or map if available
+  benefits: [], // Default empty array
+  companyLogo: job.companyLogo, // Add for use in JobCardTable if needed
+  applicants: job.applicants, // Default or map if available
+}))
 
 const locations = [
   "All Locations",
@@ -376,8 +242,8 @@ export default function SearchJob() {
                       className="mb-3"
                     />
                     <div className="flex justify-between text-sm text-gray-600">
-                      <span>${salaryRange[0].toLocaleString()}</span>
-                      <span>${salaryRange[1].toLocaleString()}</span>
+                      <span>{salaryRange[0].toLocaleString()}</span>
+                      <span>{salaryRange[1].toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -416,10 +282,11 @@ export default function SearchJob() {
           <div className="flex-1 ">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">{filteredJobs.length} Jobs Found</h2>
+                {/* <h2 className="text-2xl font-bold text-gray-900">{filteredJobs.length} Jobs Found</h2> */}
+                <h2 className="text-2xl font-bold text-gray-900">16 Jobs Found</h2>
                 <p className="text-gray-600">
                   Showing {(currentPage - 1) * itemsPerPage + 1} -{" "}
-                  {Math.min(currentPage * itemsPerPage, filteredJobs.length)} of {filteredJobs.length} results
+                  {Math.min(currentPage * itemsPerPage, filteredJobs.length)} of 16 results
                 </p>
               </div>
 

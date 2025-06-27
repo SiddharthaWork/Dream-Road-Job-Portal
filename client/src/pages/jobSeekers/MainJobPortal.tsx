@@ -2,7 +2,7 @@
 import React from 'react'
 import WelcomeBanner from './WelcomeBanner'
 import StatsCards from './StatsCard'
-import { categoriesData, jobsData, statsData, recentActivityData, sampleJobPosts } from '@/data/mockData'
+import { categoriesData, jobsData, statsData, recentActivityData, sampleJobPosts, reommendedjobsData } from '@/data/mockData'
 import BrowseOpportunities from './BrowseOpportunities'
 import HowItWorks from './HowItWorks'
 import RecommendedJobs from './JobSection';
@@ -32,13 +32,14 @@ const JobPortal = () => {
           <div className="relative ">
             <div className={isProfileComplete ? "" : "pointer-events-none rounded-xl filter blur-sm select-none"}>
               <RecommendedJobs
-                jobs={jobsData}
+                jobs={reommendedjobsData}
                 categories={categoriesData}
+            onJobClick={() => router.push("job/as1e3onfiha374y13n12asdadshasduingasduanhdu121345423")}
               />
             </div>
 
             {!isProfileComplete && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/70 z-10">
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/90 z-10">
                 <div className="text-lg font-semibold mb-2">Complete your profile to view recommended jobs</div>
                 <Button variant={'custom'}>
                 <Icon icon="game-icons:pointing" />

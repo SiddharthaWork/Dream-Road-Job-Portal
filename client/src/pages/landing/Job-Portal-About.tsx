@@ -72,7 +72,7 @@ export default function JobPortalSection() {
                   <Users className="w-6 h-6 text-[#255cf4]" />
                 </div>
                 <p className="text-gray-700 text-sm leading-relaxed pt-3">
-                  Tap into a community of 10M+ engaged, startup-ready candidates.
+                  Tap into a community of 1k+ engaged, startup-ready candidates.
                 </p>
               </div>
 

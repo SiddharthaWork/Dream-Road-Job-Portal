@@ -15,6 +15,7 @@ import { SummaryStep } from "./steps/summary"
 import { ProjectsStep } from "./steps/project-step"
 import { ProgressStepper } from "./ProjectStepper"
 import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
 
 const steps = [
   { id: 1, title: "About Yourself", component: AboutYourselfStep },
@@ -111,7 +112,10 @@ export function MultiStepForm() {
                 <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button onClick={() => router.push("/")} className="bg-[#255cf4] hover:bg-blue-500 text-white">Complete Profile</Button>
+              <Button onClick={() => 
+                {toast.success("Profile Completed")
+                  setTimeout(() => router.push("/"), 2200)
+              }} className="bg-[#255cf4] hover:bg-blue-500 text-white">Complete Profile</Button>
             )}
           </div>
         </Card>

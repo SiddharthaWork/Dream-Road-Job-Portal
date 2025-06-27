@@ -13,6 +13,7 @@ interface JobPost {
   companyInitials: string
   avatarColor: string
   jobCount: number
+  image: string
 }
 
 interface RecentJobPostsProps {
@@ -73,9 +74,10 @@ export default function RecentJobPosts({ jobPosts, onViewAllJobs }: RecentJobPos
               >
                 <div className="flex items-center gap-3">
                   <motion.div  transition={{ duration: 0.2 }}>
-                    <Avatar className="w-8 h-8">
-                      <AvatarFallback className={post.avatarColor}>{post.companyInitials}</AvatarFallback>
-                    </Avatar>
+                    <div className="w-8 h-8 overflow-hidden rounded-full">
+                      {/* <AvatarFallback className={post.avatarColor}>{post.companyInitials}</AvatarFallback> */}
+                      <img src={post.image} alt="" />
+                    </div>
                   </motion.div>
                   <div>
                     <p className="font-medium text-gray-900">{post.companyName}</p>

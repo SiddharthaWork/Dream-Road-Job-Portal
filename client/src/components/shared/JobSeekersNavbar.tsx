@@ -3,9 +3,13 @@ import React from 'react'
 import { Button } from '../ui/button'
 import Link from 'next/link'
 import { NavDropdown } from './NavDropDown'
-import { User, Settings, Mail, HelpCircle, LogOut } from "lucide-react"
+import { User, Settings, Mail, HelpCircle, LogOut, Bell } from "lucide-react"
+import { useUserLogin } from "@/contexts/userLogin-context"
+import { useRouter } from 'next/navigation'
 
 const JobSeekersNavbar = () => {
+  const { logout } = useUserLogin();
+  const router = useRouter();
 
   const menuItems = [
     {
@@ -37,7 +41,7 @@ const JobSeekersNavbar = () => {
       variant: "destructive" as const,
       icon: <LogOut className="h-4 w-4" />,
       separator: true,
-      onClick: () => console.log("Logout user"),
+      onClick: () => router.push("/login"),
     },
   ]
 
@@ -76,7 +80,9 @@ const JobSeekersNavbar = () => {
 
             </div>
 
-            <div className='flex items-center'>
+            <div className='flex items-center '>
+            <Bell className="w-6 h-6" color='#121224' />
+
             
             <NavDropdown
               user={{

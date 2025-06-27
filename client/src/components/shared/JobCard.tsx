@@ -51,12 +51,11 @@ export default function JobCardTable({ job, onJobClick, onApply, onSave }: JobCa
     >
       <CardContent className="px-6">
         <div className="flex items-start gap-4 mb-2">
-          <div
-            className={`w-12 h-12 bg-gradient-to-br ${job.logoColors} rounded-lg flex items-center justify-center shadow-sm`}
+        <div
+            className={`w-12 h-12 bg-gradient-to-br ${job.logoColors} rounded-md overflow-hidden flex items-center justify-center`}
           >
-            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-              <span className="text-xs font-bold text-gray-600">{job.companyLogo}</span>
-            </div>
+            <img src={job.companyLogo} alt="" className="w-full h-full object-cover"/>
+          
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900 mb-1 text-lg hover:text-blue-600 transition-colors">

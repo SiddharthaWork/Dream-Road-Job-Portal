@@ -2,7 +2,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import AppliedTable from "./Applied"
 import ShortlistTable from "./Shortlist"
-import { jobsData } from "@/data/mockData"
+import { appliedJobsData, jobsData } from "@/data/mockData"
 
 export default function AppliedShortlistPage() {
   return (
@@ -26,7 +26,7 @@ export default function AppliedShortlistPage() {
 
           <TabsContent value="applied">
             <div className="flex flex-col gap-4">
-            {jobsData.map((job) => (
+            {appliedJobsData.map((job) => (
               <AppliedTable key={job.id} job={job} />
             ))}
             </div>
@@ -34,9 +34,12 @@ export default function AppliedShortlistPage() {
 
           <TabsContent value="shortlisted">
           <div className="flex flex-col gap-4">
-            {jobsData.map((job) => (
+            {/* {jobsData.map((job) => (
               <ShortlistTable key={job.id} job={job} />
-            ))}
+            ))} */}
+            <div className="flex flex-col items-center justify-center">
+              <h1 className="text-2xl font-semibold">No Shortlisted Jobs</h1>
+            </div>
             </div>
           </TabsContent>
         </Tabs>

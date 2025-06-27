@@ -8,20 +8,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useFormContext } from "@/contexts/form-context"
 
 const provinces = [
-  "Alberta",
-  "British Columbia",
-  "Manitoba",
-  "New Brunswick",
-  "Newfoundland and Labrador",
-  "Northwest Territories",
-  "Nova Scotia",
-  "Nunavut",
-  "Ontario",
-  "Prince Edward Island",
-  "Quebec",
-  "Saskatchewan",
-  "Yukon",
-]
+  "Province No. 1",
+  "Madhesh",
+  "Bagmati",
+  "Gandaki",
+  "Lumbini",
+  "Karnali",
+  "Sudurpashchim",
+];
+
 
 export function AddressStep() {
   const { formData, updateFormData } = useFormContext()
@@ -82,7 +77,7 @@ export function AddressStep() {
           Province <span className="text-red-500">*</span>
         </Label>
         <Select value={formData.province} onValueChange={(value) => handleInputChange("province", value)}>
-          <SelectTrigger className="rounded-lg">
+          <SelectTrigger className="rounded-lg w-[7rem]">
             <SelectValue placeholder="Select Province" />
           </SelectTrigger>
           <SelectContent>

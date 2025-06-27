@@ -52,10 +52,6 @@ export default function RecommendedJobs({
         ))}
       </div>
 
-      <Button variant="outline" className="w-full bg-white text-black" onClick={onViewAll}>
-        View All
-        <ChevronRight className="w-4 h-4 ml-2" />
-      </Button>
     </div>
   )
 }

@@ -116,7 +116,7 @@ export function CompanyListings({
                         htmlFor={`company-type-${type.name}`}
                         className="text-sm text-gray-700 cursor-pointer flex-1"
                       >
-                        {type.name} <span className="text-gray-500">({type.count})</span>
+                        {type.name}
                       </label>
                     </div>
                   ))}
@@ -151,7 +151,7 @@ export function CompanyListings({
                           htmlFor={`location-${location.name}`}
                           className="text-sm text-gray-700 cursor-pointer flex-1"
                         >
-                          {location.name} <span className="text-gray-500">({location.count})</span>
+                          {location.name}
                         </label>
                       </div>
                     ))}
@@ -241,12 +241,10 @@ export function CompanyListings({
                     <div className="flex items-start justify-between">
                       <div className="flex items-start space-x-4 flex-1">
                         <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Image
+                          <img
                             src={company.logo || "/placeholder.svg"}
                             alt={`${company.name} logo`}
-                            width={40}
-                            height={40}
-                            className="rounded"
+                            className="rounded "
                           />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -266,10 +264,10 @@ export function CompanyListings({
                             )}
                           </div>
 
-                          <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          {/* <div className="flex items-center space-x-4 text-sm text-gray-500">
                             {company.founded && <span>Founded: {company.founded}</span>}
                             {company.employees && <span>{company.employees}</span>}
-                          </div>
+                          </div> */}
                         </div>
                       </div>
                       <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0 ml-2" />

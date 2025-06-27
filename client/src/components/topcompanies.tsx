@@ -23,8 +23,12 @@ const companies = [
         logo: "https://www.b360nepal.com/uploads/posts/1651775977-12-nabil-bank-ltd-1711624151.jpg",
     },
     {
-        name: "Everest Bank",
-        logo: "https://play-lh.googleusercontent.com/BVzDnnzDi0haAjsZMl324xGUP38VLg2TlRvGDv5F6-A_5ILAoOfn6Nto7dSzrbWWt78",
+        name: "Meta",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Meta-Logo.png/1200px-Meta-Logo.png",
+    },
+    {
+        name: "Asterdio",
+        logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3YzzR3uB78deXbt9ODK9lpAI2lzH0CT_9rg&s",
     },
     {
         name: "Google",

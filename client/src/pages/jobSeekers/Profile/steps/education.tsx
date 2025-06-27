@@ -107,7 +107,7 @@ export function EducationStep() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div className="space-y-2">
-            <Label>City</Label>
+            <Label>College</Label>
             <Input
               value={newEducation.city}
               onChange={(e) => handleInputChange("city", e.target.value)}

@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { AnimatePresence, motion } from "motion/react"
+import { AnimatePresence, motion } from "framer-motion"
 import React, { type ComponentPropsWithoutRef, useEffect, useMemo, useState } from "react"
 
 export function AnimatedListItem({ children }: { children: React.ReactNode }) {
@@ -9,6 +9,7 @@ export function AnimatedListItem({ children }: { children: React.ReactNode }) {
     initial: { scale: 0.9, opacity: 0, y: 30, rotateX: 15 },
     animate: { scale: 1, opacity: 1, y: 0, rotateX: 0 },
     exit: { scale: 0.9, opacity: 0, y: -30, rotateX: -15 },
+    
     transition: {
       type: "spring",
       stiffness: 260,
@@ -16,9 +17,16 @@ export function AnimatedListItem({ children }: { children: React.ReactNode }) {
       duration: 0.6,
     },
   }
-
+  
   return (
-    <motion.div {...animations} layout className="mx-auto w-full perspective-1000">
+    <motion.div
+      initial={{ scale: 0.9, opacity: 0, y: 30, rotateX: 15 }}
+      animate={{ scale: 1, opacity: 1, y: 0, rotateX: 0 }}
+      exit={{ scale: 0.9, opacity: 0, y: -30, rotateX: -15 }}
+      transition={{ type: "spring", stiffness: 260, damping: 20, duration: 0.6 }}
+      layout
+      className="mx-auto w-full perspective-1000"
+    >
       {children}
     </motion.div>
   )

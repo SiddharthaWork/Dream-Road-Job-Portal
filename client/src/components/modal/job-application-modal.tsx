@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { Card, CardContent } from "@/components/ui/card"
 import { FileText, Share2, CheckCircle, Sparkles, Edit3 } from "lucide-react"
+import { Textarea } from "../ui/textarea"
 
 // Confetti component for celebration effect
 const Confetti = ({ isActive }: { isActive: boolean }) => {
@@ -50,7 +51,7 @@ export default function JobApplicationModal({ onApplied }: { onApplied?: () => v
   const [showConfetti, setShowConfetti] = useState(false)
   const [isEditingResume, setIsEditingResume] = useState(false)
 
-  const resumeFileName = "resume-ram.pdf"
+  const resumeFileName = "resume-siddhartha.pdf"
 
   const handleApply = async () => {
     setIsApplying(true)
@@ -129,6 +130,21 @@ export default function JobApplicationModal({ onApplied }: { onApplied?: () => v
                           >
                             <Edit3 className="h-4 w-4" />
                           </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-[#255cf4]/20 bg-[#255cf4]/5 mt-4">
+                  <CardContent className="pt-4 ">
+                    <div className="flex items-center gap-3">
+                   
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900 mb-1 ">Cover Letter</h4>
+                        <div className="flex items-center gap-2">
+
+                        <Textarea className="mt-2 h-[5rem]" placeholder="Cover Letter"  />
                         </div>
                       </div>
                     </div>
