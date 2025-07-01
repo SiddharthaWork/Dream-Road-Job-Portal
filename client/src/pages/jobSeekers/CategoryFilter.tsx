@@ -18,7 +18,7 @@ export default function CategoryFilter({ categories, onCategoryChange }: Categor
   return (
     <div className="flex items-center gap-2">
       <div className="flex bg-gray-100 rounded-lg p-1">
-        {categories.map((category) => (
+        {(categories || []).map((category) => (
           <Button
             key={category.id}
             variant="ghost"

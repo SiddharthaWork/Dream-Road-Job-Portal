@@ -32,7 +32,7 @@ export default function RecentActivity({ activities, onViewAll }: RecentActivity
           </Button>
         </div>
         <div className="space-y-3">
-          {activities.map((activity) => (
+          {(activities || []).map((activity) => (
             <div key={activity.id} className="flex items-start gap-3">
               <Avatar className="w-8 h-8">
                 <AvatarFallback className={activity.avatarColor}>{activity.avatar}</AvatarFallback>

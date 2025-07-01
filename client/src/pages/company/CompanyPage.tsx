@@ -1,9 +1,37 @@
 "use client"
 import React from 'react'
-import { CompanyListings } from './CompanyListing'
-import { CompaniesPageHeader } from './CompanyPageHeader'
+import  CompanyListings  from './CompanyListing'
+import  CompaniesPageHeader  from './CompanyPageHeader'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation' 
+
+type Category = {
+  name: string;
+  count: string;
+  companies: string;
+};
+
+type Company = {
+  id: number;
+  name: string;
+  logo: string;
+  rating: number;
+  reviews: number;
+  tags: string[];
+  founded?: number | null;
+  employees?: string | null;
+};
+
+type TopCompany = {
+  id: number;
+  name: string;
+  logo: string;
+  description: string;
+  industry: string;
+  employees: string;
+  rating: number;
+  openJobs: number;
+};
 
 const categories = [
     { name: "MNCs", count: "2.1K+", companies: "Companies" },
@@ -176,7 +204,7 @@ const categories = [
     },
   ]
 
-const CompanyPage = () => {
+export default function CompanyPage() {
     const [selectedCompanyTypes, setSelectedCompanyTypes] = useState<string[]>([])
     const [selectedLocations, setSelectedLocations] = useState<string[]>([])
     const [isLoading, setIsLoading] = useState(false)
@@ -204,17 +232,17 @@ const CompanyPage = () => {
       setTimeout(() => setIsLoading(false), 500)
     }
   
-    const handleCategoryClick = (category: any) => {
+    const handleCategoryClick = (category: Category) => {
       console.log("Category clicked:", category)
       // Implement category filtering logic here
     }
   
-    const handleCompanyClick = (company: any) => {
+    const handleCompanyClick = (company: Company) => {
       router.push(`/company/${company.id}`)
       // Navigate to company detail page
     }
   
-    const handleTopCompanyClick = (company: any) => {
+    const handleTopCompanyClick = (company: TopCompany) => {
       console.log("Top company clicked:", company)
       // Navigate to company detail page
     }
@@ -258,5 +286,3 @@ const CompanyPage = () => {
 
   )
 }
-
-export default CompanyPage

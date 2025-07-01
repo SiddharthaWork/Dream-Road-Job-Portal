@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { ChevronRight, ChevronLeft, Star, Building2 } from "lucide-react"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
@@ -32,10 +32,10 @@ interface CompaniesPageHeaderProps {
   onTopCompanyClick?: (company: TopCompany) => void
 }
 
-export function CompaniesPageHeader({
+export default function CompaniesPageHeader({
   title,
-  categories,
-  topCompanies,
+  categories = [],
+  topCompanies = [],
   onCategoryClick,
   onTopCompanyClick,
 }: CompaniesPageHeaderProps) {
@@ -45,9 +45,9 @@ export function CompaniesPageHeader({
   const itemsPerSlide = 3
   const totalSlides = Math.ceil(topCompanies.length / itemsPerSlide)
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % totalSlides)
-  }
+  }, [totalSlides])
 
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
@@ -65,7 +65,7 @@ export function CompaniesPageHeader({
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [isAutoPlaying, currentSlide, totalSlides])
+  }, [isAutoPlaying, currentSlide, totalSlides, nextSlide])
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -85,7 +85,7 @@ export function CompaniesPageHeader({
 
           {/* Category Cards */}
           <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-            {categories.map((category, index) => (
+            {(categories || []).map((category, index) => (
               <Card
                 key={index}
                 className="min-w-[200px] cursor-pointer hover:shadow-md transition-shadow flex-shrink-0"
@@ -155,7 +155,7 @@ export function CompaniesPageHeader({
               {Array.from({ length: totalSlides }, (_, slideIndex) => (
                 <div key={slideIndex} className="w-full flex-shrink-0">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {topCompanies.slice(slideIndex * itemsPerSlide, (slideIndex + 1) * itemsPerSlide).map((company) => (
+                    {(topCompanies || []).slice(slideIndex * itemsPerSlide, (slideIndex + 1) * itemsPerSlide).map((company) => (
                       <Card
                         key={company.id}
                         className="group cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
@@ -222,3 +222,4 @@ export function CompaniesPageHeader({
     </>
   )
 }
+

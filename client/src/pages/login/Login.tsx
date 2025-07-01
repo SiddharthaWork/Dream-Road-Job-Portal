@@ -113,7 +113,6 @@ export default function AuthForm() {
 
    
   }
-
   const handleGoogleLogin = () => {
     console.log("Google login clicked")
   }
@@ -407,8 +406,7 @@ export default function AuthForm() {
                 type="submit"
                 onClick={() => 
                   {toast.success(isLogin ? "Login successful!" : "Registration successful!")
-                    setTimeout(() => router.push("/"), 2200)
-                  handleSubmit}}
+                    setTimeout(() => router.push("/"), 2200)}}
                 className="w-full h-12 bg-black hover:bg-gray-800 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
                 disabled={isLoading}
               >

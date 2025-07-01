@@ -22,7 +22,7 @@ interface GrantCardProps {
   onGrantClick?: (grantId: number) => void
 }
 
-export default function FancyCard({ grant, onGrantClick }: GrantCardProps) {
+export default function FancyCard({ grant = {} as Grant, onGrantClick }: GrantCardProps) {
   return (
     <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onGrantClick?.(grant.id)}>
       <CardContent className="px-4">

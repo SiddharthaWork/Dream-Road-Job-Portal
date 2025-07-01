@@ -6,14 +6,14 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { FormProvider } from "@/contexts/form-context"
-import { AboutYourselfStep } from "./steps/about-yourself"
-import { AddressStep } from "./steps/address"
-import { EducationStep } from "./steps/education"
-import { SkillsStep } from "./steps/skills"
-import { AchievementsStep } from "./steps/achivements"
-import { SummaryStep } from "./steps/summary"
-import { ProjectsStep } from "./steps/project-step"
-import { ProgressStepper } from "./ProjectStepper"
+import  AboutYourselfStep  from "./steps/about-yourself"
+  import  AddressStep  from "./steps/address"
+import  EducationStep  from "./steps/education"
+import  SkillsStep  from "./steps/skills"
+import  AchievementsStep  from "./steps/achivements"
+import  SummaryStep  from "./steps/summary"
+import  ProjectsStep  from "./steps/project-step"
+import  ProgressStepper  from "./ProjectStepper"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
 
@@ -27,7 +27,7 @@ const steps = [
   { id: 7, title: "Summary", component: SummaryStep },
 ]
 
-export function MultiStepForm() {
+export default function MultiStepForm() {
   const [currentStep, setCurrentStep] = useState(1)
   const [direction, setDirection] = useState(0)
   const router = useRouter();

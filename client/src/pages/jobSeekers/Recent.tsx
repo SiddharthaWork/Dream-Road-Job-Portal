@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { motion } from "framer-motion"
+import { FormProvider } from "@/contexts/form-context"
 
 interface JobPost {
   id: number
@@ -21,7 +22,7 @@ interface RecentJobPostsProps {
   onViewAllJobs?: () => void
 }
 
-export default function RecentJobPosts({ jobPosts, onViewAllJobs }: RecentJobPostsProps) {
+export default function RecentJobPosts({ jobPosts = [], onViewAllJobs }: RecentJobPostsProps) {
   // Duplicate the job posts for seamless looping
   const duplicatedPosts = [...jobPosts, ...jobPosts]
 
@@ -57,7 +58,7 @@ export default function RecentJobPosts({ jobPosts, onViewAllJobs }: RecentJobPos
               repeat: Number.POSITIVE_INFINITY,
             }}
           >
-            {duplicatedPosts.map((post, index) => (
+            {(duplicatedPosts || []).map((post, index) => (
               <motion.div
                 key={`${post.id}-${index}`}
                 className="flex items-center justify-between py-2"
@@ -100,7 +101,7 @@ export default function RecentJobPosts({ jobPosts, onViewAllJobs }: RecentJobPos
           <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white to-transparent pointer-events-none z-10" />
           <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none z-10" />
         </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
   )
 }

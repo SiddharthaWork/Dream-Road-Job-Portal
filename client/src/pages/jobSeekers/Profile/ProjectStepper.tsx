@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Check } from "lucide-react"
+import { FormProvider } from "@/contexts/form-context"
 
 interface Step {
   id: number
@@ -14,10 +15,11 @@ interface ProgressStepperProps {
   onStepClick: (step: number) => void
 }
 
-export function ProgressStepper({ steps, currentStep, onStepClick }: ProgressStepperProps) {
+export default function ProgressStepper({ steps, currentStep, onStepClick }: ProgressStepperProps) {
   return (
-    <div className="flex items-center justify-center space-x-4 mb-8">
-      {steps.map((step, index) => {
+    <FormProvider>
+      <div className="flex items-center justify-center space-x-4 mb-8">
+        {(steps || []).map((step, index) => {
         const isCompleted = currentStep > step.id
         const isCurrent = currentStep === step.id
 
@@ -53,6 +55,7 @@ export function ProgressStepper({ steps, currentStep, onStepClick }: ProgressSte
           </div>
         )
       })}
-    </div>
+      </div>
+    </FormProvider>
   )
 }

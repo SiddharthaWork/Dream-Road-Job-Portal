@@ -15,7 +15,7 @@ interface StatsCardsProps {
   stats: StatItem[]
 }
 
-export default function StatsCards({ stats }: StatsCardsProps) {
+export default function StatsCards({ stats = [] }: StatsCardsProps) {
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case "building":
@@ -31,7 +31,7 @@ export default function StatsCards({ stats }: StatsCardsProps) {
 
   return (
     <div className="grid grid-cols-2 gap-4">
-      {stats.map((stat) => {
+      {(stats || []).map((stat) => {
         const IconComponent = getIcon(stat.icon)
         return (
           <Card key={stat.id} className="py-4">

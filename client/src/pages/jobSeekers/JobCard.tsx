@@ -32,6 +32,8 @@ interface JobCardProps {
 
 export default function JobCard({ job, onJobClick, onApply, onSave }: JobCardProps) {
   const [isSaved, setIsSaved] = useState(false)
+  if (!job) return null;
+
 
   const handleApply = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -52,7 +54,7 @@ export default function JobCard({ job, onJobClick, onApply, onSave }: JobCardPro
       <CardContent className="px-6">
         <div className="flex items-start gap-4 mb-2">
           <div
-            className={`w-12 h-12 bg-gradient-to-br ${job.logoColors} rounded-md overflow-hidden flex items-center justify-center`}
+            className={`w-12 h-12 bg-gradient-to-br ${job.logoColors || "from-gray-200 to-gray-400"} rounded-md overflow-hidden flex items-center justify-center`}
           >
             <img src={job.companyLogo} alt="" className="w-full h-full object-cover"/>
             {/* <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">

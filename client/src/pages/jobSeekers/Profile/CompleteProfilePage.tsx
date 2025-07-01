@@ -1,4 +1,4 @@
-import { MultiStepForm } from "./multi-step-form"
+import  MultiStepForm  from "./multi-step-form"
 
 export default function CompleteProfilePage() {
   return (

@@ -39,13 +39,13 @@ interface CompanyListingsProps {
   isLoading?: boolean
 }
 
-export function CompanyListings({
-  companies,
-  companyTypes,
-  locations,
-  totalCount,
-  selectedCompanyTypes,
-  selectedLocations,
+export default function CompanyListings({
+  companies = [],
+  companyTypes = [],
+  locations = [],
+  totalCount = 0,
+  selectedCompanyTypes = [],
+  selectedLocations = [],
   onCompanyTypeChange,
   onLocationChange,
   onCompanyClick,
@@ -56,7 +56,7 @@ export function CompanyListings({
   const [isLocationOpen, setIsLocationOpen] = useState(true)
   const [isIndustryOpen, setIsIndustryOpen] = useState(false)
 
-  const filteredLocations = locations.filter((location) =>
+  const filteredLocations = (locations || []).filter((location) =>
     location.name.toLowerCase().includes(locationSearch.toLowerCase()),
   )
 

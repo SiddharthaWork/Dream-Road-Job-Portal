@@ -31,10 +31,10 @@ interface JobCardProps {
 }
 
 export default function ShortlistTable({ job, onJobClick, onApply, onSave }: JobCardProps) {
+  const [isSaved, setIsSaved] = useState(false)
   if (!job) {
     return <h1 className="text-2xl font-bold">Shortlist Section</h1>;
   }
-  const [isSaved, setIsSaved] = useState(false)
 
   const handleApply = (e: React.MouseEvent) => {
     e.stopPropagation()

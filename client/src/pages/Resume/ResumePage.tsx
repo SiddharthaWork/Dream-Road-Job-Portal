@@ -566,7 +566,7 @@ export default function ResumeBuilder() {
       return;
     }
     console.log('Resume DOM element:', element); // Debug log
-    // @ts-ignore
+    // @ts-expect-error there might be an error
     const html2pdfModule = await import('html2pdf.js');
     const html2pdf = html2pdfModule.default || html2pdfModule;
     const opt = {

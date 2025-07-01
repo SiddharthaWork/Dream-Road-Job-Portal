@@ -49,7 +49,7 @@ export default function BrowseOpportunities({
       </div>
 
       <div className="space-y-3">
-        {jobs.map((job) => (
+        {(jobs || []).map((job) => (
           <JobCard key={job.id} job={job} onJobClick={onJobClick} />
         ))}
       </div>

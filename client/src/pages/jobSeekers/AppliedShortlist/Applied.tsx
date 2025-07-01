@@ -32,6 +32,8 @@ interface JobCardProps {
 
 export default function AppliedTable({ job, onJobClick, onApply, onSave }: JobCardProps) {
   const [isSaved, setIsSaved] = useState(false)
+  if (!job) return null;
+
 
   const handleApply = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -52,9 +54,9 @@ export default function AppliedTable({ job, onJobClick, onApply, onSave }: JobCa
       <CardContent className="px-6">
         <div className="flex items-start gap-4 mb-2">
         <div
-            className={`w-12 h-12 bg-gradient-to-br ${job.logoColors} rounded-md overflow-hidden flex items-center justify-center shadow-sm`}
+            className={`w-12 h-12 bg-gradient-to-br ${job.logoColors || "from-gray-200 to-gray-400"} rounded-md overflow-hidden flex items-center justify-center shadow-sm`}
           >
-            <img src={job.companyLogo} alt="" className="w-full h-full object-cover"/>
+            <img src={job.companyLogo || ""} alt="" className="w-full h-full object-cover"/>
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900 mb-1 text-lg hover:text-blue-600 transition-colors">
