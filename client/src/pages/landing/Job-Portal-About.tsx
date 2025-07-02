@@ -91,7 +91,7 @@ export default function JobPortalSection() {
                   <Target className="w-6 h-6 text-[#255cf4]" />
                 </div>
                 <p className="text-gray-700 text-sm leading-relaxed pt-3">
-                  A free applicant tracking system, or free integration with any ATS you may already use.
+                  A free applicant tracking system, and user friendly dashboard. No third-party tools.
                 </p>
               </div>
 

@@ -1,10 +1,10 @@
-import LandingPage from '@/pages/employer/LandingPage'
+import Login from '@/pages/employer/employerAuth/login'
 import React from 'react'
 
 const page = () => {
   return (
     <>
-    <LandingPage/>
+    <Login/>
     </>
   )
 }
