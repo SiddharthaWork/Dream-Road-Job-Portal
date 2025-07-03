@@ -3,10 +3,11 @@ import React from 'react'
 import { Button } from '../ui/button'
 import Link from 'next/link'
 import { NavDropdown } from './NavDropDown'
-import { User, Settings, Mail, HelpCircle, LogOut, Bell } from "lucide-react"
+import { User, Settings, Mail, HelpCircle, LogOut, Bell} from "lucide-react"
 import { useUserLogin } from "@/contexts/userLogin-context"
 import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
+import { Badge } from '../ui/badge'
 
 const JobSeekersNavbar = () => {
   const { logout } = useUserLogin();
@@ -26,18 +27,6 @@ const JobSeekersNavbar = () => {
       href: "/profile/edit",
       icon: <Settings className="h-4 w-4" />,
       onClick: () => console.log("Navigate to edit profile"),
-    },
-    {
-      label: "Email Preferences",
-      href: "/preferences",
-      icon: <Mail className="h-4 w-4" />,
-      onClick: () => console.log("Navigate to email preferences"),
-    },
-    {
-      label: "Get Help",
-      href: "/help",
-      icon: <HelpCircle className="h-4 w-4" />,
-      onClick: () => console.log("Navigate to help"),
     },
     {
       label: "Logout",
@@ -78,6 +67,15 @@ const JobSeekersNavbar = () => {
             <Link href="/company">
             <Button variant={'link'} className={`hover:text-[#255cf4] text-[#121224] px-0 text-[17px] tracking-tight ${activePath("/company") ? "text-[#255cf4]" : ""}`}>
               Companies
+            </Button>
+            </Link>
+            
+            <Link href="/resume">
+            <Button variant={'link'} className={`relative hover:text-[#255cf4] text-[#121224] px-0 text-[17px] tracking-tight ${activePath("/resume") ? "text-[#255cf4]" : ""}`}>
+              Resume
+            <Badge variant="default" className="bg-[#255cf4] h-5 w-8 p-0 text-xs flex items-center justify-center ">
+            Beta  
+          </Badge>
             </Button>
             </Link>
 

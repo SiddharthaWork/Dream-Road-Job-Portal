@@ -174,7 +174,7 @@ const Index = () => {
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
             Join Dream Road today and start building your dream team with the most powerful recruiting tools available.
           </p>
-          <Button size="lg" variant="secondary" className="text-lg px-8 py-6" onClick={() => router.push('/signup')}>
+          <Button size="lg" variant="secondary" className="text-lg px-8 py-6" onClick={() => router.push('/employer/signup')}>
                 Let's Get Started
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>

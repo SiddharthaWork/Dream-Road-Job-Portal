@@ -123,7 +123,7 @@ const Login = () => {
 
               <div className="text-center text-sm text-gray-600">
                 Not registered?{' '}
-                <Link href="/employer/signup" className="text-blue-600 hover:underline font-medium">
+                <Link href="/employer/onboarding" className="text-blue-600 hover:underline font-medium">
                   Create an Account
                 </Link>
               </div>
