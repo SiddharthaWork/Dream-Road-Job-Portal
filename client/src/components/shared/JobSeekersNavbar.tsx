@@ -6,10 +6,13 @@ import { NavDropdown } from './NavDropDown'
 import { User, Settings, Mail, HelpCircle, LogOut, Bell } from "lucide-react"
 import { useUserLogin } from "@/contexts/userLogin-context"
 import { useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
 const JobSeekersNavbar = () => {
   const { logout } = useUserLogin();
   const router = useRouter();
+  const pathname = usePathname();
+  const activePath = (path:string) => pathname === path;
 
   const menuItems = [
     {
@@ -61,19 +64,19 @@ const JobSeekersNavbar = () => {
             <div className='flex items-center gap-4'>
 
             <Link href="/">
-            <Button variant={'link'} className='hover:text-[#255cf4] text-[#121224] px-0 text-[17px] tracking-tight'>
+            <Button variant={'link'} className={`hover:text-[#255cf4] text-[#121224] px-0 text-[17px] tracking-tight ${activePath("/") ? "text-[#255cf4]" : ""}`}>
             Explore
             </Button>
 
             </Link>
             <Link href="/job">
-            <Button variant={'link'} className='hover:text-[#255cf4] text-[#121224] px-0 text-[17px] tracking-tight'>
+            <Button variant={'link'} className={`hover:text-[#255cf4] text-[#121224] px-0 text-[17px] tracking-tight ${activePath("/job") ? "text-[#255cf4]" : ""}`}>
              Find Jobs
             </Button>
             </Link>
 
             <Link href="/company">
-            <Button variant={'link'} className='hover:text-[#255cf4] text-[#121224] px-0 text-[17px] tracking-tight'>
+            <Button variant={'link'} className={`hover:text-[#255cf4] text-[#121224] px-0 text-[17px] tracking-tight ${activePath("/company") ? "text-[#255cf4]" : ""}`}>
               Companies
             </Button>
             </Link>

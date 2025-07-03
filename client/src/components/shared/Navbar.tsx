@@ -28,8 +28,6 @@ const Navbar = () => {
             </Button>
             </Link>
             </div>
-            
-
         </div>
 
     </div>
