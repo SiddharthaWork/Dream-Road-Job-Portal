@@ -1,0 +1,128 @@
+import { Company } from "../models/company.model.js";
+import bcrypt from "bcryptjs";
+import jwt from 'jsonwebtoken';
+
+export const registerCompany = async (req,res) => {
+    try {
+        const {name, email, password, role, phoneNumber, industry} = req.body;
+        if(!name || !email || !password || !role || !phoneNumber || !industry){
+            return res.status(400).json({message:"All fields are required",success:false});
+        }
+
+        const company = await Company.findOne({email,name});
+        if(company){
+            return res.status(400).json({message:"You Cannot Register Same Company",success:false});
+        }
+
+        const hashedPassword = await bcrypt.hash(password,10);
+        await Company.create({
+            name,email
+            ,password:hashedPassword
+            ,role,phoneNumber,
+            industry});
+
+        const companyData = {
+            name,email
+            ,password:hashedPassword
+            ,role,phoneNumber,
+            industry
+        }
+
+            
+        return res.status(201).json({message:"Company created successfully",success:true,data:companyData});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}   
+
+// Creating a company login
+
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required", success: false });
+    }
+    
+    const company = await Company.findOne({ email });
+    if (!company) {
+      return res.status(401).json({ message: 'Invalid email or password', success: false });
+    }
+    
+    const isPasswordValid = await bcrypt.compare(password, company.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid email or password', success: false });
+    }
+    
+    const token = jwt.sign({ id: company._id }, process.env.JWT_SECRET, {
+      expiresIn: '1d',
+    });
+    
+    const cookieOptions = {
+        expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        httpOnly: true,
+    };  
+    
+    const { password: _, ...companyWithoutPassword } = company.toObject();
+    res.status(200).cookie("token",token,cookieOptions).json({ message:"Company logged in successfully",success:true ,token, company: companyWithoutPassword, success: true });
+  } catch (error) {
+    res.status(500).json({ message: error.message, success: false });
+  }
+};
+
+export const getAllCompanies = async (req,res) => {
+    try {
+        const companies = await Company.find();
+        if(!companies){
+            return res.status(404).json({message:"Companies not found",success:false});
+        }
+        return res.status(200).json({message:"Companies found",success:true,data:companies});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}   
+
+export const getCompany = async (req,res) => {
+    try {
+        const company = await Company.findById(req.params.id);
+        if(!company){
+            return res.status(404).json({message:"Company not found",success:false});
+        }
+            return res.status(200).json({message:"Company found",success:true,data:company});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}
+
+export const updateCompany = async (req,res) => {
+    try {
+        const company = await Company.findById(req.params.id);
+        if(!company){
+            return res.status(404).json({message:"Company not found",success:false});
+        }
+
+        // updating data
+        if(req.body.name){
+            company.name = req.body.name;
+        }
+        if(req.body.email){
+            company.email = req.body.email;
+        }
+        if(req.body.phoneNumber){
+            company.phoneNumber = req.body.phoneNumber;
+        }
+        if(req.body.industry){
+            company.industry = req.body.industry;
+        }
+
+        await company.save();
+
+        // Exclude password from the response
+        const { password, ...companyData } = company.toObject();
+
+        return res.status(200).json({message:"Company updated successfully",success:true,data:companyData});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}
