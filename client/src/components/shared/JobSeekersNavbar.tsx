@@ -18,13 +18,13 @@ const JobSeekersNavbar = () => {
   const menuItems = [
     {
       label: "Profile",
-      href: "/profile",
+      href: "/profile/5555555555",
       icon: <User className="h-4 w-4" />,
-      onClick: () => console.log("Navigate to profile"),
+      onClick: () => router.push("/profile/5555555555"),
     },
     {
       label: "Edit Profile",
-      href: "/profile/edit",
+      href: "/profile",
       icon: <Settings className="h-4 w-4" />,
       onClick: () => console.log("Navigate to edit profile"),
     },
