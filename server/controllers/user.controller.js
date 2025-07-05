@@ -1,4 +1,3 @@
-
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -6,6 +5,7 @@ import jwt from "jsonwebtoken";
 export const registerUser = async (req,res) => {
     try {
         const {fullname,email,password,role,phoneNumber} = req.body;
+        console.log(req.body);
         if(!fullname || !email || !password || !role || !phoneNumber){
             return res.status(400).json({message:"All fields are required",success:false});
         }
@@ -127,6 +127,54 @@ export const updateProfile = async (req,res) => {
 
 
         return res.status(200).json({message:"User profile updated successfully",success:true,data:userData});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}   
+
+export const saveProfile = async (req, res) => {
+  try {
+    const { userId, ...profileData } = req.body; // Extract userId from request body
+
+    // Update user profile
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { 
+        profile: profileData,
+        profileCompleted: true
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "Profile saved successfully",
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error("Error saving profile:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// getallUser
+export const getAllUser = async (req,res) => {
+    try {
+        const users = await User.find();
+        return res.status(200).json({message:"Users fetched successfully",success:true,data:users});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}   
+
+// getbyId
+export const getUserById = async (req,res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        return res.status(200).json({message:"User fetched successfully",success:true,data:user});
     } catch (error) {
         return res.status(500).json({message:"Internal server error",success:false});   
     }

@@ -1,15 +1,30 @@
 import { Company } from "../models/company.model.js";
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
+import getDataUri from "../utils/datauri.js";
+import cloudinary from "../utils/cloudinary.js";
 
 export const registerCompany = async (req,res) => {
     try {
-        const {name, email, password, role, phoneNumber, industry} = req.body;
-        if(!name || !email || !password || !role || !phoneNumber || !industry){
+        const {name, email, password, role, phoneNumber, industry,size} = req.body;
+        if(!name || !email || !password || !role || !phoneNumber || !industry || !size){
             return res.status(400).json({message:"All fields are required",success:false});
         }
 
-        const company = await Company.findOne({email,name});
+        const file = req.file;
+        if(!file){
+            return res.status(400).json({message:"Please upload a logo",success:false});
+        }
+
+
+        // Basically this is the all the configuration needed to upload the image in the cloudnary
+        const dataUri = getDataUri(file);
+        const cloudResponse = await cloudinary.uploader.upload(dataUri.content);
+
+
+        
+
+        const company = await Company.findOne({email});
         if(company){
             return res.status(400).json({message:"You Cannot Register Same Company",success:false});
         }
@@ -19,19 +34,27 @@ export const registerCompany = async (req,res) => {
             name,email
             ,password:hashedPassword
             ,role,phoneNumber,
-            industry});
+            industry,
+            size,
+            logo:cloudResponse.secure_url});
+
+            // save the cloudnary URL in the database
+            // in the case you need the name of the image use
+            //resume: cloudResponse.original_filename
 
         const companyData = {
             name,email
             ,password:hashedPassword
             ,role,phoneNumber,
-            industry
+            industry,
+            size    
         }
 
             
         return res.status(201).json({message:"Company created successfully",success:true,data:companyData});
     } catch (error) {
-        return res.status(500).json({message:"Internal server error",success:false});   
+        console.error('Error in registerCompany:', error);
+        return res.status(500).json({message:error.message || 'Internal server error',success:false});   
     }
 }   
 
