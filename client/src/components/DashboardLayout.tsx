@@ -25,6 +25,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem('company_email');
     localStorage.removeItem('companyName');
     localStorage.removeItem('company_data');
+    localStorage.removeItem('companyId');
+    localStorage.removeItem('role');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('token');
+    localStorage.removeItem('profile');
     toast({
       title: "Logged out successfully",
       description: "See you next time!",

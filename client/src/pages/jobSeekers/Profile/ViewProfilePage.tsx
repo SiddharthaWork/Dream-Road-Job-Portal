@@ -16,7 +16,17 @@ export default function ViewProfilePage() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userName, setUsername] = useState<string>('');
 
+  useEffect(() => {
+    const userName = localStorage.getItem('fullname');
+    if (userName) {
+      setUsername(userName);
+    }
+  }, []);
+
+
+  
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -76,7 +86,7 @@ export default function ViewProfilePage() {
         </div>
         <h2 className="text-xl font-semibold mb-2">About Yourself</h2>
         <div className="space-y-1">
-          <div><b>Name:</b> {profileData.firstName} {profileData.lastName}</div>
+          <div><b>Name:</b> {userName}</div>
           <div><b>Email:</b> {email}</div>
           <div><b>Gender:</b> {profileData.gender}</div>
           <div><b>Date of Birth:</b> {profileData.dateOfBirth}</div>

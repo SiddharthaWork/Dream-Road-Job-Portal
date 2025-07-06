@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,6 +25,7 @@ export default function AboutYourselfStep() {
     const resumeInputRef = useRef<HTMLInputElement>(null)
     const [profilePic, setProfilePic] = useState<File | null>(null)
     const [resume, setResume] = useState<File | null>(null)
+    const [fullname, setFullname] = useState<string>("")
 
     const handleSectorToggle = (sector: string) => {
       const newSectors = selectedSectors.includes(sector)
@@ -38,6 +39,13 @@ export default function AboutYourselfStep() {
     const handleInputChange = (field: string, value: string) => {
       updateFormData({ [field]: value })
     }
+
+    useEffect(() => {
+     const fullname = localStorage.getItem("fullname")
+      if(fullname){
+        setFullname(fullname)
+      }
+    }, [])
 
     return (
       <FormProvider>    
@@ -86,28 +94,29 @@ export default function AboutYourselfStep() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
           <div className="space-y-2">
             <Label htmlFor="firstName">
-              First Name <span className="text-red-500">*</span>
+              Full Name <span className="text-red-500">*</span>
             </Label>
             <Input
               id="firstName"
-              value={formData.firstName}
+              value={fullname}
+              readOnly
               onChange={(e) => handleInputChange("firstName", e.target.value)}
               placeholder="Enter your first name"
-              className="rounded-lg"
+              className="rounded-lg hover:none focus:none border-0 ring-0"
             />
           </div>
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="lastName">
               Last Name <span className="text-red-500">*</span>
             </Label>
             <Input
               id="lastName"
-              value={formData.lastName}
+              value={fullname}
               onChange={(e) => handleInputChange("lastName", e.target.value)}
               placeholder="eg. Copper"
               className="rounded-lg"
             />
-          </div>
+          </div> */}
         </div>
 
         {/* Gender and Date of Birth */}

@@ -84,6 +84,7 @@ export default function LoginForm() {
       localStorage.setItem('role', data.data.role);
       localStorage.setItem('isLoggedIn', 'true'); 
       localStorage.setItem('fullname', data.data.fullname);
+      localStorage.setItem('profile', JSON.stringify(data.data.profileCompleted));
 
       toast.success("Login successful!");
       router.push("/");

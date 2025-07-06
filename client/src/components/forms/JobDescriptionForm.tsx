@@ -1,24 +1,9 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
-
-interface JobFormData {
-  title: string;
-  department: string;
-  location: string;
-  type: string;
-  experience: string;
-  salaryMin: string;
-  salaryMax: string;
-  description: string;
-  requirements: string;
-  benefits: string;
-  hasDeadline: boolean;
-  deadline?: Date;
-}
+import { JobFormData } from '@/types/job';
 
 interface JobDescriptionFormProps {
   register: UseFormRegister<JobFormData>;

@@ -30,6 +30,7 @@ const JobSeekersNavbar = () => {
     localStorage.removeItem('role');
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('fullname');
+    localStorage.removeItem('profile');
     router.push('/login');
   };
 

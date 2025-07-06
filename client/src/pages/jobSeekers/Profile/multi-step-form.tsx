@@ -32,7 +32,10 @@ const FormSubmitButton = ({ onSubmit, isSubmitting }: any) => {
   const router = useRouter();
   
   const handleClick = async () => {
-    await onSubmit(formData);
+    // Combine firstName and lastName into fullName for backend
+    const { firstName, lastName, ...rest } = formData;
+    const fullname = [firstName, lastName].filter(Boolean).join(' ').trim();
+    await onSubmit({ ...rest, fullname });
   };
   
   return (
