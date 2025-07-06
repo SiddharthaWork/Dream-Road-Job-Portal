@@ -79,13 +79,39 @@ export default function RegisterForm() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!validateForm()) return
-    setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setIsLoading(false)
-    toast.success("Registration successful!")
-    setTimeout(() => router.push("/"), 2200)
+    e.preventDefault();
+    if (!validateForm()) return;
+    setIsLoading(true);
+    console.log(formData);
+
+    try {
+      const response = await fetch('http://localhost:4000/api/user/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullname: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          password: formData.password,
+          phoneNumber: formData.number,
+          role: "user"
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      toast.success("Registration successful!");
+      setTimeout(() => router.push("/login"), 2200);
+    } catch (error: any) {
+      toast.error(error.message || 'An error occurred during registration');
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -349,4 +375,3 @@ export default function RegisterForm() {
     </div>
   )
 }
-

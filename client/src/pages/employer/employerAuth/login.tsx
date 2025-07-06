@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { toast } from 'react-hot-toast';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,31 +14,43 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Mock authentication
-    setTimeout(() => {
-      if (email && password) {
-        localStorage.setItem('recruiter_auth', 'true');
-        localStorage.setItem('recruiter_email', email);
-        toast({
-          title: "Login successful",
-          description: "Welcome back to Dream Road!",
-        });
-        router.push('/employer/dashboard');
-      } else {
-        toast({
-          title: "Login failed",
-          description: "Please enter valid credentials.",
-          variant: "destructive",
-        });
+
+    try {
+      const response = await fetch('http://localhost:4000/api/company/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
       }
+
+      // Save company data to localStorage
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('companyId', data.company._id);
+      localStorage.setItem('role', data.company.role);
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('companyName', data.company.name);
+
+      toast.success("Login successful");
+      router.push('/employer/dashboard');
+    } catch (error: any) {
+      toast.error(error.message || 'An error occurred during login');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

@@ -98,17 +98,14 @@ export default function HowItWorks() {
   const totalSteps = profileSteps.length
   const completionPercentage = Math.round((completedSteps / totalSteps) * 100)
   const router = useRouter();
+  // wrap inside the useEffect
+    const profile = localStorage.getItem('profile') || false
+    const userId = localStorage.getItem('userId') || false
 
   // Get next incomplete step
   const nextStep = profileSteps.find((step) => !step.isCompleted)
 
   
-  const getProgressColor = (percentage: number) => {
-    if (percentage >= 80) return "bg-green-500"
-    if (percentage >= 60) return "bg-blue-500"
-    if (percentage >= 40) return "bg-yellow-500"
-    return "bg-red-500"
-  }
 
   const getProgressTextColor = (percentage: number) => {
     if (percentage >= 80) return "text-green-600"
@@ -117,6 +114,9 @@ export default function HowItWorks() {
     return "text-red-600"
   }
 
+
+
+  
 
   return (
     <Card className="py-6">
@@ -133,12 +133,12 @@ export default function HowItWorks() {
               </span>
             </div>
             <div className="relative flex flex-col gap-2">
-              <Progress value={completionPercentage} className="h-3 bg-gray-200" />
+              <Progress value={profile? 100 : 0} className="h-3 bg-gray-200" />
               {/* <div
                 className={`absolute top-0 left-0 h-3 rounded-full transition-all duration-500 ${getProgressColor(completionPercentage)}`}
                 style={{ width: `${completionPercentage}%` }}
               /> */}
-              <Button onClick={() => router.push("/profile")} variant={'default'} size={'custom'} className='bg-[#255cf4] cursor-pointer'>View Profile</Button>
+              {profile  ? <Button onClick={() => router.push("/profile/" + userId)} variant={'default'} size={'custom'} className='bg-[#255cf4] cursor-pointer'>View Profile</Button> : <Button onClick={() => router.push("/profile")} variant={'default'} size={'custom'} className='bg-[#255cf4] cursor-pointer'>Complete Profile</Button>}
             </div>
           </div>
 

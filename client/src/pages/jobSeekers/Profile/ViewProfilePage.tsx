@@ -1,64 +1,67 @@
-import React from 'react';
+"use client"
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import Loading from '@/components/shared/loading';
+import { useRouter } from 'next/navigation';
 
-// Dummy profile data
-const profileData = {
-  about: {
-    firstName: 'John',
-    lastName: 'Doe',
-    gender: 'Male',
-    dateOfBirth: '1990-01-01',
-    phoneNumber: '123-456-7890',
-    sectors: ['Technology', 'Finance'],
-    designation: 'Software Engineer',
-    aboutMe: 'Passionate developer with 5+ years of experience.',
-  },
-  address: {
-    city: 'Metropolis',
-    province: 'Bagmati',
-    postalCode: '12345',
-    currentAddress: '123 Main St, Metropolis',
-  },
-  education: [
-    {
-      id: 1,
-      collegeType: 'University',
-      degree: 'BSc Computer Science',
-      city: 'Metropolis',
-      startDate: '2010-08-01',
-      graduationDate: '2014-06-01',
-      currentlyStudying: false,
-    },
-  ],
-  projects: [
-    {
-      id: 1,
-      title: 'Project X',
-      description: 'A web app for X.',
-      startDate: '2022-01-01',
-      endDate: '2022-06-01',
-      projectLink: 'https://example.com',
-    },
-  ],
-  skills: ['JavaScript', 'React', 'Node.js'],
-  achievements: [
-    { id: 1, title: 'Best Developer Award', description: 'Awarded for outstanding performance.' },
-  ],
-  certificates: [
-    { id: 1, title: 'Certified React Developer', description: 'React certification.' },
-  ],
-};
+export default function ViewProfilePage() {
+  const router = useRouter();
+  const params = useParams();
+  const userId = params?.id as string;
+  const [profileData, setProfileData] = useState<any>(null);
+  const[email, setEmail] = useState<any>('');
 
-const ViewProfilePage = () => {
-  const { about, address, education, projects, skills, achievements, certificates } = profileData;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch(`http://localhost:4000/api/user/getuser/${userId}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch profile');
+        }
+        
+        const result = await response.json();
+        
+        if (!result.success || !result.data?.profile) {
+          throw new Error('Profile data not found in response');
+        }
+        
+        setProfileData(result.data.profile);
+        setEmail(result.data.email);
+      } catch (err: any) {
+        setError(err.message || 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [userId]);
+
+  if (loading) {
+    return <div><Loading /></div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!profileData) {
+    return <div>Profile not found</div>;
+  }
+
+  // const {  } = profileData;
 
   return (
-    <div className='max-w-7xl mx-auto py-8'>
-        <div className='flex justify-between'>
-      <h1 className="text-3xl font-bold mb-8">Profile Overview</h1>
-      <Button variant={"default"} size={"lg"}>Update Profile</Button>
+    <div className="max-w-7xl mx-auto py-8">
+      <div className='flex justify-between'>
+        <h1 className="text-3xl font-bold mb-8">Profile Overview</h1>
+        <Button variant={"default"} size={"lg"} onClick={() => router.push("/profile")}>Update Profile</Button>
       </div>
 
       {/* About Yourself */}
@@ -73,20 +76,21 @@ const ViewProfilePage = () => {
         </div>
         <h2 className="text-xl font-semibold mb-2">About Yourself</h2>
         <div className="space-y-1">
-          <div><b>Name:</b> {about.firstName} {about.lastName}</div>
-          <div><b>Gender:</b> {about.gender}</div>
-          <div><b>Date of Birth:</b> {about.dateOfBirth}</div>
-          <div><b>Phone Number:</b> {about.phoneNumber}</div>
-          <div><b>Designation:</b> {about.designation}</div>
-          <div><b>Sectors:</b> {about.sectors.map(sector => <Badge key={sector} className="ml-1">{sector}</Badge>)}</div>
-          <div><b>About Me:</b> <span className="text-gray-700">{about.aboutMe}</span></div>
+          <div><b>Name:</b> {profileData.firstName} {profileData.lastName}</div>
+          <div><b>Email:</b> {email}</div>
+          <div><b>Gender:</b> {profileData.gender}</div>
+          <div><b>Date of Birth:</b> {profileData.dateOfBirth}</div>
+          <div><b>Phone Number:</b> {profileData.phoneNumber}</div>
+          <div><b>Designation:</b> {profileData.designation}</div>
+          <div><b>Sectors:</b> {profileData.sectors.map((sector:string) => <Badge key={sector} className="ml-1">{sector}</Badge>)}</div>
+          <div><b>About Me:</b> <span className="text-gray-700">{profileData.aboutMe}</span></div>
         </div>
       </Card>
 
       {/* Address */}
       <Card className="mb-6 p-6">
         <h2 className="text-xl font-semibold mb-2">Education</h2>
-        {education.map(edu => (
+        {profileData.education.map((edu:any) => (
           <div key={edu.id} className="mb-4">
             <div><b>Type:</b> {edu.collegeType}</div>
             <div><b>Degree:</b> {edu.degree}</div>
@@ -104,17 +108,14 @@ const ViewProfilePage = () => {
       <Card className="mb-6 p-6">
         <h2 className="text-xl font-semibold mb-2">Address</h2>
         <div className="space-y-1">
-          <div><b>City:</b> {address.city}</div>
-          <div><b>Province:</b> {address.province}</div>
-          <div><b>Postal Code:</b> {address.postalCode}</div>
-          <div><b>Current Address:</b> {address.currentAddress}</div>
+          <div><b>Current Address:</b> {profileData.currentAddress}</div>
         </div>
       </Card>
 
       {/* Projects */}
       <Card className="mb-6 p-6">
         <h2 className="text-xl font-semibold mb-2">Projects</h2>
-        {projects.map(project => (
+        {profileData.projects.map((project:any) => (
           <div key={project.id} className="mb-4">
             <div><b>Title:</b> {project.title}</div>
             <div><b>Description:</b> {project.description}</div>
@@ -131,7 +132,7 @@ const ViewProfilePage = () => {
       <Card className="mb-6 p-6">
         <h2 className="text-xl font-semibold mb-2">Skills</h2>
         <div className="flex flex-wrap gap-2">
-          {skills.map(skill => (
+          {profileData.skills.map((skill:any) => (
             <Badge key={skill}>{skill}</Badge>
           ))}
         </div>
@@ -140,7 +141,7 @@ const ViewProfilePage = () => {
       {/* Achievements */}
       <Card className="mb-6 p-6">
         <h2 className="text-xl font-semibold mb-2">Achievements</h2>
-        {achievements.length === 0 ? <div>No achievements listed.</div> : achievements.map(a => (
+        {profileData.achievements.length === 0 ? <div>No achievements listed.</div> : profileData.achievements.map((a:any) => (
           <div key={a.id} className="mb-2">
             <div><b>{a.title}</b></div>
             <div className="text-gray-700 text-sm">{a.description}</div>
@@ -151,7 +152,7 @@ const ViewProfilePage = () => {
       {/* Certificates */}
       <Card className="mb-6 p-6">
         <h2 className="text-xl font-semibold mb-2">Certificates</h2>
-        {certificates.length === 0 ? <div>No certificates listed.</div> : certificates.map(c => (
+        {profileData.certificates.length === 0 ? <div>No certificates listed.</div> : profileData.certificates.map((c:any) => (
           <div key={c.id} className="mb-2">
             <div><b>{c.title}</b></div>
             <div className="text-gray-700 text-sm">{c.description}</div>
@@ -160,6 +161,4 @@ const ViewProfilePage = () => {
       </Card>
     </div>
   );
-};
-
-export default ViewProfilePage; 
+}

@@ -51,6 +51,7 @@ const JobDetailsForm = ({
   setHasDeadline,
   deadline,
   setDeadline,
+  skills,
 }: JobDetailsFormProps) => {
   const handleLocationChange = (value: string) => {
     setLocation(value);

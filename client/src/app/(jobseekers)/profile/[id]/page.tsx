@@ -1,7 +1,7 @@
 import ViewProfilePage from '@/pages/jobSeekers/Profile/ViewProfilePage'
 import React from 'react'
 
-const page = () => {
+const MainViewProfilePage = () => {
   return (
     <div>
         <ViewProfilePage/>
@@ -9,4 +9,4 @@ const page = () => {
   )
 }
 
-export default page
+export default MainViewProfilePage

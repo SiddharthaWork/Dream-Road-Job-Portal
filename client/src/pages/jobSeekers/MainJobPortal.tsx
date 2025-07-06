@@ -20,7 +20,7 @@ const JobPortal = () => {
     <div className='w-full h-full max-w-7xl mx-auto py-8 overflow-hidden'>
       <div className='w-full h-full grid grid-cols-3 gap-6'>
         <div className='col-span-2 space-y-6'>
-          <WelcomeBanner userName="Siddhartha Shrestha" platformName="Dreamroad" />
+          <WelcomeBanner userName={localStorage.getItem('fullname')} platformName="Dreamroad" />
           <StatsCards stats={statsData} />
 
           <BrowseOpportunities

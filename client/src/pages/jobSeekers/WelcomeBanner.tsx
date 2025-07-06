@@ -1,7 +1,7 @@
 import { Briefcase } from "lucide-react"
 
 interface WelcomeBannerProps {
-  userName: string
+  userName: any
   platformName: string
 }
 

@@ -1,5 +1,5 @@
 'use client'
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -80,6 +80,25 @@ const Dashboard = () => {
     }
   };
 
+  // const [company, setCompany] = useState([]);
+
+  // useEffect(() => {
+  //   const fetchCompany = async () => {
+  //     try {
+  //       const response = await fetch(`http://localhost:4000/api/company/getallcompanies`);
+  //       if (!response.ok) {
+  //         throw new Error('Failed to fetch company');
+  //       }
+  //       const data = await response.json();
+  //       console.log(data);
+  //       setCompany(data);
+  //     } catch (error) {
+  //       console.error('Error fetching company:', error);
+  //     }
+  //   };
+  //   fetchCompany();
+  // }, []);
+
   return (
     <div className="space-y-8">
       {/* Stats Cards */}
@@ -97,7 +116,13 @@ const Dashboard = () => {
           </Card>
         ))}
       </div>
+        {/* just for demo show logo and company name */}
+      <div className="flex items-center space-x-2">
+        <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center cursor-pointer" onClick={() => router.push('/employer')}>
+          <span className="text-white font-bold text-xl">DR</span>
+        </div>
 
+      </div>
       {/* Quick Actions */}
       <Card>
         <CardHeader>

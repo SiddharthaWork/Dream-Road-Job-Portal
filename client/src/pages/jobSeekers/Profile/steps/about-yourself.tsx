@@ -14,18 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { FormProvider } from "@/contexts/form-context"
 
 const genderOptions = ["Male", "Female", "Other", "Prefer not to say"]
-const sectorOptions = [
-  "Technology",
-  "Healthcare",
-  "Finance",
-  "Education",
-  "Marketing",
-  "Sales",
-  "Design",
-  "Engineering",
-  "Human Resources",
-  "Operations",
-]
+
 
 export default function AboutYourselfStep() {
   try {
@@ -168,41 +157,31 @@ export default function AboutYourselfStep() {
             className="rounded-lg"
           />
         </div>
-
-        {/* Sectors */}
-        <div className="space-y-2 px-4">
-          <Label>
-            Sectors <span className="text-red-500">*</span>
-          </Label>
-          <div className="flex flex-wrap gap-2 p-3 border rounded-lg min-h-[50px] bg-gray-50">
-            {sectorOptions.map((sector) => (
-              <Badge
-                key={sector}
-                variant={selectedSectors.includes(sector) ? "default" : "outline"}
-                className={`cursor-pointer transition-colors ${
-                  selectedSectors.includes(sector) ? "bg-[#255cf4] hover:bg-blue-300 text-white" : "hover:bg-gray-200"
-                }`}
-                onClick={() => handleSectorToggle(sector)}
-              >
-                {sector}
-                {selectedSectors.includes(sector) && <X className="w-3 h-3 ml-1" />}
-              </Badge>
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
+          <div className="space-y-2">
+            <Label htmlFor="city">
+              City <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="city"
+              value={formData.city}
+              onChange={(e) => handleInputChange("city", e.target.value)}
+              placeholder="Enter your city"
+              className="rounded-lg"
+            />
           </div>
-        </div>
-
-        {/* Designation */}
-        <div className="space-y-2 px-4">
-          <Label htmlFor="designation">
-            Designation <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="designation"
-            value={formData.designation}
-            onChange={(e) => handleInputChange("designation", e.target.value)}
-            placeholder="eg. UI UX designer"
-            className="rounded-lg"
-          />
+          <div className="space-y-2">
+            <Label htmlFor="postalCode">
+              Postal Code <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="postalCode"
+              value={formData.postalCode}
+              onChange={(e) => handleInputChange("postalCode", e.target.value)}
+              placeholder="Enter postal code"
+              className="rounded-lg"
+            />
+          </div>
         </div>
 
         {/* About Me */}
@@ -240,6 +219,7 @@ export default function AboutYourselfStep() {
                 <Underline className="w-4 h-4" />
               </Button>
             </div>
+            
             <Textarea
               id="aboutMe"
               value={formData.aboutMe}
@@ -298,4 +278,3 @@ export const Preview = () => {
     </FormProvider>
   )
 }
-

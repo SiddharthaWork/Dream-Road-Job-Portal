@@ -55,13 +55,43 @@ export default function LoginForm() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!validateForm()) return
-    setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setIsLoading(false)
-    toast.success("Login successful!")
-    setTimeout(() => router.push("/"), 2200)
+    e.preventDefault();
+    if (!validateForm()) return;
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:4000/api/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          role:"user"
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      // Save user data to localStorage
+      localStorage.setItem('token', data.data.token);
+      localStorage.setItem('userId', data.data.id);
+      localStorage.setItem('role', data.data.role);
+      localStorage.setItem('isLoggedIn', 'true'); 
+      localStorage.setItem('fullname', data.data.fullname);
+
+      toast.success("Login successful!");
+      router.push("/");
+    } catch (error: any) {
+      toast.error(error.message || 'An error occurred during login');
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (

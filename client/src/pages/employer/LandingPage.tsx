@@ -6,7 +6,7 @@ import { Building2, Users, Briefcase, TrendingUp, ArrowRight, CheckCircle } from
 import Footer from '@/components/shared/Footer';
 import { useRouter } from 'next/navigation';
 
-const Index = () => {
+export const LandingPageEmployer = () => {
     const router = useRouter();
 
   const features = [
@@ -202,4 +202,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default LandingPageEmployer;
