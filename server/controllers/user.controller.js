@@ -140,7 +140,7 @@ export const saveProfile = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { 
-        fullname:profileData.fullname,
+        // fullname:profileData.fullname,
         profile: profileData,
         profileCompleted: true
       },

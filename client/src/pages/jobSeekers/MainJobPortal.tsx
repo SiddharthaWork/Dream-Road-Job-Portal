@@ -23,10 +23,8 @@ const JobPortal = () => {
           <WelcomeBanner userName={localStorage.getItem('fullname')} platformName="Dreamroad" />
           <StatsCards stats={statsData} />
 
-          <BrowseOpportunities
-            jobs={jobsData}
-            categories={categoriesData}
-            onJobClick={() => router.push("job/1")}
+          <BrowseOpportunities 
+            onJobClick={(jobId) => router.push(`/job/${jobId}`)}
           />
 
           <div className="relative ">
@@ -34,7 +32,7 @@ const JobPortal = () => {
               <RecommendedJobs
                 jobs={reommendedjobsData}
                 categories={categoriesData}
-            onJobClick={() => router.push("job/as1e3onfiha374y13n12asdadshasduingasduanhdu121345423")}
+                onJobClick={() => router.push("job/as1e3onfiha374y13n12asdadshasduingasduanhdu121345423")}
               />
             </div>
 

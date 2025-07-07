@@ -46,11 +46,11 @@ export default function RecommendedJobs({
         <h2 className="text-xl font-bold text-gray-900">Recommended Jobs</h2>
       </div>
 
-      <div className="space-y-3">
+      {/* <div className="space-y-3">
         {(jobs || []) .map((job) => (
           <JobCard key={job.id} job={job} onJobClick={onJobClick} />
         ))}
-      </div>
+      </div> */}
 
     </div>
   )

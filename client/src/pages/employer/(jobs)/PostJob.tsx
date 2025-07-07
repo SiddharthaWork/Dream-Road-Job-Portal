@@ -11,11 +11,13 @@ import JobDetailsForm from '@/components/forms/JobDetailsForm';
 import JobDescriptionForm from '@/components/forms/JobDescriptionForm';
 import { toast } from 'react-hot-toast';
 import { JobFormData } from '@/types/job';
+import { Card } from '@/components/ui/card';
 
 const PostJob = () => {
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<JobFormData>();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [location, setLocation] = useState('');
   const [hasDeadline, setHasDeadline] = useState(false);
   const [deadline, setDeadline] = useState('');
@@ -45,8 +47,8 @@ const PostJob = () => {
   };
 
   const onSubmit = async (data: JobFormData) => {
-    setIsLoading(true);
-    
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       const companyId = localStorage.getItem('companyId');
       
@@ -63,9 +65,9 @@ const PostJob = () => {
       }
         } catch (error: any) {
       console.error('Error creating job:', error.message);
-      toast.error('Failed to post job. Please try again.');
+      toast.error('Failed to post job. Please try again.',error.message);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -91,9 +93,8 @@ const PostJob = () => {
             watch={watch}
           />
           
-          <JobDescriptionForm register={register} errors={errors}  />
           
-          <div className="space-y-4">
+          <Card className="space-y-4 bg-white p-6">
             <h3 className="text-lg font-medium">Required Skills</h3>
             <div className="space-y-2">
               <Label htmlFor="newSkill">Add Skills</Label>
@@ -137,15 +138,17 @@ const PostJob = () => {
                 )}
               </div>
             </div>
-          </div>
+          </Card>
+          <JobDescriptionForm register={register} errors={errors}  />
+
           
        
         </div>
         
         <div className="mt-8 flex justify-end">
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading || isSubmitting}>
             {isLoading ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : null}
-            {isLoading ? 'Posting...' : 'Submit Job'}
+            {isLoading ? 'Submitting...' : isSubmitting ? 'Submitting...' : 'Submit Job'}
           </Button>
         </div>
       </form>
