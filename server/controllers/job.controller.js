@@ -1,4 +1,5 @@
 import { Job } from "../models/job.model.js";
+import { Application } from "../models/application.model.js";
 
 // export const postJob = async (req,res) => {
 //     try {
@@ -60,7 +61,7 @@ export const createJob = async (req, res) => {
         success: false,
       });
     }
-    
+
     // Create a new job instance
     const newJob = new Job({
       ...jobData,
@@ -209,8 +210,37 @@ export const getJobByCompany = async (req,res) => {
 // Get Job By Id this is for adminsite
 export const getJobById = async (req,res) => {
     try {
-        const job = await Job.findById(req.params.id);
-        return res.status(200).json({message:"Job fetched successfully",success:true,data:job});
+        const jobId = req.params.id;
+        const userId = req.query.userId; // Get user id from query string
+
+        const job = await Job.findById(jobId).populate({
+            path: "createdBy",
+            model: "Company"
+        }).sort({createdAt:-1});
+
+        if (!job) {
+            return res.status(404).json({message:"Job not found",success:false});
+        }
+
+        // send 5 similar jobs based on the department
+        const similarJobs = await Job.find({department: job.department}).populate({
+            path: "createdBy",
+            model: "Company"
+        }).sort({createdAt:-1}).limit(5);
+
+        let applied = false;
+        if (userId) {
+            const checkApplied = await Application.findOne({job: jobId, user: userId});
+            applied = !!checkApplied;
+        }
+        
+        return res.status(200).json({
+            message:"Job fetched successfully",
+            success:true,
+            data:job,
+            similarJobs:similarJobs,
+            applied: applied
+        });
     } catch (error) {
         return res.status(500).json({message:"Internal server error",success:false, error: error.message});   
     }

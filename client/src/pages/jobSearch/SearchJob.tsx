@@ -73,10 +73,6 @@ export default function SearchJob() {
     return <Loading/>
   }
 
-  const handleDepartmentChange = (value: string) => {
-    setSelectedDepartment(value);
-  };
-
   // Filter jobs based on search and filters
   const filteredJobs = jobs.filter((job) => {
     if (!job) return false;
@@ -384,7 +380,7 @@ export default function SearchJob() {
                 <JobCard 
                   key={job._id}
                   job={job}
-                  onJobClick={(jobId) => router.push(`/job/${jobId}`)}
+                  onJobClick={() => router.push(`/job/${job._id}`)}
                 />
               ))}
             </div>

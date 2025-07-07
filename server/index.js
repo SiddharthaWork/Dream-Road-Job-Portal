@@ -6,6 +6,7 @@ import connectDB from "./utils/db.js";
 import userRoute from "./routes/user.route.js";
 import companyRoute from "./routes/company.route.js";
 import jobRoute from "./routes/job.route.js";
+import applicationRoute from "./routes/application.route.js";
 
 dotenv.config({});    
 
@@ -26,12 +27,15 @@ app.use(cors(corsOptions));
 
 const PORT = process.env.PORT || 4000;
 
-
+// Body Parser Middleware
+app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 
 // APIS
 app.use("/api/user",userRoute);
 app.use("/api/company", companyRoute);
 app.use("/api/job", jobRoute);
+app.use("/api/application", applicationRoute);
 
 // For Testing
 // localhost:4000/api/user/register
@@ -49,7 +53,15 @@ app.use("/api/job", jobRoute);
 // for job
 // localhost:4000/api/job/createJob
 // localhost:4000/api/job/getalljobs
-    
+// localhost:4000/api/job/getjobbycompany/:id
+// localhost:4000/api/job/getjobbyid/:id
+// localhost:4000/api/job/deletejob/:id
+
+// for application
+// localhost:4000/api/application/applyJob/:id
+// localhost:4000/api/application/getApplications
+// localhost:4000/api/application/getApplicants/:id
+// localhost:4000/api/application/updateStatus/:id    
 
 
 

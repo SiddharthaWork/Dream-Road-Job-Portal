@@ -1,18 +1,49 @@
 import { Application } from "../models/application.model.js";
 import { Job } from "../models/job.model.js";
+import mongoose from "mongoose";
 
 export const applyJob = async (req, res) => {
     try {
-        const userId = req.id;
+        if (!req.body) {
+            return res.status(400).json({
+                message: "Request body is missing",
+                success: false
+            });
+        }
+        const userId = req.body.id;
         const jobId = req.params.id;
+
+        
         if (!jobId) {
             return res.status(400).json({
                 message: "Job id is required.",
                 success: false
             })
+        }
+        
+        if(!userId){
+            return res.status(400).json({
+                message: "User id is required.",
+                success: false
+            })
         };
+
+        // Validate ID formats
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                message: "Invalid user ID format",
+                success: false
+            });
+        }
+        if (!mongoose.Types.ObjectId.isValid(jobId)) {
+            return res.status(400).json({
+                message: "Invalid job ID format",
+                success: false
+            });
+        }
+
         // check if the user has already applied for the job
-        const existingApplication = await Application.findOne({ job: jobId, applicant: userId });
+        const existingApplication = await Application.findOne({ job: jobId, user: userId });
 
         if (existingApplication) {
             return res.status(400).json({
@@ -32,23 +63,36 @@ export const applyJob = async (req, res) => {
         // create a new application
         const newApplication = await Application.create({
             job:jobId,
-            applicant:userId,
+            user:userId,
+            company:job.company,
+            createdBy:userId,
         });
 
         job.applications.push(newApplication._id);
         await job.save();
         return res.status(201).json({
             message:"Job applied successfully.",
-            success:true
+            success:true,
+            application:newApplication
         })
     } catch (error) {
         console.log(error);
+        res.status(500).json({
+            message: "Internal server error",
+            success: false
+        });
     }
 };
 export const getAppliedJobs = async (req,res) => {
     try {
-        const userId = req.id;
-        const application = await Application.find({applicant:userId}).sort({createdAt:-1}).populate({
+        const userId = req.body.id;
+        if(!userId){
+            return res.status(400).json({
+                message: "User id is required.",
+                success: false
+            })
+        };
+        const application = await Application.find({user:userId}).sort({createdAt:-1}).populate({
             path:'job',
             options:{sort:{createdAt:-1}},
             populate:{
@@ -70,7 +114,8 @@ export const getAppliedJobs = async (req,res) => {
         console.log(error);
     }
 }
-// admin dekhega kitna user ne apply kiya hai
+
+// admin see how many user apply to a job
 export const getApplicants = async (req,res) => {
     try {
         const jobId = req.params.id;
@@ -78,7 +123,7 @@ export const getApplicants = async (req,res) => {
             path:'applications',
             options:{sort:{createdAt:-1}},
             populate:{
-                path:'applicant'
+                path:'user'
             }
         });
         if(!job){
@@ -89,12 +134,40 @@ export const getApplicants = async (req,res) => {
         };
         return res.status(200).json({
             job, 
-            succees:true
+            success:true
         });
     } catch (error) {
         console.log(error);
     }
 }
+
+// GetApplied Jobs for User that they applied
+export const getAppliedJobUsers = async (req,res) => {
+    try {
+        const userId = req.params.id;
+        const application = await Application.find({user:userId}).sort({createdAt:-1}).populate({
+            path:'job',
+            options:{sort:{createdAt:-1}},
+            populate:{
+                path:'company',
+                options:{sort:{createdAt:-1}},
+            }
+        });
+        if(!application){
+            return res.status(404).json({
+                message:"No Applications",
+                success:false
+            })
+        };
+        return res.status(200).json({
+            application,
+            success:true
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 export const updateStatus = async (req,res) => {
     try {
         const {status} = req.body;
@@ -107,7 +180,10 @@ export const updateStatus = async (req,res) => {
         };
 
         // find the application by applicantion id
-        const application = await Application.findOne({_id:applicationId});
+        const application = await Application.findOne({_id:applicationId}).populate({
+            path:'user',
+            options:{sort:{createdAt:-1}}
+        });
         if(!application){
             return res.status(404).json({
                 message:"Application not found.",
@@ -126,5 +202,9 @@ export const updateStatus = async (req,res) => {
 
     } catch (error) {
         console.log(error);
+        res.status(500).json({
+            message: "Internal server error",
+            success: false
+        });
     }
 }

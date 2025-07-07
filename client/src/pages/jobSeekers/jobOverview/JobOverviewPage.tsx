@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { formatDistanceToNow } from 'date-fns';
 import {
   MapPin,
   Clock,
@@ -17,181 +18,202 @@ import {
   TrendingUp,
   Heart,
   Briefcase,
+  Calendar,
 } from "lucide-react"
-import { useState } from "react"
-
-const similarJobs = [
-  {
-    id: 1,
-    title: "Full Stack Developer",
-    company: "NCCS Software",
-    companyLogo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvOZcN0BOWXgH_caHKVbdiRAGsZQsr2FLMew&s",
-    logoColors: "from-gray-800 to-gray-900",
-    // type: "Freelance",
-    type: "Full-time",
-    typeColor: "bg-purple-100 text-purple-700",
-    dueDate: "",
-    location: "Remote",
-    applicants: 1,
-    salary: "NPR 2,980–10,640",
-    salaryType: "range",
-  },
-  {
-    id: 2,
-    title: "Software Developer",
-    company: "Info Developers",
-    companyLogo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR73484JT07cWw9hTnLlm4QKer_fkpE3t3eTw&s",
-    logoColors: "from-green-500 to-teal-600",
-    type: "Full-time",
-    typeColor: "bg-blue-100 text-blue-700",
-    dueDate: "",
-    // location: "Remote",
-    location: "Kathmandu, Bāgmatī, Nepal ",
-    applicants: 3,
-    salary: "NPR 55,960–10,950",
-    salaryType: "range",
-  },
-  {
-    id: 3,
-    title: "Frontend Developer",
-    company: "Cloco Nepal",
-    companyLogo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdxDFw67ruCx2iIthYOGW-5zWY7-BC6M2naQ&s",
-    logoColors: "from-purple-500 to-pink-600",
-    // type: "Bounty",
-    type: "Full-time",
-    typeColor: "bg-orange-100 text-orange-700",
-    dueDate: "",
-    location: "Remote",
-    applicants: 1,
-    salary: "NPR 15,960–19,950",
-    salaryType: "range",
-  },
-
-]
-
-const jobHighlights = [
-  "Opportunity to work on both frontend and backend technologies",
-  "Collaborate with cross-functional teams to define, design, and ship new features",
-  "Implement responsive and user-friendly web interfaces",
-  "Write clean, maintainable, and efficient code",
-  "Participate in code reviews and contribute to best practices",
-]
-
-const keySkills = [
-  "JavaScript",
-  "TypeScript",
-  "React.js",
-  "Node.js",
-  "Express.js",
-  "REST APIs",
-  "SQL Databases",
-  "Version Control",
-  "Git",
-  "Problem Solving",
-]
+import { useState, useEffect } from 'react';
+import { useParams } from "next/navigation"
+import axios from 'axios';
+import { Job } from '@/types/job';
+import Loading from "@/components/shared/loading"
+import Link from "next/link"
 
 export default function JobOverviewPage() {
+  const { id } = useParams() as { id: string };
+  
+  const [job, setJob] = useState<any>(null);
+  const [similarJobs, setSimilarJobs] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [applying, setApplying] = useState(false)
   const [applied, setApplied] = useState(false)
-  const handleApply = () => {
-    setApplying(true);
+  const[appliedUsers, setAppliedUsers] = useState<any>(null)
+
+  // so the appliedUsersContain bollean
+
+
+  useEffect(() => {
+    if (!id) return;
+    
+    const fetchJob = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`http://localhost:4000/api/job/getjobbyid/${id}?userId=${localStorage.getItem('userId')}`);
+        if (response.data.success) {
+          setJob(response.data.data);
+          setSimilarJobs(response.data.similarJobs);
+          setAppliedUsers(response.data.applied)
+        } else {
+          setError('Failed to fetch job');
+        }
+      } catch (err) {
+        setError('An error occurred while fetching the job');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchJob();
+  }, [id]);
+
+  const handleApply = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`http://localhost:4000/api/application/applyJob/${id}`, {
+        id: localStorage.getItem('userId')
+      });
+      if (response.data.success) {
+        handleApplied(); // Close modal and update parent state
+      } else {
+        setError('Failed to apply: ' + (response.data.message || 'Unknown error'));
+      }
+    } catch (err: any) {
+      setError('An error occurred: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
+    }
   }
+
   const handleApplied = () => {
     setApplied(true);
     setApplying(false);
   }
 
+  if (loading) {
+    return <div>
+      <Loading/>
+    </div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!job) {
+    return <div>Job not found</div>;
+  }
+
+  // Format the salary range
+  const formattedSalary = `NPR ${job.salaryMin.toLocaleString()}-${job.salaryMax.toLocaleString()}`;
+  
+  // Format the posted date
+  const postedDate = new Date(job.createdAt);
+  const daysAgo = Math.floor((Date.now() - postedDate.getTime()) / (1000 * 60 * 60 * 24));
+  const postedText = daysAgo === 0 ? 'Today' : `${daysAgo} day${daysAgo > 1 ? 's' : ''} ago`;
+
+  // Job highlights - we'll split the description by newline and take the lines after "Job Highlights"
+  // const jobHighlights = job.description.split('\n').filter(line => line.trim() !== '' && !line.includes('Job Description'));
+  const jobHighlights = job.description
+  
+  // Key skills
+  const keySkills = job.skills;
+
   return (
     <div className="w-full h-full bg-[#f8f9fa]">
       {applying && (
-        <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center">
-          <JobApplicationModal onApplied={handleApplied} />
+        <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50">
+          <JobApplicationModal
+            onApplied={handleApplied}
+          />
         </div>
       )}
+      
       <div className="min-h-screen bg-gray-50 w-full max-w-7xl mx-auto py-6">
         {/* Banner */}
-        <div className="relative w-full h-48 overflow-hidden rounded-xl">
+        {/* <div className="relative w-full h-48 overflow-hidden rounded-xl">
           <div className="w-full h-full">
-            <img src="https://png.pngtree.com/thumb_back/fh260/background/20201023/pngtree-abstract-geometric-green-background-with-fresh-gradient-banner-image_432556.jpg" alt="Join our talent community" className=" w-full h-full " />
+            <img src="https://png.pngtree.com/thumb_back/fh260/background/20201023/pngtree-abstract-geometric-green-background-with-fresh-gradient-banner-image_432556.jpg" alt="Join our talent community" className="w-full h-full object-cover" />
           </div>
-        </div>
+        </div> */}
 
         <div className="container mx-auto py-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Left Sidebar - Similar Jobs */}
+            {/* Left Sidebar - Similar Jobs (optional) */}
             <div className="lg:col-span-1">
+              {/* Similar jobs can be implemented later */}
+              <div className="lg:col-span-1">
               <Card>
-                <CardHeader className="pb-0 mb-0">
-                  <CardTitle className="text-lg font-semibold">Similar roles you might be interested in</CardTitle>
+                <CardHeader className="pb-0 mb-0 px-4 py-0 ">
+                  <CardTitle className="text-lg font-semibold ">Similar roles you might be interested in</CardTitle>
                 </CardHeader>
-                <CardContent className="p-0">
-                  <ScrollArea className="h-fit">
+                <CardContent className="p-0 ">
+                  <ScrollArea className="h-fit pt-0">
                     <div className="space-y-4 p-4">
-                      {similarJobs.map((job) => (
-                        <div key={job.id} className="border-b pb-4 last:border-b-0">
+                      {similarJobs?.map((job: any, index: number) => (
+                        <Link href={`/job/${job._id}`} key={index}>
+                        <div className="border-b pb-4 last:border-b-2 mt-2 cursor-pointer">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <h3 className="font-medium text-sm mb-2 line-clamp-2">{job.title}</h3>
                               <div className="space-y-1 text-xs text-gray-600">
                                 <div className="flex items-center gap-1">
                                   <MapPin className="w-3 h-3" />
-                                  <span>Kathmandu, Bāgmatī, Nepal</span>
+                                  <span>{job.location}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <span></span>
+                                  <span>{job.type}</span>
                                 </div>
-                                <div className="text-gray-500"></div>
+                                <div className="text-gray-500">{formatDistanceToNow(new Date(job.createdAt), { addSuffix: true }).replace("about ", "")}</div>
                               </div>
-                              <Button size="sm" className="mt-2 h-7 text-xs">
+                                <Button size="sm" className="mt-2 h-7 text-xs" >
                                 Apply
-                              </Button>
+                                </Button>
+                            
                             </div>
                             <div className="ml-2">
                               <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
                                 {/* <Building2 className="w-4 h-4 text-blue-600" /> */}
-                                <img src={job.companyLogo} alt="" />
+                                <img src={job.createdBy.logo} alt={job.createdBy.name} className="w-full h-full object-cover" />
                               </div>
                             </div>
                           </div>
                         </div>
+                        </Link>
                       ))}
                     </div>
                   </ScrollArea>
                 </CardContent>
               </Card>
             </div>
+            </div>
 
             {/* Main Content Area */}
             <div className="lg:col-span-3 space-y-6">
-
               {/* Job Header */}
               <Card>
                 <CardContent className="">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h1 className="text-2xl font-bold mb-2">Full Stack Developer </h1>
+                      <h1 className="text-2xl font-bold mb-2">{job.title}</h1>
                       <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
                         <div className="flex items-center gap-1">
                           <div className="w-8 h-8 overflow-hidden">
-                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvknAULMIa1Lu9QgyPv7XdWIJ3hklDeskMig&s" alt="" className="w-full h-full object-cover" />
-
+                            {/* Company logo - not provided in API */}
+                            <img src={job.createdBy?.logo} alt="Company logo" className="w-full h-full object-cover" />
                           </div>
-                          <span className="font-medium">LeapFrog</span>
+                          <span className="font-medium ml-2">{job.createdBy?.name}</span>
                         </div>
-
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                        {/* <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-gray-500" />
-                          <span>0 years</span>
-                        </div> */}
                         <div className="flex items-center gap-2">
-                          <span>NPR 11,305-15,960</span>
+                          <Briefcase className="w-4 h-4 text-gray-500" />
+                          <span>{job.type}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span>{formattedSalary}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <MapPin className="w-4 h-4 text-gray-500" />
-                          <span>Kathmandu, Bāgmatī, Nepal</span>
+                          <span>{job.location}</span>
                         </div>
                       </div>
                     </div>
@@ -201,16 +223,16 @@ export default function JobOverviewPage() {
                         <Bookmark className="w-4 h-4 mr-1" />
                         Save
                       </Button>
-                      <Button onClick={handleApply} size="sm" disabled={applied}>
-                        {applied ? 'Applied' : 'Apply'}
+                      <Button onClick={handleApply} size="sm" disabled={appliedUsers}>
+                        {appliedUsers ? 'Applied' : 'Apply'}
                       </Button>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between text-sm text-gray-600">
                     <div className="flex items-center gap-4">
-                      <span>Posted: 2 day ago</span>
-                      <span>Applicants: 2</span>
+                      <span>Posted: {formatDistanceToNow(new Date(job.createdAt), { addSuffix: true }).replace("about ", "")}</span>
+                      <span>Applicants: {job.applications.length}</span>
                     </div>
                     <Button variant="link" className="text-blue-600 p-0">
                       Send me jobs like this
@@ -227,44 +249,23 @@ export default function JobOverviewPage() {
                 <CardContent className="space-y-4">
                   <div>
                     <h3 className="font-semibold mb-3">Job Highlights</h3>
-                    <ul className="space-y-2 mb-6">
-                      {jobHighlights.map((highlight, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0" />
-                          <span className="text-sm text-gray-700">{highlight}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <span className="text-sm text-gray-700">{jobHighlights}</span>
                   </div>
 
                   <div>
-                    <h3 className="font-semibold mb-2">Schedule:</h3>
-                    <p className="text-sm text-gray-700">24/7 (Rotational Shifts and week off)</p>
+                    <h3 className="font-semibold mb-2">Benefits</h3>
+                    <p className="text-sm text-gray-700">{job.benefits}</p>
                   </div>
 
-                  <div>
-                    <h3 className="font-semibold mb-2">Days off:</h3>
-                    <p className="text-sm text-gray-700">
-                      Typically, 2 consecutive days in a week, but on one week each month (on average) they can be
-                      separated to align schedules.
-                    </p>
-                  </div>
 
                   <div>
                     <h3 className="font-semibold mb-2">Location:</h3>
-                    <p className="text-sm text-gray-700">Kathmandu, Bāgmatī, Nepal </p>
+                    <p className="text-sm text-gray-700">{job.location}</p>
                   </div>
 
                   <div>
                     <h3 className="font-semibold mb-2">Roles & Responsibilities</h3>
-                    <ul className="space-y-2 mb-6">
-                      {jobHighlights.map((highlight, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0" />
-                          <span className="text-sm text-gray-700">{highlight}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <span className="text-sm text-gray-700">{job.requirements}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -277,29 +278,11 @@ export default function JobOverviewPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {keySkills.map((skill, index) => (
+                    {keySkills.map((skill: string, index: number) => (
                       <Badge key={index} variant="outline" className="text-sm">
                         {skill}
                       </Badge>
                     ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-
-              {/* Social Share */}
-              <Card className="py-2">
-                <CardContent >
-                  <div className="flex items-center justify-between ">
-                    <div className="flex items-center gap-4">
-                      <Button variant="outline" size="sm">
-                        <Share2 className="w-4 h-4 mr-1" />
-                        Share
-                      </Button>
-                    </div>
-                    <Button variant="link" className="text-red-600 px-0">
-                      Report this job
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -308,5 +291,5 @@ export default function JobOverviewPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
