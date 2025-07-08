@@ -61,6 +61,7 @@ export const login = async (req,res) => {
             role:user.role,
             phoneNumber:user.phoneNumber,
             profile:user.profile,
+            profileCompleted:user.profileCompleted,
             token
         }
 

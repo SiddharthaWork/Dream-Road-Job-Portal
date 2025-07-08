@@ -1,5 +1,7 @@
 import { Application } from "../models/application.model.js";
 import { Job } from "../models/job.model.js";
+import getDataUri from "../utils/datauri.js";
+import cloudinary from "../utils/cloudinary.js";
 import mongoose from "mongoose";
 
 export const applyJob = async (req, res) => {
@@ -12,7 +14,7 @@ export const applyJob = async (req, res) => {
         }
         const userId = req.body.id;
         const jobId = req.params.id;
-
+        
         
         if (!jobId) {
             return res.status(400).json({
@@ -60,14 +62,29 @@ export const applyJob = async (req, res) => {
                 success: false
             })
         }
+
+        // For optional Resume Handling
+        const file = req.file;
+        let resumeUrl = null;
+        if(file){
+            const dataUri = getDataUri(file);
+            const cloudResponse = await cloudinary.uploader.upload(dataUri.content);
+            resumeUrl = cloudResponse.secure_url;
+        }   
+        
+        // For optional Cover Letter Handling
+        const coverLetter = req.body.coverLetter;
+        
         // create a new application
         const newApplication = await Application.create({
             job:jobId,
             user:userId,
             company:job.company,
             createdBy:userId,
+            resume: resumeUrl,
+            coverLetter: coverLetter || ""  
         });
-
+        
         job.applications.push(newApplication._id);
         await job.save();
         return res.status(201).json({
@@ -145,6 +162,14 @@ export const getApplicants = async (req,res) => {
 export const getAppliedJobUsers = async (req,res) => {
     try {
         const userId = req.params.id;
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                message: "Invalid user ID format",
+                success: false
+            });
+        }
+
         const application = await Application.find({user:userId}).sort({createdAt:-1}).populate({
             path:'job',
             options:{sort:{createdAt:-1}},
@@ -167,6 +192,40 @@ export const getAppliedJobUsers = async (req,res) => {
         console.log(error);
     }
 }
+
+
+
+
+
+// get the number of job user applied
+export const getAppliedJobCount = async (req,res) => {
+    try {
+        const userId = req.params.id;
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                message: "Invalid user ID format",
+                success: false
+            });
+        }
+        const application = await Application.countDocuments({user:userId});
+        if(!application){
+            return res.status(200).json({
+                message:"No Applications",
+                success:false
+            })
+        };
+        return res.status(200).json({
+            application,
+            success:true
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "Internal server error",
+            success: false
+        }); 
+    }
+}   
 
 export const updateStatus = async (req,res) => {
     try {

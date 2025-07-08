@@ -15,6 +15,9 @@ const applicationSchema = new mongoose.Schema({
         ref:"Company",   
         required:true
     },
+    resume:{type:String},
+    resumeOriginalName:{type:String},
+    coverLetter:{type:String},
     status:{type:String,enum:["pending","accepted","rejected"],default:"pending"},
     createdAt:{type:Date,default:Date.now},
     createdBy:{
