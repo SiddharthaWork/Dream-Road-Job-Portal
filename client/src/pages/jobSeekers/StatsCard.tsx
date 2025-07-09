@@ -1,6 +1,9 @@
+"use client"
 import { Building, Briefcase } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
+import axios from "axios"
+import { useState, useEffect } from "react"
 
 interface StatItem {
   id: number
@@ -16,6 +19,8 @@ interface StatsCardsProps {
 }
 
 export default function StatsCards({ stats = [] }: StatsCardsProps) {
+
+  const [appliedJobCount, setAppliedJobCount] = useState(0);
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case "building":
@@ -26,6 +31,25 @@ export default function StatsCards({ stats = [] }: StatsCardsProps) {
         return Briefcase
     }
   }
+  // api for value
+  const getAppliedJobCount = async () => {
+    try {
+      const response = await axios.get(`http://localhost:4000/api/application/getAppliedJobCount/${localStorage.getItem('userId')}`);
+      
+      // Ensure we always have a valid number
+      const count = response.data?.success ? response.data.application : 0;
+      setAppliedJobCount(count || 0);
+      
+      console.log("Applied job count:", count);
+    } catch (err) {
+      console.error(err);
+      setAppliedJobCount(0);
+    }
+  }
+
+  useEffect(() => {
+    getAppliedJobCount()
+  }, [])
 
   const router = useRouter()
 
@@ -41,7 +65,7 @@ export default function StatsCards({ stats = [] }: StatsCardsProps) {
                   <IconComponent className={`w-5 h-5 ${stat.iconColor}`} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stat.id === 1 ? appliedJobCount : stat.value}</p>
                   <p className="text-sm text-gray-600">{stat.label}</p>
                 </div>
               </div>

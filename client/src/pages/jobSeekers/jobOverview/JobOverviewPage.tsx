@@ -29,21 +29,21 @@ import Link from "next/link"
 
 export default function JobOverviewPage() {
   const { id } = useParams() as { id: string };
-  
+
   const [job, setJob] = useState<any>(null);
   const [similarJobs, setSimilarJobs] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [applying, setApplying] = useState(false)
   const [applied, setApplied] = useState(false)
-  const[appliedUsers, setAppliedUsers] = useState<any>(null)
+  const [appliedUsers, setAppliedUsers] = useState<any>(null)
 
   // so the appliedUsersContain bollean
 
 
   useEffect(() => {
     if (!id) return;
-    
+
     const fetchJob = async () => {
       try {
         setLoading(true);
@@ -64,23 +64,6 @@ export default function JobOverviewPage() {
     fetchJob();
   }, [id]);
 
-  const handleApply = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.post(`http://localhost:4000/api/application/applyJob/${id}`, {
-        id: localStorage.getItem('userId')
-      });
-      if (response.data.success) {
-        handleApplied(); // Close modal and update parent state
-      } else {
-        setError('Failed to apply: ' + (response.data.message || 'Unknown error'));
-      }
-    } catch (err: any) {
-      setError('An error occurred: ' + (err.response?.data?.message || err.message));
-    } finally {
-      setLoading(false);
-    }
-  }
 
   const handleApplied = () => {
     setApplied(true);
@@ -89,7 +72,7 @@ export default function JobOverviewPage() {
 
   if (loading) {
     return <div>
-      <Loading/>
+      <Loading />
     </div>;
   }
 
@@ -103,7 +86,7 @@ export default function JobOverviewPage() {
 
   // Format the salary range
   const formattedSalary = `NPR ${job.salaryMin.toLocaleString()}-${job.salaryMax.toLocaleString()}`;
-  
+
   // Format the posted date
   const postedDate = new Date(job.createdAt);
   const daysAgo = Math.floor((Date.now() - postedDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -112,20 +95,25 @@ export default function JobOverviewPage() {
   // Job highlights - we'll split the description by newline and take the lines after "Job Highlights"
   // const jobHighlights = job.description.split('\n').filter(line => line.trim() !== '' && !line.includes('Job Description'));
   const jobHighlights = job.description
-  
+
   // Key skills
   const keySkills = job.skills;
 
   return (
     <div className="w-full h-full bg-[#f8f9fa]">
+      
+
       {applying && (
         <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50">
           <JobApplicationModal
+            jobId={job._id}
+            userId={localStorage.getItem('userId') || ''}
             onApplied={handleApplied}
+            onClose={() => setApplying(false)}
           />
         </div>
       )}
-      
+
       <div className="min-h-screen bg-gray-50 w-full max-w-7xl mx-auto py-6">
         {/* Banner */}
         {/* <div className="relative w-full h-48 overflow-hidden rounded-xl">
@@ -140,49 +128,49 @@ export default function JobOverviewPage() {
             <div className="lg:col-span-1">
               {/* Similar jobs can be implemented later */}
               <div className="lg:col-span-1">
-              <Card>
-                <CardHeader className="pb-0 mb-0 px-4 py-0 ">
-                  <CardTitle className="text-lg font-semibold ">Similar roles you might be interested in</CardTitle>
-                </CardHeader>
-                <CardContent className="p-0 ">
-                  <ScrollArea className="h-fit pt-0">
-                    <div className="space-y-4 p-4">
-                      {similarJobs?.map((job: any, index: number) => (
-                        <Link href={`/job/${job._id}`} key={index}>
-                        <div className="border-b pb-4 last:border-b-2 mt-2 cursor-pointer">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h3 className="font-medium text-sm mb-2 line-clamp-2">{job.title}</h3>
-                              <div className="space-y-1 text-xs text-gray-600">
-                                <div className="flex items-center gap-1">
-                                  <MapPin className="w-3 h-3" />
-                                  <span>{job.location}</span>
+                <Card>
+                  <CardHeader className="pb-0 mb-0 px-4 py-0 ">
+                    <CardTitle className="text-lg font-semibold ">Similar roles you might be interested in</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0 ">
+                    <ScrollArea className="h-fit pt-0">
+                      <div className="space-y-4 p-4">
+                        {similarJobs?.map((job: any, index: number) => (
+                          <Link href={`/job/${job._id}`} key={index}>
+                            <div className="border-b pb-4 last:border-b-2 mt-2 cursor-pointer">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <h3 className="font-medium text-sm mb-2 line-clamp-2">{job.title}</h3>
+                                  <div className="space-y-1 text-xs text-gray-600">
+                                    <div className="flex items-center gap-1">
+                                      <MapPin className="w-3 h-3" />
+                                      <span>{job.location}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <span>{job.type}</span>
+                                    </div>
+                                    <div className="text-gray-500">{formatDistanceToNow(new Date(job.createdAt), { addSuffix: true }).replace("about ", "")}</div>
+                                  </div>
+                                  <Button size="sm" className="mt-2 h-7 text-xs" >
+                                    Apply
+                                  </Button>
+
                                 </div>
-                                <div className="flex items-center gap-1">
-                                  <span>{job.type}</span>
+                                <div className="ml-2">
+                                  <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
+                                    {/* <Building2 className="w-4 h-4 text-blue-600" /> */}
+                                    <img src={job.createdBy.logo} alt={job.createdBy.name} className="w-full h-full object-cover" />
+                                  </div>
                                 </div>
-                                <div className="text-gray-500">{formatDistanceToNow(new Date(job.createdAt), { addSuffix: true }).replace("about ", "")}</div>
-                              </div>
-                                <Button size="sm" className="mt-2 h-7 text-xs" >
-                                Apply
-                                </Button>
-                            
-                            </div>
-                            <div className="ml-2">
-                              <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-                                {/* <Building2 className="w-4 h-4 text-blue-600" /> */}
-                                <img src={job.createdBy.logo} alt={job.createdBy.name} className="w-full h-full object-cover" />
                               </div>
                             </div>
-                          </div>
-                        </div>
-                        </Link>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
             {/* Main Content Area */}
@@ -223,7 +211,7 @@ export default function JobOverviewPage() {
                         <Bookmark className="w-4 h-4 mr-1" />
                         Save
                       </Button>
-                      <Button onClick={handleApply} size="sm" disabled={appliedUsers}>
+                      <Button onClick={() => setApplying(true)} size="sm" disabled={appliedUsers}>
                         {appliedUsers ? 'Applied' : 'Apply'}
                       </Button>
                     </div>

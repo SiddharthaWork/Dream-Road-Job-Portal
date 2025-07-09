@@ -1,5 +1,6 @@
 import { Application } from "../models/application.model.js";
 import { Job } from "../models/job.model.js";
+import { User } from "../models/user.model.js";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import mongoose from "mongoose";
@@ -84,6 +85,11 @@ export const applyJob = async (req, res) => {
             resume: resumeUrl,
             coverLetter: coverLetter || ""  
         });
+        
+        // update the user applied jobs
+        const user = await User.findById(userId);
+        user.appliedJobs.push(newApplication._id);
+        await user.save();  
         
         job.applications.push(newApplication._id);
         await job.save();

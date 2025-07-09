@@ -159,7 +159,7 @@ const JobPosts = () => {
                   variant="outline" 
                   size="sm" 
                   className="flex-1"
-                  onClick={() => router.push(`/employer/dashboard/jobs/applicants/${job._id}`)}
+                  onClick={() => router.push(`/employer/dashboard/jobs/applicant/${job._id}`)}
                 >
                   <Users className="h-4 w-4 mr-2" />
                   View Applicants

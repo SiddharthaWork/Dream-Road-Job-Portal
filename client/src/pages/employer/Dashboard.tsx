@@ -116,13 +116,6 @@ const Dashboard = () => {
           </Card>
         ))}
       </div>
-        {/* just for demo show logo and company name */}
-      <div className="flex items-center space-x-2">
-        <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center cursor-pointer" onClick={() => router.push('/employer')}>
-          <span className="text-white font-bold text-xl">DR</span>
-        </div>
-
-      </div>
       {/* Quick Actions */}
       <Card>
         <CardHeader>

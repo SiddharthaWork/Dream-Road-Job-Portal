@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import axios from 'axios';
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -44,38 +45,62 @@ const Confetti = ({ isActive }: { isActive: boolean }) => {
   )
 }
 
-export default function JobApplicationModal({ onApplied }: { onApplied?: () => void }) {
+export default function JobApplicationModal({ jobId, userId, onApplied, onClose }: { jobId: string, userId: string, onApplied?: () => void, onClose?: () => void }) {
   const [isOpen, setIsOpen] = useState(true)
   const [isApplying, setIsApplying] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const [isEditingResume, setIsEditingResume] = useState(false)
+  const [coverLetter, setCoverLetter] = useState('');
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
 
   const resumeFileName = "resume-siddhartha.pdf"
 
   const handleApply = async () => {
-    setIsApplying(true)
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-
-    setIsApplying(false)
-    setShowSuccess(true)
-    setShowConfetti(true)
-
-    // Hide success message and confetti after 3 seconds
-    setTimeout(() => {
-      setShowSuccess(false)
-      setShowConfetti(false)
-      setIsOpen(false)
-      if (onApplied) onApplied();
-    }, 3000)
+    setIsApplying(true);
+    try {
+      const formData = new FormData();
+      formData.append('id', userId);
+      formData.append('coverLetter', coverLetter);
+      
+      if (resumeFile) {
+        formData.append('file', resumeFile);
+      }
+      
+      const response = await axios.post(
+        `http://localhost:4000/api/application/applyJob/${jobId}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+      
+      if (response.data.success) {
+        setShowSuccess(true);
+        setShowConfetti(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          setShowConfetti(false);
+          setIsOpen(false);
+          if (onApplied) onApplied();
+        }, 3000);
+      } else {
+        // Handle error
+      }
+    } catch (err) {
+      // Handle error
+    } finally {
+      setIsApplying(false);
+    }
   }
 
   const handleCancel = () => {
     setIsOpen(false)
     setShowSuccess(false)
     setShowConfetti(false)
+    if (onClose) onClose()
   }
 
   const resetModal = () => {
@@ -87,6 +112,7 @@ export default function JobApplicationModal({ onApplied }: { onApplied?: () => v
   useEffect(() => {
     if (!isOpen) {
       resetModal()
+      if (onClose) onClose()
     }
   }, [isOpen])
 
@@ -144,7 +170,12 @@ export default function JobApplicationModal({ onApplied }: { onApplied?: () => v
                         <h4 className="font-semibold text-gray-900 mb-1 ">Cover Letter</h4>
                         <div className="flex items-center gap-2">
 
-                        <Textarea className="mt-2 h-[5rem]" placeholder="Cover Letter"  />
+                        <Textarea 
+                          className="mt-2 h-[5rem]" 
+                          placeholder="Cover Letter" 
+                          value={coverLetter}
+                          onChange={(e) => setCoverLetter(e.target.value)}
+                        />
                         </div>
                       </div>
                     </div>
@@ -156,13 +187,25 @@ export default function JobApplicationModal({ onApplied }: { onApplied?: () => v
                       <div className="space-y-3">
                         <h5 className="font-medium text-gray-900">Edit Resume</h5>
                         <div className="space-y-2">
+                          <input 
+                            type="file"
+                            id="resume-upload"
+                            style={{ display: 'none' }}
+                            accept=".pdf,.doc,.docx"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                setResumeFile(e.target.files[0]);
+                              }
+                            }}
+                          />
                           <Button
                             variant="outline"
                             size="sm"
-                            className="w-full justify-start text-left border-dashed  border-[#255cf4] bg-transparent text-black hover:bg-[#255cf4]/5"
+                            className="w-full justify-start text-left border-dashed border-[#255cf4] bg-transparent text-black hover:bg-[#255cf4]/5"
+                            onClick={() => document.getElementById('resume-upload')?.click()}
                           >
                             <FileText className="h-4 w-4 mr-2" />
-                            Upload New Resume
+                            {resumeFile ? resumeFile.name : 'Upload New Resume'}
                           </Button>
                           <p className="text-xs text-gray-500 text-center">
                             Supported formats: PDF, DOC, DOCX (Max 5MB)

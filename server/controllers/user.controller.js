@@ -181,3 +181,19 @@ export const getUserById = async (req,res) => {
         return res.status(500).json({message:"Internal server error",success:false});   
     }
 }   
+
+// getByIDforAppliedJobs and match the specific job
+export const getUserByIdforAppliedJobs = async (req,res) => {
+    try {
+        const user = await User.findById(req.params.id).populate({
+            path:'appliedJobs',
+            options:{sort:{createdAt:-1}},
+            match:{
+                job:req.query.jobId
+            }
+        });
+        return res.status(200).json({message:"User fetched successfully",success:true,data:user});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}

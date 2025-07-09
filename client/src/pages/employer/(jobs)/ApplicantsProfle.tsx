@@ -1,26 +1,127 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Mail, Phone, MapPin, Download, ExternalLink, CheckCircle, Github, Linkedin, Globe, Eye, Award, Briefcase, GraduationCap, User } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, MapPin, Download, ExternalLink, CheckCircle, Github, Linkedin, Globe, Eye, Award, Briefcase, GraduationCap, User, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { AppProvider, useApp } from '@/contexts/AppContext';
 import { format } from 'date-fns';
+import axios from 'axios';
+
+interface UserProfile {
+  firstName: string;
+  lastName: string;
+  profilePicture: string;
+  gender: string;
+  phoneNumber: string;
+  dateOfBirth: string;
+  sectors: (string | { title: string })[];
+  designation: string;
+  aboutMe: string;
+  city: string;
+  currentAddress: string;
+  postalCode: string;
+  province: string;
+  education: any[];
+  projects: any[];
+  skills: string[];
+  achievements: (any | { title: any; description: any })[];
+  certificates: Array<{ name: any, issuer: any, date: any }>;
+  experiences: any[];
+  isShortlisted: boolean;
+  coverLetter: string;
+}
+
+interface UserData {
+  profile: UserProfile;
+  _id: string;
+  fullname: string;
+  email: string;
+  phoneNumber: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  profileCompleted: boolean;
+}
+
 
 const ApplicantProfile = () => {
   const params = useParams();
   const id = params?.id as string;
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const jobId = searchParams?.get('jobid') as string;
   const { toast } = useToast();
   const { getApplicant, toggleShortlist } = useApp();
 
-  const applicant = id ? getApplicant(id) : null;
+  const [user, setUser] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [resume, setResume] = useState('');
 
-  if (!applicant) {
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!id || !jobId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await axios.get(`http://localhost:4000/api/user/getuserappliedjobs/${id}?jobId=${jobId}`);
+        if (response.data.success) {
+          setUser(response.data.data);
+          const mapResume = response.data.data.appliedJobs.map((job: any) => job.resume);
+          setResume(mapResume);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch applicant data",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [id, jobId]);
+
+  const handleShortlist = () => {
+    if (!user) return;
+    if (!user.profile.isShortlisted) {
+      toggleShortlist(user._id);
+      toast({
+        title: "Applicant Shortlisted",
+        description: `${user.fullname} has been added to your shortlist.`,
+      });
+    } else {
+      toast({
+        title: "Already Shortlisted",
+        description: `${user.fullname} is already in your shortlist.`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownload = (url: string, filename: string) => {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
     return (
       <div className="space-y-6">
         <Card>
@@ -37,22 +138,6 @@ const ApplicantProfile = () => {
       </div>
     );
   }
-
-  const handleShortlist = () => {
-    if (!applicant.isShortlisted) {
-      toggleShortlist(applicant.id);
-      toast({
-        title: "Applicant Shortlisted",
-        description: `${applicant.name} has been added to your shortlist.`,
-      });
-    } else {
-      toast({
-        title: "Already Shortlisted",
-        description: `${applicant.name} is already in your shortlist.`,
-        variant: "destructive",
-      });
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -76,128 +161,95 @@ const ApplicantProfile = () => {
         {/* Left Column - Profile Info */}
         <div className="lg:col-span-1 space-y-6">
           <Card>
-            <CardContent className="pt-6">
-              <div className="text-center space-y-4">
-                <Avatar className="h-24 w-24 mx-auto">
-                  <AvatarImage src="https://images.unsplash.com/photo-1628563694622-5a76957fd09c?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aW5zdGFncmFtJTIwcHJvZmlsZXxlbnwwfHwwfHx8MA%3D%3D" />
-                  <AvatarFallback className="text-lg">
-                    {applicant.name.split(' ').map(n => n[0]).join('')}
+            <CardContent className="pt-4">
+              <div className="flex flex-col items-center text-center">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage 
+                    src={user.profile.profilePicture || "/placeholder-user.jpg"} 
+                    alt={user.fullname} 
+                  />
+                  <AvatarFallback>
+                    {user.fullname.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
+                <div className="mt-4">
+                  <div className="text-xl font-bold">{user.fullname}</div>
+                  <div className="text-muted-foreground">{user.profile.designation}</div>
+                </div>
+                <div className="mt-4 grid grid-cols-1 gap-2 w-full">
+                  {/* <Button variant="outline" size="sm" className="flex-1">
+                    <Mail className="h-4 w-4 mr-2" />
+                    Message
+                  </Button> */}
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={handleShortlist}
+                  >
+                    <Star className="h-4 w-4 mr-2" />
+                    Shortlist
+                  </Button>
+                </div>
+              </div>
+              
+              <Separator className="my-6" />
+              
+              <div className="space-y-4">
                 <div>
-                  <h3 className="text-xl font-semibold">{applicant.name}</h3>
-                  <p className="text-muted-foreground">Applied on {format(applicant.appliedDate, 'MMM d, yyyy')}</p>
-                  <Badge className={applicant.isShortlisted ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}>
-                    {applicant.isShortlisted ? 'Shortlisted' : applicant.status}
-                  </Badge>
+                  <div className="font-medium">Contact Information</div>
+                  <div className="text-sm text-muted-foreground">
+                    <div>{user.email}</div>
+                    <div>{user.phoneNumber}</div>
+                  </div>
                 </div>
-                <Button 
-                  onClick={handleShortlist}
-                  className={applicant.isShortlisted ? 'bg-gray-500 hover:bg-gray-600' : 'bg-green-600 hover:bg-green-700'}
-                  disabled={applicant.isShortlisted}
-                >
-                  {applicant.isShortlisted ? (
-                    <>
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Already Shortlisted
-                    </>
-                  ) : (
-                    'Shortlist Applicant'
-                  )}
-                </Button>
+                
+                <div>
+                  <div className="font-medium">Location</div>
+                  <div className="text-sm text-muted-foreground">
+                    {user.profile.city}, {user.profile.province}
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="font-medium">Sectors</div>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {user.profile.sectors.map((sector, index) => (
+                      <Badge key={index} variant="secondary">
+                        {typeof sector === 'string' ? sector : sector.title}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
-
-          {/* Contact Info */}
+          
           <Card>
             <CardHeader>
-              <CardTitle>Contact Information</CardTitle>
+              <CardTitle>About Me</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-3">
-                <Mail className="h-4 w-4 text-gray-500" />
-                <span className="text-sm">{applicant.email}</span>
-              </div>
-              {applicant.phone && (
-                <div className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm">{applicant.phone}</span>
-                </div>
-              )}
-              {applicant.address && (
-                <div className="flex items-center gap-3">
-                  <MapPin className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm">{applicant.address}</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Links */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Links</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {applicant.linkedin && (
-                <div className="flex items-center gap-3">
-                  <Linkedin className="h-4 w-4 text-blue-600" />
-                  <a href={applicant.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
-                    LinkedIn Profile
-                  </a>
-                  <ExternalLink className="h-3 w-3" />
-                </div>
-              )}
-              {applicant.github && (
-                <div className="flex items-center gap-3">
-                  <Github className="h-4 w-4 text-gray-800" />
-                  <a href={applicant.github} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-800 hover:underline">
-                    GitHub Profile
-                  </a>
-                  <ExternalLink className="h-3 w-3" />
-                </div>
-              )}
-              {applicant.portfolio && (
-                <div className="flex items-center gap-3">
-                  <Globe className="h-4 w-4 text-green-600" />
-                  <a href={applicant.portfolio} target="_blank" rel="noopener noreferrer" className="text-sm text-green-600 hover:underline">
-                    Portfolio Website
-                  </a>
-                  <ExternalLink className="h-3 w-3" />
-                </div>
-              )}
+            <CardContent className="h-full w-full overflow-auto ">
+              <p className="text-sm break-words whitespace-pre-wrap">
+                {user.profile.aboutMe || "No bio provided"}
+              </p>
             </CardContent>
           </Card>
         </div>
-
+        
         {/* Right Column - Detailed Info */}
         <div className="lg:col-span-2 space-y-6">
-          {/* About */}
-          {applicant.about && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  About
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 leading-relaxed">{applicant.about}</p>
-              </CardContent>
-            </Card>
-          )}
-
+     
           {/* Skills */}
-          {applicant.skills && applicant.skills.length > 0 && (
+          {user.profile.skills && user.profile.skills.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>Skills</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="max-h-[200px] overflow-y-auto">
                 <div className="flex flex-wrap gap-2">
-                  {applicant.skills.map((skill, index) => (
-                    <Badge key={index} variant="secondary">
+                  {user.profile.skills.map((skill: string, techIndex: number) => (
+                    <Badge key={techIndex} variant="secondary">
                       {skill}
                     </Badge>
                   ))}
@@ -218,30 +270,27 @@ const ApplicantProfile = () => {
                     <Download className="h-8 w-8 text-red-600" />
                   </div>
                   <div>
-                    <h4 className="font-medium">Resume_{applicant.name.replace(' ', '_')}.pdf</h4>
+                    <h4 className="font-medium">Resume_{user.fullname.replace(' ', '_')}.pdf</h4>
                     <p className="text-sm text-gray-500">Submitted with application</p>
                   </div>
                   <div className="flex gap-2 justify-center">
-                    <Button variant="outline" size="sm">
+                    {/* <Button variant="outline" size="sm" onClick={() => router.push(`/employer/dashboard/applicants/viewer?url=${encodeURIComponent(resume)}`)}>
                       <Eye className="h-4 w-4 mr-2" />
                       Preview
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        // Minimal PDF file with 'Placeholder Resume' text
-                        const pdfData = '/Resume-Siddhartha_Shrestha.pdf';
-                        const link = document.createElement('a');
-                        link.href = pdfData;
-                        link.download = `Resume_${applicant.name.replace(' ', '_')}.pdf`;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      }}
-                    > 
+                    </Button> */}
+                    <Button variant="outline" size="sm" onClick={() => {
+                      const downloadUrl = resume + (resume.includes('?') ? '&' : '?') + 'fl_attachment';
+                      handleDownload(downloadUrl, 'resume.pdf');
+                    }}>
                       <Download className="h-4 w-4 mr-2" />
                       Download
                     </Button>
+                    {resume && (
+                      <Button variant="outline" size="sm" onClick={() => window.open(resume, '_blank')}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Preview Resume
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -249,7 +298,7 @@ const ApplicantProfile = () => {
           </Card>
 
           {/* Education */}
-          {applicant.education && applicant.education.length > 0 && (
+          {user.profile.education && user.profile.education.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -258,15 +307,16 @@ const ApplicantProfile = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {applicant.education.map((edu, index) => (
+                {user.profile.education.map((edu, index) => (
                   <div key={index}>
                     {index > 0 && <Separator className="my-4" />}
                     <div className="space-y-2">
                       <h4 className="font-medium">{edu.degree}</h4>
-                      <p className="text-sm text-gray-600">{edu.institution}</p>
+                      <p className="text-sm text-gray-600">
+                        {edu.collegeType} in {edu.city}
+                      </p>
                       <p className="text-sm text-gray-500">
-                        Graduated: {edu.year}
-                        {edu.gpa && ` | GPA: ${edu.gpa}`}
+                        {edu.currentlyStudying ? 'Currently studying' : `Graduated: ${edu.graduationDate}`}
                       </p>
                     </div>
                   </div>
@@ -276,7 +326,7 @@ const ApplicantProfile = () => {
           )}
 
           {/* Work Experience */}
-          {applicant.experience && applicant.experience.length > 0 && (
+          {user.profile.experiences && user.profile.experiences.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -285,13 +335,18 @@ const ApplicantProfile = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {applicant.experience.map((exp, index) => (
+                {user.profile.experiences.map((exp, index) => (
                   <div key={index}>
                     {index > 0 && <Separator className="my-4" />}
                     <div className="space-y-2">
-                      <h4 className="font-medium">{exp.role}</h4>
-                      <p className="text-sm text-gray-600">{exp.company}</p>
-                      <p className="text-sm text-gray-500">{exp.duration}</p>
+                      <h4 className="font-medium">{exp.jobTitle}</h4>
+                      <p className="text-sm text-gray-600">
+                        {exp.company} - {exp.location}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {format(new Date(exp.startDate), 'MMM yyyy')} to{' '}
+                        {exp.currentlyWorking ? 'Present' : format(new Date(exp.endDate), 'MMM yyyy')}
+                      </p>
                       <p className="text-sm text-gray-700 leading-relaxed">{exp.description}</p>
                     </div>
                   </div>
@@ -301,33 +356,16 @@ const ApplicantProfile = () => {
           )}
 
           {/* Projects */}
-          {applicant.projects && applicant.projects.length > 0 && (
+          {user.profile.projects && user.profile.projects.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>Projects</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {applicant.projects.map((project, index) => (
-                  <div key={index}>
-                    {index > 0 && <Separator className="my-4" />}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-medium">{project.title}</h4>
-                        {project.link && (
-                          <Button variant="outline" size="sm" onClick={() => window.open(project.link, '_blank')}>
-                            <ExternalLink className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-700">{project.description}</p>
-                      <div className="flex flex-wrap gap-1">
-                        {project.technologies.map((tech, techIndex) => (
-                          <Badge key={techIndex} variant="outline" className="text-xs">
-                            {tech}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
+                {user.profile.projects?.map((project, index) => (
+                  <div key={index} className="mb-4">
+                    <h4 className="font-medium">{project.title}</h4>
+                    <p className="text-sm text-gray-700 mt-2">{project.description}</p>
                   </div>
                 ))}
               </CardContent>
@@ -335,7 +373,7 @@ const ApplicantProfile = () => {
           )}
 
           {/* Achievements */}
-          {applicant.achievements && applicant.achievements.length > 0 && (
+          {user.profile.achievements && user.profile.achievements.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -344,37 +382,29 @@ const ApplicantProfile = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2">
-                  {applicant.achievements.map((achievement, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="text-sm text-gray-700">{achievement}</span>
-                    </li>
-                  ))}
-                </ul>
+                {user.profile.achievements?.map((achievement, index) => (
+                  <div key={index} className="mb-4">
+                    <h4 className="font-medium">{achievement.title}</h4>
+                    <p className="text-sm text-gray-700">{achievement.description}</p>
+                  </div>
+                ))}
               </CardContent>
             </Card>
           )}
 
           {/* Certificates */}
-          {applicant.certificates && applicant.certificates.length > 0 && (
+          {user.profile.certificates && user.profile.certificates.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>Certificates</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {applicant.certificates.map((cert, index) => (
+                {user.profile.certificates.map((cert, index) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                     <div>
                       <h4 className="font-medium">{cert.name}</h4>
-                      <p className="text-sm text-gray-600">{cert.issuer}</p>
-                      <p className="text-sm text-gray-500">{cert.date}</p>
+                      <p className="text-sm text-gray-500">{cert.issuer} | {cert.date}</p>
                     </div>
-                    {cert.link && (
-                      <Button variant="outline" size="sm" onClick={() => window.open(cert.link, '_blank')}>
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                    )}
                   </div>
                 ))}
               </CardContent>
@@ -382,13 +412,15 @@ const ApplicantProfile = () => {
           )}
 
           {/* Cover Letter */}
-          {applicant.coverLetter && (
+          {user.profile.coverLetter && (
             <Card>
               <CardHeader>
                 <CardTitle>Cover Letter</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{applicant.coverLetter}</p>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {user.profile.coverLetter}
+                </p>
               </CardContent>
             </Card>
           )}

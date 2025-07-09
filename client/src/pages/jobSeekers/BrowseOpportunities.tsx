@@ -105,7 +105,7 @@ const BrowseOpportunities: React.FC<BrowseOpportunitiesProps> = ({
         </div>
 
 
-      <div className="flex space-x-2 bg-gray-100 p-2 rounded-md">
+      <div className="flex space-x-2 bg-gray-100 p-2 rounded-xl">
         {industries.map((industry) => (
           <Button 
             key={industry}
@@ -129,8 +129,8 @@ const BrowseOpportunities: React.FC<BrowseOpportunitiesProps> = ({
         ))}
       </div>
 
-
-      {/* <div className="pagination">
+{/* 
+      <div className="pagination flex items-center justify-end">
         {[...Array(Math.ceil(filteredJobs.length / jobsPerPage))].map((_, i) => (
           <Button 
             key={i}
@@ -139,6 +139,7 @@ const BrowseOpportunities: React.FC<BrowseOpportunitiesProps> = ({
             onClick={() => paginate(i + 1)}
           >
             {i + 1}
+            
           </Button>
         ))}
       </div> */}

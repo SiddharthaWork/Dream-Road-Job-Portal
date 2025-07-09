@@ -3,6 +3,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react";
+import { profile } from "console"
+
 export default function HowItWorks() {
 
     interface ProfileStep {
@@ -99,8 +102,7 @@ export default function HowItWorks() {
   const completionPercentage = Math.round((completedSteps / totalSteps) * 100)
   const router = useRouter();
   // wrap inside the useEffect
-    const profile = localStorage.getItem('profile') || false
-    const userId = localStorage.getItem('userId') || false
+ 
 
   // Get next incomplete step
   const nextStep = profileSteps.find((step) => !step.isCompleted)
@@ -115,12 +117,23 @@ export default function HowItWorks() {
   }
 
 
-
+  const [profile, setProfile] = useState(false);
+  const [userId, setUserId] = useState( '');
   
+
+  useEffect(() => {
+    const profileInfo = localStorage.getItem('profile') || 'false'
+    const profile = JSON.parse(profileInfo)
+    const userId = localStorage.getItem('userId') || ''
+    setProfile(profile);
+    setUserId(userId);
+    console.log('Profile status:', profileInfo);
+  }, []);
 
   return (
     <Card className="py-6">
       <CardContent className="px-6">
+        {profile}
 
         {/* Progress Bar */}
       <div className="space-y-2">
@@ -138,7 +151,25 @@ export default function HowItWorks() {
                 className={`absolute top-0 left-0 h-3 rounded-full transition-all duration-500 ${getProgressColor(completionPercentage)}`}
                 style={{ width: `${completionPercentage}%` }}
               /> */}
-              {profile  ? <Button onClick={() => router.push("/profile/" + userId)} variant={'default'} size={'custom'} className='bg-[#255cf4] cursor-pointer'>View Profile</Button> : <Button onClick={() => router.push("/profile")} variant={'default'} size={'custom'} className='bg-[#255cf4] cursor-pointer'>Complete Profile</Button>}
+              {profile ? (
+                  <Button 
+                    onClick={() => router.push(`/profile/${userId}`)}
+                    variant={'default'}
+                    size={'custom'}
+                    className='bg-[#255cf4] cursor-pointer'
+                  >
+                    View Profile
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => router.push('/profile')}
+                    variant={'default'}
+                    size={'custom'}
+                    className='bg-[#255cf4] cursor-pointer'
+                  >
+                    Complete Profile
+                  </Button>
+                )}
             </div>
           </div>
 

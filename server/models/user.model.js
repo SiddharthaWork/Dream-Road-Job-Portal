@@ -84,7 +84,11 @@ const userSchema = new mongoose.Schema({
             ref:"Company"   
         },
     },
-    profileCompleted: { type: Boolean, default: false }
+    profileCompleted: { type: Boolean, default: false },
+    appliedJobs:{
+      type:[mongoose.Schema.Types.ObjectId],
+      ref:"Application" 
+    }
 },{timestamps:true});
 
 export const User = mongoose.model('User',userSchema);
