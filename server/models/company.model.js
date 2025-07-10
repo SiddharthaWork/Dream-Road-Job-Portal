@@ -11,9 +11,7 @@ const companySchema = new mongoose.Schema({
     industry:{type:String},
     size:{type:String},
     
-    companyProfile:{
     description:{type:String},
-     }, 
 
     userId:{
         type:mongoose.Schema.Types.ObjectId,

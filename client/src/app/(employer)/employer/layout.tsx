@@ -9,7 +9,7 @@ export default function EmployerLayout({
 }>) {
     return (
         <AppProvider>
-              <Toaster position="top-center"   />
+              <Toaster position="top-center" />
           {children}
         </AppProvider>
     );

@@ -346,6 +346,7 @@ const Onboarding = () => {
                   placeholder="123-456-7890"
                   value={companyData.phoneNumber}
                   onChange={handleInputChange}
+                  maxLength={10}
                   required
                 />
                 {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber}</p>}

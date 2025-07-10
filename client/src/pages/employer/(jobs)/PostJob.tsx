@@ -58,12 +58,12 @@ const PostJob = () => {
         deadline: hasDeadline ? deadline : undefined,
         skills: skills,
         createdBy: companyId,
-      });
+      }); 
       if(response.status === 201){
         toast.success('Job Posted');
-          router.push('/employer/dashboard/jobs');
+        router.push('/employer/dashboard/jobs');
       }
-        } catch (error: any) {
+    } catch (error: any) {
       console.error('Error creating job:', error.message);
       toast.error('Failed to post job. Please try again.',error.message);
     } finally {
@@ -146,9 +146,16 @@ const PostJob = () => {
         </div>
         
         <div className="mt-8 flex justify-end">
-          <Button type="submit" disabled={isLoading || isSubmitting}>
-            {isLoading ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : null}
-            {isLoading ? 'Submitting...' : isSubmitting ? 'Submitting...' : 'Submit Job'}
+          <Button 
+            type="submit" 
+            disabled={isLoading || isSubmitting}
+          >
+            {isLoading || isSubmitting ? (
+              <>
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                Submitting...
+              </>
+            ) : 'Submit Job'}
           </Button>
         </div>
       </form>

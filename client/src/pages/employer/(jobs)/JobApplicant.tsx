@@ -221,13 +221,13 @@ const JobApplicants = () => {
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => window.open(applicant.resume, '_blank')}
+            onClick={() => router.push(`/employer/dashboard/applicants/profile/${applicant.userId}?jobid=${jobId}`)}
           >
             <ExternalLink className="h-4 w-4" />
           </Button>
       
 
-          <div>
+          {/* <div>
           {applicant.status !== 'shortlisted' && (
             <Button 
               variant="outline" 
@@ -238,7 +238,7 @@ const JobApplicants = () => {
               Shortlisted
             </Button>
           )}
-        </div>
+        </div> */}
           {/* <Select
             value={applicant.status}
             onValueChange={(value) => handleStatusChange(applicant.id, value)}

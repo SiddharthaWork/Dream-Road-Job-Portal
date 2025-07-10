@@ -1,3 +1,4 @@
+"use client"
 import * as React from "react"
 
 import { ToastActionElement, ToastProps } from "@/components/ui/toast"

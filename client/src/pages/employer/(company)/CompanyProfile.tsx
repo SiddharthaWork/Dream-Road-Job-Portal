@@ -1,64 +1,148 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Building2, Globe, Users, MapPin, Edit, Save, X, CheckCircle, Clock } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import toast from 'react-hot-toast';
+
+interface CompanyData {
+  name: string;
+  website: string;
+  industry: string;
+  size: string;
+  description: string;
+  location: string;
+  founded: string;
+  employees: string;
+  benefits: string;
+  logo: string;
+}
 
 const CompanyProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
 
   // Get company data from localStorage (mock data)
-  const [companyData, setCompanyData] = useState({
-    name: 'LeapFrog',
-    website: 'https://leapfrog.com',
-    industry: 'Technology',
-    size: '51-200',
-    description: 'We are a leading technology company focused on creating innovative solutions for modern businesses. Our team is passionate about delivering high-quality software products that make a difference.',
-    location: 'Kathmandu, Bāgmatī, Nepal',
-    founded: '2018',
-    employees: '150+',
-    benefits: 'Health insurance, Dental coverage, Vision insurance, 401(k) matching, Flexible PTO, Remote work options, Professional development budget',
+  const [companyData, setCompanyData] = useState<CompanyData>({
+    name: '',
+    website: '',
+    industry: '',
+    size: '',
+    description: '',
+    location: '',
+    founded: '',
+    employees: '',
+    benefits: '',
+    logo: '',
   });
 
-  const [formData, setFormData] = useState(companyData);
+  const [formData, setFormData] = useState<CompanyData>(companyData);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    const fetchCompanyData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:4000/api/company/getcompany/${localStorage.getItem('companyId')}`);
+        const data = response.data.data;
+        setCompanyData({
+          name: data.name,
+          website: data.website,
+          industry: data.industry,
+          size: data.size,
+          description: data.description,
+          location: data.location,
+          founded: data.founded,
+          employees: data.employees,
+          benefits: data.benefits,
+          logo: data.logo,
+        });
+        setFormData({
+          name: data.name,
+          website: data.website,
+          industry: data.industry,
+          size: data.size,
+          description: data.description,
+          location: data.location,
+          founded: data.founded,
+          employees: data.employees,
+          benefits: data.benefits,
+          logo: data.logo,
+        });
+      } catch (error) {
+        console.error('Failed to fetch company data', error);
+        toast.error("Failed to fetch company data.");
+      }
+    };
+
+    fetchCompanyData();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleSelectChange = (name: keyof CompanyData, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setLogoFile(e.target.files[0]);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setFormData((prev) => ({ ...prev, logo: event?.target?.result as string }));
+        }
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
   };
 
   const handleSave = async () => {
     setIsLoading(true);
-    
-    // Mock save
-    setTimeout(() => {
-      setCompanyData(formData);
-      localStorage.setItem('company_data', JSON.stringify(formData));
-      setIsEditing(false);
-      setIsLoading(false);
-      toast({
-        title: "Profile updated",
-        description: "Your company profile has been updated successfully.",
+
+    try {
+      const formDataToSend = new FormData();
+
+      // Append updated fields
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== companyData[key as keyof CompanyData]) {
+          formDataToSend.append(key, value as string);
+        }
       });
-    }, 1000);
+
+      // Append logo file if changed
+      if (logoFile) {
+        formDataToSend.append('file', logoFile);
+      }
+
+      const response = await axios.put(
+        `http://localhost:4000/api/company/updatecompany/${localStorage.getItem('companyId')}`,
+        formDataToSend,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      // Update company data with response
+      setCompanyData(response.data.data);
+
+      toast.success("Company profile updated successfully.");
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating company:', error);
+      toast.error("Failed to update company profile.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -66,33 +150,33 @@ const CompanyProfile = () => {
     setIsEditing(false);
   };
 
-  const verificationStatus = localStorage.getItem('company_verified') || 'pending';
+  const verificationStatus = 'pending';
 
-  const getVerificationBadge = () => {
-    switch (verificationStatus) {
-      case 'verified':
-        return (
-          <Badge className="bg-green-100 text-green-800">
-            <CheckCircle className="h-3 w-3 mr-1" />
-            Verified
-          </Badge>
-        );
-      case 'pending':
-        return (
-          <Badge className="bg-yellow-100 text-yellow-800">
-            <Clock className="h-3 w-3 mr-1" />
-            Pending Verification
-          </Badge>
-        );
-      default:
-        return (
-          <Badge className="bg-gray-100 text-gray-800">
-            <X className="h-3 w-3 mr-1" />
-            Not Verified
-          </Badge>
-        );
-    }
-  };
+  // const getVerificationBadge = () => {
+  //   switch (verificationStatus) {
+  //     case 'verified':
+  //       return (
+  //         <Badge className="bg-green-100 text-green-800">
+  //           <CheckCircle className="h-3 w-3 mr-1" />
+  //           Verified
+  //         </Badge>
+  //       );
+  //     case 'pending':
+  //       return (
+  //         <Badge className="bg-yellow-100 text-yellow-800">
+  //           <Clock className="h-3 w-3 mr-1" />
+  //           Pending Verification
+  //         </Badge>
+  //       );
+  //     default:
+  //       return (
+  //         <Badge className="bg-gray-100 text-gray-800">
+  //           <X className="h-3 w-3 mr-1" />
+  //           Not Verified
+  //         </Badge>
+  //       );
+  //   }
+  // };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -126,12 +210,9 @@ const CompanyProfile = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16">
-                <AvatarImage src="" />
-                <AvatarFallback className="text-lg">
-                  <Building2 className="h-8 w-8" />
-                </AvatarFallback>
-              </Avatar>
+              <div className="h-16 w-16">
+                <img src={companyData.logo || '/placeholder.png'} alt="logo" className="h-16 w-16 rounded-full" />
+              </div>
               <div>
                 <CardTitle className="text-2xl">{companyData.name}</CardTitle>
                 <CardDescription className="flex items-center gap-2 mt-1">
@@ -140,7 +221,7 @@ const CompanyProfile = () => {
                 </CardDescription>
               </div>
             </div>
-            {getVerificationBadge()}
+            {/* {getVerificationBadge()} */}
           </div>
         </CardHeader>
         <CardContent>
@@ -159,17 +240,8 @@ const CompanyProfile = () => {
                 <Users className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <p className="font-medium">{companyData.employees}</p>
+                <p className="font-medium">{companyData.size}</p>
                 <p className="text-sm text-gray-500">Employees</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="bg-purple-100 p-2 rounded-lg">
-                <MapPin className="h-5 w-5 text-purple-600" />
-              </div>
-              <div>
-                <p className="font-medium">{companyData.location}</p>
-                <p className="text-sm text-gray-500">Location</p>
               </div>
             </div>
           </div>
@@ -273,24 +345,27 @@ const CompanyProfile = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="benefits">Benefits & Perks</Label>
             {isEditing ? (
-              <Textarea
-                id="benefits"
-                name="benefits"
-                rows={3}
-                value={formData.benefits}
-                onChange={handleInputChange}
+              <>
+              <Label>Logo</Label>
+              <Input
+                type="file"
+                id="logo"
+                name="logo"
+                onChange={handleFileChange}
               />
+              </>
             ) : (
-              <p className="text-sm p-3 bg-gray-50 rounded leading-relaxed">{companyData.benefits}</p>
+              // <img src={companyData.logo || '/placeholder.png'} alt="logo" className="h-16 w-16 rounded-full" />
+              <></>
             )}
           </div>
+
         </CardContent>
       </Card>
 
       {/* Verification Status */}
-      {verificationStatus === 'pending' && (
+      {/* {verificationStatus === 'pending' && (
         <Card className="border-yellow-200 bg-yellow-50">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
@@ -304,7 +379,7 @@ const CompanyProfile = () => {
             </div>
           </CardContent>
         </Card>
-      )}
+      )} */}
     </div>
   );
 };

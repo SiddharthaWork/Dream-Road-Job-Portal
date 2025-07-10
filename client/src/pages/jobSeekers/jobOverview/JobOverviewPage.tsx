@@ -85,7 +85,7 @@ export default function JobOverviewPage() {
   }
 
   // Format the salary range
-  const formattedSalary = `NPR ${job.salaryMin.toLocaleString()}-${job.salaryMax.toLocaleString()}`;
+  const formattedSalary = `NPR ${job.salaryMin.toLocaleString()}-${job.salaryMax.toLocaleString()} /month`;
 
   // Format the posted date
   const postedDate = new Date(job.createdAt);
@@ -196,10 +196,10 @@ export default function JobOverviewPage() {
                           <Briefcase className="w-4 h-4 text-gray-500" />
                           <span>{job.type}</span>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 w-full min-w-[25rem]">
                           <span>{formattedSalary}</span>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 ml-8">
                           <MapPin className="w-4 h-4 text-gray-500" />
                           <span>{job.location}</span>
                         </div>

@@ -41,7 +41,7 @@ const Login = () => {
       localStorage.setItem('token', data.token);
       localStorage.setItem('companyId', data.company._id);
       localStorage.setItem('role', data.company.role);
-      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('isLoggedIn', data.isLoggedIn.toString());
       localStorage.setItem('companyName', data.company.name);
 
       toast.success("Login successful");

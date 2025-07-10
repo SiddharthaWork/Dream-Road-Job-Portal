@@ -106,6 +106,8 @@ export const applyJob = async (req, res) => {
         });
     }
 };
+
+// get applied jobs
 export const getAppliedJobs = async (req,res) => {
     try {
         const userId = req.body.id;
@@ -262,7 +264,7 @@ export const updateStatus = async (req,res) => {
 
         return res.status(200).json({
             message:"Status updated successfully.",
-            success:true
+            success:true,
         });
 
     } catch (error) {
@@ -273,3 +275,60 @@ export const updateStatus = async (req,res) => {
         });
     }
 }
+
+
+// get all applicant
+export const getAllApplicant = async (req,res) => {
+    try {
+        // i need only username and email of the user
+        const application = await Application.find().populate({
+            path:'user',
+            options:{sort:{createdAt:-1}},
+            select:'username email'
+        });
+        const job = await Job.find().populate({
+            path:'applications',
+            options:{sort:{createdAt:-1}},
+            select:'title'
+        }); 
+        return res.status(200).json({message:"Applicant fetched successfully",success:true,data:{application,job}});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}   
+
+
+// get shortlisted job by user id
+export const getShortlistedJobByUserId = async (req,res) => {
+    if(!req.params.id){
+        return res.status(400).json({message:"User id is required",success:false});
+    }   
+    try {
+        const userId = req.params.id;
+        const application = await Application.find({user:userId,status:'shortlisted'}).populate({
+            path:'job',
+            options:{sort:{createdAt:-1}}
+        });
+        return res.status(200).json({message:"Shortlisted job fetched successfully",success:true,data:application});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}   
+
+// get applicants by company id
+export const getApplicantsByCompanyId = async (req,res) => {
+    if(!req.params.id){
+        return res.status(400).json({message:"Company id is required",success:false});
+    }   
+    try {
+        const companyId = req.params.id;
+        const application = await Application.find({company:companyId}).populate({
+            path:'user',
+            options:{sort:{createdAt:-1}}
+        });
+        return res.status(200).json({message:"Applicants fetched successfully",success:true,data:application});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}   
+    

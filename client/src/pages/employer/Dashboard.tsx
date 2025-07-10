@@ -133,7 +133,7 @@ const Dashboard = () => {
             </Button>
             <Button 
               variant="outline" 
-              onClick={() => router.push('/employer/dashboard/applicants')}
+              onClick={() => router.push('/employer/dashboard/jobs')}
               className="h-20 flex flex-col gap-2"
             >
               <Users className="h-6 w-6" />

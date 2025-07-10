@@ -15,6 +15,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card"
 import { FileText, Share2, CheckCircle, Sparkles, Edit3 } from "lucide-react"
 import { Textarea } from "../ui/textarea"
+import toast from "react-hot-toast";
 
 // Confetti component for celebration effect
 const Confetti = ({ isActive }: { isActive: boolean }) => {
@@ -86,11 +87,12 @@ export default function JobApplicationModal({ jobId, userId, onApplied, onClose 
           setIsOpen(false);
           if (onApplied) onApplied();
         }, 3000);
+        toast.success("Job applied successfully");
       } else {
-        // Handle error
+        toast.error("Failed to apply for job");
       }
     } catch (err) {
-      // Handle error
+      toast.error("Failed to apply for job");
     } finally {
       setIsApplying(false);
     }
@@ -208,7 +210,7 @@ export default function JobApplicationModal({ jobId, userId, onApplied, onClose 
                             {resumeFile ? resumeFile.name : 'Upload New Resume'}
                           </Button>
                           <p className="text-xs text-gray-500 text-center">
-                            Supported formats: PDF, DOC, DOCX (Max 5MB)
+                            Supported formats: PDF (Max 5MB)
                           </p>
                         </div>
                       </div>

@@ -18,7 +18,7 @@ const applicationSchema = new mongoose.Schema({
     resume:{type:String},
     resumeOriginalName:{type:String},
     coverLetter:{type:String},
-    status:{type:String,enum:["pending","accepted","rejected"],default:"pending"},
+    status:{type:String,enum:["pending","shortlisted","rejected"],default:"pending"},
     createdAt:{type:Date,default:Date.now},
     createdBy:{
         type:mongoose.Schema.Types.ObjectId,

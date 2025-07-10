@@ -191,6 +191,7 @@ const JobDetailsForm = ({
               id="salaryMax"
               type="number"
               placeholder="Maximum"
+              max="1000000"
               {...register('salaryMax', {
                 required: 'Maximum salary is required',
                 valueAsNumber: true,

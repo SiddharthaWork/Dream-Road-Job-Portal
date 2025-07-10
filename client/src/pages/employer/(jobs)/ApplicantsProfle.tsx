@@ -7,11 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Mail, Phone, MapPin, Download, ExternalLink, CheckCircle, Github, Linkedin, Globe, Eye, Award, Briefcase, GraduationCap, User, Star } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { AppProvider, useApp } from '@/contexts/AppContext';
 import { format } from 'date-fns';
 import axios from 'axios';
-
+import { toast } from 'react-hot-toast';
 interface UserProfile {
   firstName: string;
   lastName: string;
@@ -55,12 +54,17 @@ const ApplicantProfile = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const jobId = searchParams?.get('jobid') as string;
-  const { toast } = useToast();
   const { getApplicant, toggleShortlist } = useApp();
 
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [resume, setResume] = useState('');
+  const [applicationId, setApplicationId] = useState<any>([]);
+  const [shortlist, setShortlist] = useState<any>('');
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [actionCompleted, setActionCompleted] = useState(false);
+  const [coverLetter, setCoverLetter] = useState('');
+  console.log(applicationId);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -73,16 +77,21 @@ const ApplicantProfile = () => {
         const response = await axios.get(`http://localhost:4000/api/user/getuserappliedjobs/${id}?jobId=${jobId}`);
         if (response.data.success) {
           setUser(response.data.data);
-          const mapResume = response.data.data.appliedJobs.map((job: any) => job.resume);
+          console.log("here is some data",response.data.data)
+          const mapResume = response.data.data?.appliedJobs?.map((job: any) => job.resume);
+          const applicationId = response.data.data?.appliedJobs?.map((job: any) => job._id);
+          const shortlist = response.data.data?.appliedJobs?.map((job: any) => job.status);
+          const coverLetter = response.data.data?.appliedJobs?.map((job: any) => job.coverLetter);
+          console.log(shortlist)
+          console.log(applicationId)
           setResume(mapResume);
+          setApplicationId(applicationId[0]);
+          setShortlist(shortlist[0]);
+          setCoverLetter(coverLetter[0]);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch applicant data",
-          variant: "destructive",
-        });
+        toast.error("Failed to fetch applicant data");
       } finally {
         setLoading(false);
       }
@@ -91,20 +100,47 @@ const ApplicantProfile = () => {
     fetchUserData();
   }, [id, jobId]);
 
-  const handleShortlist = () => {
-    if (!user) return;
-    if (!user.profile.isShortlisted) {
-      toggleShortlist(user._id);
-      toast({
-        title: "Applicant Shortlisted",
-        description: `${user.fullname} has been added to your shortlist.`,
+  const handleShortlist = async () => {
+    if (!user || !applicationId) return;
+    
+    setUpdatingStatus(true);
+    
+    try {
+      const response = await axios.put(`http://localhost:4000/api/application/updateStatus/${applicationId}`, {
+        status: "shortlisted",
       });
-    } else {
-      toast({
-        title: "Already Shortlisted",
-        description: `${user.fullname} is already in your shortlist.`,
-        variant: "destructive",
+      
+      console.log(response.data);
+      toggleShortlist(applicationId);
+      toast.success(`${user.fullname} has been added to your shortlist.`);
+      setActionCompleted(true);
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast.error("Failed to update status");
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!user || !applicationId) return;
+    
+    setUpdatingStatus(true);
+    
+    try {
+      const response = await axios.put(`http://localhost:4000/api/application/updateStatus/${applicationId}`, {
+        status: "rejected",
       });
+      
+      console.log(response.data);
+      toggleShortlist(applicationId);
+      toast.success(`${user.fullname} has been rejected.`);
+      setActionCompleted(true);
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast.error("Failed to update status");
+    } finally {
+      setUpdatingStatus(false);
     }
   };
 
@@ -146,12 +182,12 @@ const ApplicantProfile = () => {
         <Button 
           variant="outline" 
           size="sm"
-          onClick={() => router.push('/employer/dashboard/applicants')}
+          onClick={() => router.back()}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Applicants
+          Back to Jobs
         </Button>
-        <div>
+      <div>
           <h2 className="text-3xl font-bold tracking-tight">Applicant Profile</h2>
           <p className="text-muted-foreground">Review candidate details and make hiring decisions</p>
         </div>
@@ -182,14 +218,25 @@ const ApplicantProfile = () => {
                     Message
                   </Button> */}
                   <Button 
-                    variant="outline" 
+                    variant={actionCompleted ? "default" : "outline"}
                     size="sm" 
                     className="flex-1"
                     onClick={handleShortlist}
+                    disabled={updatingStatus || actionCompleted || shortlist === "shortlisted"}
                   >
-                    <Star className="h-4 w-4 mr-2" />
-                    Shortlist
+                    <Star className="h-4 w-4 mr-2" /> 
+                    {actionCompleted ? "Shortlisted" : (shortlist === "shortlisted" ? "Shortlisted" : "Shortlist")}
                   </Button>
+                  <Button 
+                    variant={actionCompleted ? "default" : "outline"}
+                    size="sm" 
+                    className="flex-1"
+                    onClick={handleReject}
+                    disabled={updatingStatus || actionCompleted || shortlist === "rejected"}
+                  >
+                    <Star className="h-4 w-4 mr-2" /> 
+                    {actionCompleted ? "Rejected" : (shortlist === "rejected" ? "Rejected" : "Reject")}
+                  </Button> 
                 </div>
               </div>
               
@@ -411,19 +458,19 @@ const ApplicantProfile = () => {
             </Card>
           )}
 
-          {/* Cover Letter */}
-          {user.profile.coverLetter && (
+        {/* so here if there is coverletter then on ly show this card */}
+            {coverLetter && (
             <Card>
               <CardHeader>
                 <CardTitle>Cover Letter</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {user.profile.coverLetter}
+                  {coverLetter} 
                 </p>
               </CardContent>
             </Card>
-          )}
+            )}
         </div>
       </div>
     </div>

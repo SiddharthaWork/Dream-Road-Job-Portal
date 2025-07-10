@@ -82,7 +82,7 @@ export default function LoginForm() {
       localStorage.setItem('token', data.data.token);
       localStorage.setItem('userId', data.data.id);
       localStorage.setItem('role', data.data.role);
-      localStorage.setItem('isLoggedIn', 'true'); 
+      localStorage.setItem('isLoggedIn', data.data.isLoggedIn.toString()); 
       localStorage.setItem('fullname', data.data.fullname);
       localStorage.setItem('profile', JSON.stringify(data.data.profileCompleted));
 

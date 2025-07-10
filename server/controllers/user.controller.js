@@ -62,6 +62,7 @@ export const login = async (req,res) => {
             phoneNumber:user.phoneNumber,
             profile:user.profile,
             profileCompleted:user.profileCompleted,
+            isLoggedIn:true,
             token
         }
 
@@ -197,3 +198,6 @@ export const getUserByIdforAppliedJobs = async (req,res) => {
         return res.status(500).json({message:"Internal server error",success:false});   
     }
 }
+// explanation
+// this function is used to get the user by id and populate the appliedJobs field with the job details
+// and match the specific job

@@ -6,7 +6,7 @@ import cloudinary from "../utils/cloudinary.js";
 
 export const registerCompany = async (req,res) => {
     try {
-        const {name, email, password, role, phoneNumber, industry,size} = req.body;
+        const {name, email, password, role, phoneNumber, industry, size, website, description} = req.body;
         if(!name || !email || !password || !role || !phoneNumber || !industry || !size){
             return res.status(400).json({message:"All fields are required",success:false});
         }
@@ -36,7 +36,10 @@ export const registerCompany = async (req,res) => {
             ,role,phoneNumber,
             industry,
             size,
-            logo:cloudResponse.secure_url});
+            logo:cloudResponse.secure_url,
+            description,
+            website
+        });
 
             // save the cloudnary URL in the database
             // in the case you need the name of the image use
@@ -47,7 +50,7 @@ export const registerCompany = async (req,res) => {
             ,password:hashedPassword
             ,role,phoneNumber,
             industry,
-            size    
+            size,
         }
 
             
@@ -88,7 +91,7 @@ export const login = async (req, res) => {
     };  
     
     const { password: _, ...companyWithoutPassword } = company.toObject();
-    res.status(200).cookie("token",token,cookieOptions).json({ message:"Company logged in successfully",success:true ,token, company: companyWithoutPassword, success: true });
+    res.status(200).cookie("token",token,cookieOptions).json({ message:"Company logged in successfully",success:true ,token, company: companyWithoutPassword,isLoggedIn:true, success: true });
   } catch (error) {
     res.status(500).json({ message: error.message, success: false });
   }
@@ -124,6 +127,12 @@ export const updateCompany = async (req,res) => {
         if(!company){
             return res.status(404).json({message:"Company not found",success:false});
         }
+        const file = req.file;
+        if(file){
+            const dataUri = getDataUri(file);
+            const cloudResponse = await cloudinary.uploader.upload(dataUri.content);
+            company.logo = cloudResponse.secure_url;
+        }   
 
         // updating data
         if(req.body.name){
@@ -137,6 +146,15 @@ export const updateCompany = async (req,res) => {
         }
         if(req.body.industry){
             company.industry = req.body.industry;
+        }
+        if(req.body.size){
+            company.size = req.body.size;
+        }
+        if(req.body.website){
+            company.website = req.body.website;
+        }
+        if(req.body.description){
+            company.description = req.body.description;
         }
 
         await company.save();
