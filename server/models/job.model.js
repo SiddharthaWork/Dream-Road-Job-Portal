@@ -5,7 +5,7 @@ const jobSchema = new mongoose.Schema({
   department: { type: String, required: true },
   location: { type: String, required: true },
   type: { type: String, required: true },
-  experience: { type: String, required: true },
+  experience: { type: String },
   salaryMin: { type: Number, required: true },
   salaryMax: { type: Number, required: true },
   description: { type: String, required: true },

@@ -207,6 +207,20 @@ export const getJobByCompany = async (req,res) => {
     }
 } 
 
+
+// Get the number of job company posted by company id and send the total applicant they have
+export const getJobCountByCompanyId = async (req,res) => {
+    try {
+        const jobCount = await Job.countDocuments({company: req.params.id});
+        const applicationCount = await Application.countDocuments({company: req.params.id});  
+        return res.status(200).json({message:"Job count fetched successfully",success:true,data:{jobCount, applicationCount}});
+    } catch (error) {
+        console.error("Population error:", error);
+        return res.status(500).json({message:"Internal server error",success:false, error: error.message});   
+    }
+} 
+
+
 // Get Job By Id this is for adminsite
 export const getJobById = async (req,res) => {
     try {

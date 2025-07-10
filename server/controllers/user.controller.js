@@ -1,6 +1,9 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import getDataUri from "../utils/datauri.js";
+import cloudinary from "../utils/cloudinary.js";
+import { getJobRecommendations } from "../services/recommendation.service.js";
 
 export const registerUser = async (req,res) => {
     try {
@@ -110,11 +113,6 @@ export const updateProfile = async (req,res) => {
             user.profile = req.body.profile;
         }
 
-        // resume later
-
-
-
-
         await user.save();
 
         
@@ -124,7 +122,8 @@ export const updateProfile = async (req,res) => {
             email:user.email,
             role:user.role,
             phoneNumber:user.phoneNumber,
-            profile:user.profile,
+            profilePicture:user.profilePicture,
+            resume:user.resume,
         }
 
 
@@ -136,15 +135,62 @@ export const updateProfile = async (req,res) => {
 
 export const saveProfile = async (req, res) => {
   try {
-    const { userId, ...profileData } = req.body; // Extract userId from request body
+    // console.log('Request body:', JSON.stringify(req.body, null, 2));
+    // console.log('Request files:', req.files);
+
+    const { userId, data } = req.body;
+    const profileData = JSON.parse(data);
+    let profilePicture = profileData.profilePicture;
+    let resume = profileData.resume;
+
+    // Handle profile picture upload
+    if (req.files && req.files['profilePicture']) {
+      const profileFile = req.files['profilePicture'][0];
+      const dataUri = getDataUri(profileFile);
+      const cloudResponse = await cloudinary.uploader.upload(dataUri.content);
+      profilePicture = cloudResponse.secure_url;   
+    }
+
+    // Handle resume upload
+    if (req.files && req.files['resume']) {
+      const resumeFile = req.files['resume'][0];
+      const dataUri = getDataUri(resumeFile);
+      const cloudResponse = await cloudinary.uploader.upload(dataUri.content, { 
+        resource_type: 'raw',
+        format: 'pdf',
+        flags: 'attachment' 
+      });
+      resume = cloudResponse.secure_url;
+    }
 
     // Update user profile
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { 
-        // fullname:profileData.fullname,
-        profile: profileData,
-        profileCompleted: true
+        $set: {
+          fullname: profileData.fullname,
+          "profile.firstName": profileData.firstName,
+          "profile.lastName": profileData.lastName,
+          "profile.gender": profileData.gender,
+          "profile.phoneNumber": profileData.phoneNumber,
+          "profile.dateOfBirth": profileData.dateOfBirth,
+          "profile.sectors": profileData.sectors,
+          "profile.designation": profileData.designation,
+          "profile.aboutMe": profileData.aboutMe,
+          "profile.city": profileData.city,
+          "profile.currentAddress": profileData.currentAddress,
+          "profile.postalCode": profileData.postalCode,
+          "profile.province": profileData.province,
+          "profile.education": profileData.education,
+          "profile.skills": profileData.skills,
+          "profile.experiences": profileData.experiences,
+          "profile.achievements": profileData.achievements,
+          "profile.projects": profileData.projects,
+          "profile.certificates": profileData.certificates,
+          "profile.profilePicture": profilePicture,
+          "profile.resume": resume,
+          profileCompleted: true
+        }
       },
       { new: true }
     );
@@ -155,10 +201,12 @@ export const saveProfile = async (req, res) => {
 
     res.status(200).json({
       message: "Profile saved successfully",
-      user: updatedUser
+      user: updatedUser,
+      success:true
     });
   } catch (error) {
     console.error("Error saving profile:", error);
+    console.error("Error stack:", error.stack);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -201,3 +249,24 @@ export const getUserByIdforAppliedJobs = async (req,res) => {
 // explanation
 // this function is used to get the user by id and populate the appliedJobs field with the job details
 // and match the specific job
+
+// Api to get only user profile logo
+export const getUserProfileLogo = async (req,res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        const profilePicture = user.profile.profilePicture;
+        return res.status(200).json({message:"User fetched successfully",success:true,data:profilePicture});
+    } catch (error) {
+        return res.status(200).json({message:"Internal server error",success:false});   
+    }
+}
+
+// getRecommendations
+export const getRecommendations = async (req, res) => {
+  try {
+    const recommendations = await getJobRecommendations(req.params.id);
+    return res.status(200).json({message:"Recommendations fetched successfully",success:true,data:recommendations});
+  } catch (error) {
+    return res.status(500).json({message:"Internal server error",success:false});   
+  }
+};

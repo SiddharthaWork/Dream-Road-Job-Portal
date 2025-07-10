@@ -167,3 +167,17 @@ export const updateCompany = async (req,res) => {
         return res.status(500).json({message:"Internal server error",success:false});   
     }
 }
+
+// delete company
+export const deleteCompany = async (req,res) => {
+    try {
+        const company = await Company.findByIdAndDelete(req.params.id);
+        if(!company){
+            return res.status(404).json({message:"Company not found",success:false});
+        }
+        return res.status(200).json({message:"Company deleted successfully",success:true});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}
+    

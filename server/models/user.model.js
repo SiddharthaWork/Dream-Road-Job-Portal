@@ -73,7 +73,7 @@ const userSchema = new mongoose.Schema({
           currentlyWorking: Boolean,
           description: String
         }],
-        profilePicture: { type: String, default: '' },
+        profilePicture: { type: String },
         bio:{type:String},
         website:{type:String},
         location:{type:String},
