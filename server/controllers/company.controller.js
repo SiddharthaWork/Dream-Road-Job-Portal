@@ -99,10 +99,31 @@ export const login = async (req, res) => {
 
 export const getAllCompanies = async (req,res) => {
     try {
-        const companies = await Company.find();
-        if(!companies){
+        const companies = await Company.aggregate([
+            {
+                $lookup: {
+                    from: "jobs",
+                    localField: "_id",
+                    foreignField: "company",
+                    as: "jobs"
+                }
+            },
+            {
+                $addFields: {
+                    jobCount: { $size: "$jobs" }
+                }
+            },
+            {
+                $project: {
+                    jobs: 0
+                }
+            }
+        ]);
+
+        if(companies.length === 0){
             return res.status(404).json({message:"Companies not found",success:false});
         }
+
         return res.status(200).json({message:"Companies found",success:true,data:companies});
     } catch (error) {
         return res.status(500).json({message:"Internal server error",success:false});   
