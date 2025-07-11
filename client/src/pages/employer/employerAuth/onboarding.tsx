@@ -61,6 +61,10 @@ const Onboarding = () => {
     }
   };
 
+  const handlePhoneNumberChange = (value: string) => {
+    setCompanyData(prev => ({ ...prev, phoneNumber: value }));
+  };
+
   const validateForm = (): boolean => {
     let isValid = true;
     const newErrors = { ...errors };
@@ -342,10 +346,18 @@ const Onboarding = () => {
                 <Input
                   id="phoneNumber"
                   name="phoneNumber"
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d*"
                   placeholder="123-456-7890"
                   value={companyData.phoneNumber}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Allow only digits up to 10
+                    if (/^\d{0,10}$/.test(value)) {
+                      handlePhoneNumberChange(value);
+                    }
+                  }}
                   maxLength={10}
                   required
                 />

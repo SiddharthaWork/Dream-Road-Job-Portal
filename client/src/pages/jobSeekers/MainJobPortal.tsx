@@ -30,9 +30,7 @@ const JobPortal = () => {
           <div className="relative ">
             <div className={isProfileComplete ? "" : "pointer-events-none rounded-xl filter blur-sm select-none"}>
               <RecommendedJobs
-                jobs={reommendedjobsData}
-                categories={categoriesData}
-                onJobClick={() => router.push("job/as1e3onfiha374y13n12asdadshasduingasduanhdu121345423")}
+              onJobClick={(jobId : any) => router.push(`/job/${jobId}`)}
               />
             </div>
 

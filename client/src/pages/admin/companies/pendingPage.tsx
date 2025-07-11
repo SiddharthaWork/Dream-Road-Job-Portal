@@ -60,13 +60,13 @@ const pendingCompanies = [
     email: 'contact@techstart.com',
     industry: 'Technology',
     size: '10-50',
-    location: 'San Francisco, CA',
+    location: 'Kathmandu, Nepal',
     website: 'https://techstart.com',
     submittedDate: '2024-01-20',
-    documents: ['Business License', 'Tax ID', 'Company Registration'],
+    documents: ['Tax ID', 'Company Registration'],
     description: 'A cutting-edge AI startup focused on machine learning solutions for healthcare.',
     contactPerson: 'John Smith',
-    phone: '+1 (555) 123-4567',
+    phone: '+977 12345678',
     priority: 'high'
   },
   {
@@ -75,13 +75,13 @@ const pendingCompanies = [
     email: 'info@greenenergy.com',
     industry: 'Energy',
     size: '50-100',
-    location: 'Austin, TX',
+    location: 'Kathmandu, Nepal',
     website: 'https://greenenergy.com',
     submittedDate: '2024-01-19',
-    documents: ['Business License', 'Environmental Permits'],
+    documents: ['Tax ID', 'Environmental Permits'],
     description: 'Renewable energy company specializing in solar panel installations.',
     contactPerson: 'Sarah Johnson',
-    phone: '+1 (555) 987-6543',
+    phone: '+977 12345678',
     priority: 'medium'
   },
   {
@@ -90,13 +90,13 @@ const pendingCompanies = [
     email: 'hello@fintechpro.com',
     industry: 'Finance',
     size: '100-500',
-    location: 'New York, NY',
+    location: 'Kathmandu, Nepal',
     website: 'https://fintechpro.com',
     submittedDate: '2024-01-18',
-    documents: ['Business License', 'Financial License', 'Insurance Certificate'],
+    documents: ['Tax ID', 'Financial License', 'Insurance Certificate'],
     description: 'Digital banking solutions for small and medium enterprises.',
     contactPerson: 'Michael Chen',
-    phone: '+1 (555) 456-7890',
+    phone: '+977 12345678',
     priority: 'high'
   }
 ];
@@ -109,20 +109,20 @@ const stats = [
     icon: Clock,
     color: 'text-yellow-600'
   },
-  {
-    title: 'High Priority',
-    value: '8',
-    change: '+2 urgent',
-    icon: AlertTriangle,
-    color: 'text-red-600'
-  },
-  {
-    title: 'Avg. Review Time',
-    value: '2.5 days',
-    change: '-0.5 days',
-    icon: Calendar,
-    color: 'text-blue-600'
-  },
+  // {
+  //   title: 'High Priority',
+  //   value: '8',
+  //   change: '+2 urgent',
+  //   icon: AlertTriangle,
+  //   color: 'text-red-600'
+  // },
+  // {
+  //   title: 'Avg. Review Time',
+  //   value: '2.5 days',
+  //   change: '-0.5 days',
+  //   icon: Calendar,
+  //   color: 'text-blue-600'
+  // },
   {
     title: 'Approved Today',
     value: '12',
@@ -441,7 +441,7 @@ export default function PendingCompaniesPage() {
                             </DialogContent>
                           </Dialog>
                           
-                          <DropdownMenu>
+                          {/* <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" className="h-8 w-8 p-0">
                                 <MoreHorizontal className="h-4 w-4" />
@@ -461,7 +461,7 @@ export default function PendingCompaniesPage() {
                                 Reject Application
                               </DropdownMenuItem>
                             </DropdownMenuContent>
-                          </DropdownMenu>
+                          </DropdownMenu> */}
                         </div>
                       </TableCell>
                     </TableRow>

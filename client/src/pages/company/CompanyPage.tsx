@@ -11,16 +11,16 @@ type Category = {
   companies: string;
 };
 
-type Company = {
-  id: number;
-  name: string;
-  logo: string;
-  rating: number;
-  reviews: number;
-  tags: string[];
-  founded?: number | null;
-  employees?: string | null;
-};
+interface Company {
+  _id: string
+  name: string
+  logo?: string
+  industry: string
+  email: string
+  phoneNumber: string
+  createdAt: string
+  updatedAt: string
+}
 
 type TopCompany = {
   id: number;
@@ -34,11 +34,12 @@ type TopCompany = {
 };
 
 const categories = [
-    { name: "MNCs", count: "2.1K+", companies: "Companies" },
-    { name: "Product", count: "1.2K+", companies: "Companies" },
-    { name: "Banking & Fina...", count: "390", companies: "Companies" },
-    { name: "Hospitality", count: "76", companies: "Companies" },
-    { name: "Fintech", count: "129", companies: "Companies" },
+    { name: "Technology", count: "2.1K+", companies: "Companies" },
+    { name: "Finance", count: "1.2K+", companies: "Companies" },
+    { name: "Healthcare", count: "390", companies: "Companies" },
+    { name: "Education", count: "76", companies: "Companies" },
+    { name: "Retail", count: "129", companies: "Companies" },
+    { name: "Manufacturing", count: "129", companies: "Companies" },
   ]
   
   const companyTypes = [
@@ -60,84 +61,84 @@ const categories = [
   
   const companies = [
     {
-      id: 1,
+      _id: "1",
       name: "F1Soft",
       logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTHH85rqeQFzAwlWQvMpGs5P5jgXAeluwNzA&s",
-      rating: 0,
-      reviews: 11,
-      tags: ["Corporate", "IT Services & Consulting"],
-      founded: null,
-      employees: null,
+      industry: "IT Services & Consulting",
+      email: "info@f1soft.com",
+      phoneNumber: "+977 1 4423377",
+      createdAt: "2022-01-01T00:00:00.000Z",
+      updatedAt: "2022-01-01T00:00:00.000Z",
     },
     {
-      id: 2,
+      _id: "2",
       name: "Leapfrog",
       logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvknAULMIa1Lu9QgyPv7XdWIJ3hklDeskMig&s",
-      rating: 4,
-      reviews: 96,
-      tags: ["Corporate", "Software Development"],
-      founded: 2010,
-      employees: null,
+      industry: "Software Development",
+      email: "info@leapfrog.com",
+      phoneNumber: "+977 1 4413377",
+      createdAt: "2010-01-01T00:00:00.000Z",
+      updatedAt: "2010-01-01T00:00:00.000Z",
     },
     {
-      id: 3,
+      _id: "3",
       name: "Cedar Gate Technologies",
       logo: "https://www.cedargate.com/wp-content/uploads/2022/01/cedargate-yoast-2022.jpg",
-      rating: 3.9,
-      reviews: 564,
-      tags: ["Foreign MNC", "IT Services & Consulting", "Healthcare"],
-      founded: null,
-      employees: null,
+      industry: "IT Services & Consulting, Healthcare",
+      email: "info@cedargate.com",
+      phoneNumber: "+977 1 4423377",
+      createdAt: "2022-01-01T00:00:00.000Z",
+      updatedAt: "2022-01-01T00:00:00.000Z",
     },
     {
-      id: 4,
+      _id: "4",
       name: "Google",
       logo: "https://yt3.googleusercontent.com/2eI1TjX447QZFDe6R32K0V2mjbVMKT5mIfQR-wK5bAsxttS_7qzUDS1ojoSKeSP0NuWd6sl7qQ=s900-c-k-c0x00ffffff-no-rj",
-      rating: 4.5,
-      reviews: 1200,
-      tags: ["Foreign MNC", "Technology", "Search Engine"],
-      founded: 1998,
-      employees: "10000+ emp.",
+      industry: "Technology, Search Engine",
+      email: "info@google.com",
+      phoneNumber: "+1 650 253 0000",
+      createdAt: "1998-01-01T00:00:00.000Z",
+      updatedAt: "1998-01-01T00:00:00.000Z",
     },
     {
-      id: 5,
+      _id: "5",
       name: "Microsoft",
       logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/2048px-Microsoft_logo.svg.png",
-      rating: 4.6,
-      reviews: 1500,
-      tags: ["Foreign MNC", "Technology", "Software"],
-      founded: 1975,
-      employees: "10000+ emp.",
+      industry: "Technology, Software",
+      email: "info@microsoft.com",
+      phoneNumber: "+1 425 882 8080",
+      createdAt: "1975-01-01T00:00:00.000Z",
+      updatedAt: "1975-01-01T00:00:00.000Z",
     },
     {
-      id: 6,
+      _id: "6",
       name: "Info Developers",
       logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR73484JT07cWw9hTnLlm4QKer_fkpE3t3eTw&s",
-      rating: 4.1,
-      reviews: 84,
-      tags: ["Corporate", "IT Services & Consulting"],
-      founded: 2002,
-      employees: null,
+      industry: "IT Services & Consulting",
+      email: "info@infodevelopers.com",
+      phoneNumber: "+977 1 4413377",
+      createdAt: "2002-01-01T00:00:00.000Z",
+      updatedAt: "2002-01-01T00:00:00.000Z",
     },
     {
-      id: 7,
+      _id: "7",
       name: "NCCS Software",
       logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvOZcN0BOWXgH_caHKVbdiRAGsZQsr2FLMew&s",
-      rating: 3.8,
-      reviews: 112,
-      tags: ["Startup", "Software Development"],
-      founded: null,
-      employees: null,
+      industry: "Software Development",
+      email: "info@nccs.com",
+      phoneNumber: "+977 1 4423377",
+      createdAt: "2022-01-01T00:00:00.000Z",
+      updatedAt: "2022-01-01T00:00:00.000Z",
     },
     {
-      id: 8,
+      _id: "8",
       name: "Cloco Nepal",
       logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdxDFw67ruCx2iIthYOGW-5zWY7-BC6M2naQ&s",
-      rating: 3.7,
-      reviews: 15,
-      tags: ["Startup", "IT Services & Consulting", "Fintech"],
-      founded: null,
-      employees: null,
+      industry: "IT Services & Consulting, Fintech",
+      email: "info@cloco.com",
+      phoneNumber: "+977 1 4413377",
+      createdAt: "2022-01-01T00:00:00.000Z",
+      updatedAt: "2022-01-01T00:00:00.000Z",
     }
   ];
   
@@ -238,7 +239,7 @@ export default function CompanyPage() {
     }
   
     const handleCompanyClick = (company: Company) => {
-      router.push(`/company/${company.id}`)
+      router.push(`/company/${company._id}`)
       // Navigate to company detail page
     }
   
@@ -250,7 +251,7 @@ export default function CompanyPage() {
     // Filter companies based on selected filters
     const filteredCompanies = companies.filter((company) => {
       const matchesCompanyType =
-        selectedCompanyTypes.length === 0 || selectedCompanyTypes.some((type) => company.tags.includes(type))
+        selectedCompanyTypes.length === 0 || selectedCompanyTypes.some((type) => company.industry.includes(type))
   
       // For demo purposes, we'll assume location filtering based on company name
       const matchesLocation =
@@ -270,18 +271,12 @@ export default function CompanyPage() {
         onTopCompanyClick={handleTopCompanyClick}
       />
 
-        <CompanyListings
-        companies={filteredCompanies}
-        companyTypes={companyTypes}
-        locations={locations}
-        totalCount={filteredCompanies.length}
-        selectedCompanyTypes={selectedCompanyTypes}
-        selectedLocations={selectedLocations}
-        onCompanyTypeChange={handleCompanyTypeChange}
-        onLocationChange={handleLocationChange}
-        onCompanyClick={handleCompanyClick}
-        isLoading={isLoading}
-      />
+        <div className="flex flex-col gap-4">
+          <CompanyListings 
+            onCompanyClick={handleCompanyClick}
+          />
+        </div>
+
     </div>
 
   )

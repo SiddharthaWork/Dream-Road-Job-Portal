@@ -181,7 +181,7 @@ const JobPosts = () => {
                 : 'Get started by posting your first job.'}
             </p>
             {!searchTerm && statusFilter === 'all' && (
-                <Button onClick={() => router.push('/employer/jobs/post')}>
+                <Button onClick={() => router.push('/employer/dashboard/post-job')}>
                 Post Your First Job
               </Button>
             )}

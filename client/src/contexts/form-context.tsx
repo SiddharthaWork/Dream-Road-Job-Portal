@@ -53,7 +53,8 @@ interface FormData {
   sectors: string[]
   designation: string
   aboutMe: string
-  profilePicture?: string
+  profilePicture?: File | any
+  resume?: File | any
 
   city: string
   currentAddress: string
@@ -67,6 +68,8 @@ interface FormData {
   certificates: Certificate[]
   experiences: Experience[]
 }
+
+export type FormContextData = FormData;
 
 interface FormContextType {
   formData: FormData
@@ -104,7 +107,8 @@ const initialFormData: FormData = {
   achievements: [],
   certificates: [],
   experiences: [],
-  profilePicture: undefined,
+  profilePicture: '',
+  resume: '',
 }
 
 export function FormProvider({ children }: { children: ReactNode }) {

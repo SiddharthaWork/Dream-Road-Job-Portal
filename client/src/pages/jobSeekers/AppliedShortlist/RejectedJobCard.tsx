@@ -19,7 +19,7 @@ interface JobCardProps {
   appliedDate?: string
 }
 
-export default function AppliedJobCard({ job, onJobClick, onApply, onSave, status, appliedDate }: JobCardProps) {
+export default function RejectedJobCard({ job, onJobClick, onApply, onSave, status, appliedDate }: JobCardProps) {
   const [isSaved, setIsSaved] = useState(false)
   if (!job) return null;
 
@@ -81,7 +81,7 @@ export default function AppliedJobCard({ job, onJobClick, onApply, onSave, statu
                 {job.experience} level
               </span>
               {status && (
-                <Badge variant="outline" className="ml-2 bg-amber-100 text-amber-600 font-medium">
+                <Badge variant="outline" className="ml-2 bg-red-100 text-red-600 font-medium">
                   {status}
                 </Badge>
               )}
@@ -103,7 +103,7 @@ export default function AppliedJobCard({ job, onJobClick, onApply, onSave, statu
             <Button
               size="sm"
               onClick={handleApply}
-              className="bg-amber-100 hover:bg-amber-700 text-amber-600 px-4 py-2 font-medium"
+              className="bg-red-100 text-red-600 px-4 py-2 font-medium"
             >
               {/* making this uppercase */}
               {status?.toUpperCase()}

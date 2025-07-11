@@ -1,12 +1,12 @@
-import ViewProfilePage from '@/pages/jobSeekers/Profile/ViewProfilePage'
 import React from 'react'
+import MainViewProfile from '@/pages/jobSeekers/Profile/MainViewProfile'
 
-const MainViewProfilePage = () => {
+const ViewProfile = () => {
   return (
     <div>
-        <ViewProfilePage/>
+        <MainViewProfile/>
     </div>
   )
 }
 
-export default MainViewProfilePage
+export default ViewProfile

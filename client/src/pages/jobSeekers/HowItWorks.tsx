@@ -36,7 +36,7 @@ export default function HowItWorks() {
         },
         {
           id: 3,
-          icon: <DollarSign className="w-4 h-4" />,
+          icon: "Rs",
           title: "Get Shortlisted & Hired",
           description: "Get hired and grow professionally",
           bgColor: "bg-green-100",

@@ -170,7 +170,7 @@ const JobDetailsForm = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="salaryMin">Minimum Salary *</Label>
+            <Label htmlFor="salaryMin">Minimum Salary Per Month*</Label>
             <Input
               id="salaryMin"
               type="number"
@@ -186,7 +186,7 @@ const JobDetailsForm = ({
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="salaryMax">Maximum Salary *</Label>
+            <Label htmlFor="salaryMax">Maximum Salary Per Month*</Label>
             <Input
               id="salaryMax"
               type="number"

@@ -2,21 +2,21 @@ import { ResumeData } from "@/types/resume";
 
 export const mockUserData: ResumeData = {
   personalInfo: {
-    fullName: "Sarah Johnson",
+    fullName: "Siddhartha Shrestha",
     jobTitle: "Senior Software Engineer",
-    email: "sarah.johnson@email.com",
-    phone: "(555) 123-4567",
-    address: "San Francisco, CA",
+    email: "siddhartha.shrestha@email.com",
+    phone: "9801234567",
+    address: "Kathmandu, Nepal",
     summary: "Experienced software engineer with 8+ years of expertise in full-stack development, specializing in React, Node.js, and cloud technologies. Passionate about building scalable applications and leading high-performing teams.",
-    linkedin: "linkedin.com/in/sarahjohnson",
-    website: "sarahjohnson.dev"
+    linkedin: "linkedin.com/in/siddhartha-shrestha",
+    website: "siddhartha-shrestha.dev"
   },
   experience: [
     {
       id: "exp1",
       jobTitle: "Senior Software Engineer",
       company: "TechCorp Inc.",
-      location: "San Francisco, CA",
+      location: "Kathmandu, Nepal",
       startDate: "2021-03",
       endDate: "",
       current: true,
@@ -26,7 +26,7 @@ export const mockUserData: ResumeData = {
       id: "exp2",
       jobTitle: "Software Engineer",
       company: "StartupXYZ",
-      location: "San Francisco, CA",
+      location: "Kathmandu, Nepal",
       startDate: "2019-06",
       endDate: "2021-02",
       current: false,
@@ -36,7 +36,7 @@ export const mockUserData: ResumeData = {
       id: "exp3",
       jobTitle: "Frontend Developer",
       company: "Digital Agency",
-      location: "Remote",
+      location: "Kathmandu, Nepal",
       startDate: "2017-01",
       endDate: "2019-05",
       current: false,
@@ -47,8 +47,8 @@ export const mockUserData: ResumeData = {
     {
       id: "edu1",
       degree: "Bachelor of Science in Computer Science",
-      school: "Stanford University",
-      location: "Stanford, CA",
+      school: "NCCS",
+      location: "Kathmandu, Nepal",
       startDate: "2013-09",
       endDate: "2017-06",
       gpa: "3.8/4.0",
@@ -61,7 +61,7 @@ export const mockUserData: ResumeData = {
       title: "E-commerce Platform",
       description: "Full-stack e-commerce platform built with React, Node.js, and PostgreSQL. Features include user authentication, payment processing, and real-time inventory management.",
       technologies: ["React", "Node.js", "PostgreSQL", "Stripe API", "AWS"],
-      link: "https://github.com/sarahjohnson/ecommerce-platform",
+      link: "https://github.com/siddhartha-shrestha/ecommerce-platform",
       startDate: "2023-01",
       endDate: "2023-06"
     },
@@ -70,7 +70,7 @@ export const mockUserData: ResumeData = {
       title: "Task Management App",
       description: "Collaborative task management application with real-time updates, drag-and-drop functionality, and team collaboration features.",
       technologies: ["Next.js", "TypeScript", "Prisma", "WebSocket"],
-      link: "https://github.com/sarahjohnson/task-manager",
+      link: "https://github.com/siddhartha-shrestha/task-manager",
       startDate: "2022-08",
       endDate: "2022-12"
     }
@@ -95,7 +95,7 @@ export const mockUserData: ResumeData = {
       id: "cert1",
       name: "AWS Certified Solutions Architect",
       issuer: "Amazon Web Services",
-      date: "2023-03",
+      date: "2025-07",
       link: "https://aws.amazon.com/certification/"
     },
     {

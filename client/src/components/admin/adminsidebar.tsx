@@ -130,8 +130,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           {/* Header */}
           <div className="flex h-16 shrink-0 items-center justify-between px-6 border-b border-gray-200">
             <div className="flex items-center">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <MapPin className="h-6 w-6 text-white" />
+              <div className="bg-blue-600 p-2 rounded-lg w-10 h-10">
+                <img src="/dreamroad.svg" alt="" className="w-full h-full object-contain" />
               </div>
               <div className="ml-3">
                 <h1 className="text-lg font-semibold text-gray-900">DreamRoad</h1>

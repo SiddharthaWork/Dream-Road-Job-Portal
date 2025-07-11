@@ -54,7 +54,7 @@ const companies = [
     joinDate: '2024-01-15',
     activeJobs: 12,
     totalEmployees: 250,
-    location: 'San Francisco, CA'
+    location: 'Kathmandu, Nepal'
   },
   {
     id: '2',
@@ -66,7 +66,7 @@ const companies = [
     joinDate: '2024-01-18',
     activeJobs: 8,
     totalEmployees: 750,
-    location: 'New York, NY'
+    location: 'Kathmandu, Nepal'
   },
   {
     id: '3',
@@ -78,7 +78,7 @@ const companies = [
     joinDate: '2024-01-10',
     activeJobs: 0,
     totalEmployees: 85,
-    location: 'Chicago, IL'
+    location: 'Kathmandu, Nepal'
   },
   {
     id: '4',
@@ -90,7 +90,7 @@ const companies = [
     joinDate: '2024-01-12',
     activeJobs: 5,
     totalEmployees: 35,
-    location: 'Austin, TX'
+    location: 'Kathmandu, Nepal'
   }
 ];
 

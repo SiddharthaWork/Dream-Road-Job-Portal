@@ -102,7 +102,7 @@ export const ExperienceEditor = ({ experience, onUpdate }: ExperienceEditorProps
               <Input 
                 id="location"
                 {...register("location")}
-                placeholder="San Francisco, CA"
+                placeholder="Kathmandu, Nepal"
               />
             </div>
 

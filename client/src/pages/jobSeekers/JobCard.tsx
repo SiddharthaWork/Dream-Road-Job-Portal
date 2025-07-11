@@ -43,36 +43,36 @@ export default function JobCard({ job, onJobClick, onApply, onSave }: JobCardPro
           <div
             className={`w-12 h-12 bg-gradient-to-br from-gray-200 to-gray-400 rounded-md overflow-hidden flex items-center justify-center`}
           >
-            <img src={job.createdBy.logo} alt="" className="w-full h-full object-cover"/>
+            <img src={job?.createdBy?.logo} alt="" className="w-full h-full object-cover"/>
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900 mb-1 text-lg hover:text-blue-600 transition-colors">
-              {job.title}
+              {job?.title}
             </h3>
-            <p className="text-sm text-gray-600 mb-3 font-medium">{job.createdBy.name}</p>
+            <p className="text-sm text-gray-600 mb-3 font-medium">{job?.createdBy?.name}</p>
             <div className="flex items-center gap-4 text-xs text-gray-500 flex-wrap">
               <Badge variant="secondary" className={`bg-[#255cf4] text-white font-medium`}>
-                {job.type}
+                {job?.type}
               </Badge>
-              {job.deadline && (
+              {job?.deadline && (
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
-                  {format(new Date(job.deadline), 'MMM d, yyyy')}
+                  {format(new Date(job?.deadline), 'MMM d, yyyy')}
                 </span>
               )}
               <span className="flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
-                {job.location}
+                {job?.location}
               </span>
               <span className="flex items-center gap-1">
                 <Users className="w-3 h-3" />
-                  {job.experience} level
+                  {job?.experience} level
               </span>
             </div>
           </div>
           <div className="text-right">
             <div className="flex items-center gap-1 text-[#255cf4] font-bold text-lg">
-              <span>Rs {job.salaryMin}</span> - <span>{job.salaryMax}</span>
+              <span>Rs {job?.salaryMin}</span> - <span>{job?.salaryMax}</span>
             </div>
             {/* <p className="text-xs text-gray-500 mt-1">{job.salaryType}</p> */}
           </div>
@@ -80,7 +80,7 @@ export default function JobCard({ job, onJobClick, onApply, onSave }: JobCardPro
 
         <div className="flex items-center justify-between pt-2 border-t border-gray-100">
             <div className="text-xs text-gray-400">
-              Posted {formatDistanceToNow(new Date(job.createdAt), { addSuffix: true }).replace("about ", "")}
+              Posted {formatDistanceToNow(new Date(job?.createdAt), { addSuffix: true }).replace("about ", "")}
           </div>
           <div className="flex gap-2">
             <Button

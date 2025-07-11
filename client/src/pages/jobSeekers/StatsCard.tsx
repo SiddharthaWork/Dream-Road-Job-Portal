@@ -21,6 +21,7 @@ interface StatsCardsProps {
 export default function StatsCards({ stats = [] }: StatsCardsProps) {
 
   const [appliedJobCount, setAppliedJobCount] = useState(0);
+  const [shortlistedJobCount, setShortlistedJobCount] = useState(0);
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case "building":
@@ -47,8 +48,24 @@ export default function StatsCards({ stats = [] }: StatsCardsProps) {
     }
   }
 
+  const getShortlistedJobCount = async () => {
+    try {
+      const response = await axios.get(`http://localhost:4000/api/application/getShortlistedJobCount/${localStorage.getItem('userId')}`);
+      
+      // Ensure we always have a valid number
+      const count = response.data?.success ? response.data.application : 0;
+      setShortlistedJobCount(count || 0);
+      
+      console.log("Shortlisted job count:", count);
+    } catch (err) {
+      console.error(err);
+      setShortlistedJobCount(0);
+    }
+  }
+
   useEffect(() => {
     getAppliedJobCount()
+    getShortlistedJobCount()
   }, [])
 
   const router = useRouter()
@@ -65,7 +82,7 @@ export default function StatsCards({ stats = [] }: StatsCardsProps) {
                   <IconComponent className={`w-5 h-5 ${stat.iconColor}`} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">{stat.id === 1 ? appliedJobCount : stat.value}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stat.id === 1 ? appliedJobCount || 0 : stat.id === 2 ? shortlistedJobCount || 0 : stat.value || 0}</p>
                   <p className="text-sm text-gray-600">{stat.label}</p>
                 </div>
               </div>

@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { FormProvider, useFormContext } from "@/contexts/form-context"
+import { FormProvider, useFormContext, FormContextData } from "@/contexts/form-context"
 import  AboutYourselfStep  from "./steps/about-yourself"
 import  ExperienceStep  from "./steps/address"
 import  EducationStep  from "./steps/education"
@@ -15,7 +15,7 @@ import  SummaryStep  from "./steps/summary"
 import  ProjectsStep  from "./steps/project-step"
 import  ProgressStepper  from "./ProjectStepper"
 import { useRouter } from "next/navigation"
-import toast from "react-hot-toast"
+import toast, { Toaster } from "react-hot-toast"
 
 const steps = [
   { id: 1, title: "About Yourself", component: AboutYourselfStep },
@@ -35,7 +35,7 @@ const FormSubmitButton = ({ onSubmit, isSubmitting }: any) => {
     // Combine firstName and lastName into fullName for backend
     const { firstName, lastName, ...rest } = formData;
     const fullname = [firstName, lastName].filter(Boolean).join(' ').trim();
-    await onSubmit({ ...rest, fullname });
+    await onSubmit({ ...rest });
   };
   
   return (
@@ -54,8 +54,14 @@ export default function MultiStepForm() {
   const [direction, setDirection] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter();
+  const stepRef = useRef<{ validate: () => boolean } | null>(null);
 
-  const nextStep = () => {
+  const nextStep = async () => {
+    if (stepRef.current) {
+      const isValid = await stepRef.current.validate();
+      if (!isValid) return;
+    }
+    
     if (currentStep < steps.length) {
       setDirection(1)
       setCurrentStep(currentStep + 1)
@@ -93,7 +99,7 @@ export default function MultiStepForm() {
     }),
   }
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (formContextData: FormContextData) => {
     setIsSubmitting(true);
     
     try {
@@ -104,31 +110,47 @@ export default function MultiStepForm() {
         throw new Error('User ID not found');
       }
 
+      const formDataToSend = new FormData();
+      formDataToSend.append('userId', userId);
+
+      // Extract non-file data and stringify it
+      const { profilePicture, resume, ...rest } = formContextData;
+      formDataToSend.append('data', JSON.stringify(rest));
+
+      if (profilePicture instanceof File) {
+        formDataToSend.append('profilePicture', profilePicture);
+      } else if (typeof profilePicture === 'string') {
+        formDataToSend.append('profilePictureUrl', profilePicture);
+      }
+
+      if (resume instanceof File) {
+        formDataToSend.append('resume', resume);
+      } else if (typeof resume === 'string') {
+        formDataToSend.append('resumeUrl', resume);
+      }
+
       const response = await fetch('http://localhost:4000/api/user/save-profile', {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          userId,
-          ...formData
-        })
+        body: formDataToSend
       });
 
       if (!response.ok) {
         throw new Error('Failed to save profile');
       }
 
-      const data = await response.json();
-      toast.success("Profile saved successfully!");
-      localStorage.setItem('profile', JSON.stringify(true));
+      const result = await response.json();
+      console.log('Profile saved successfully:', result);
+      toast.success('Profile Saved');
+      localStorage.setItem('profile', 'true');
       setTimeout(() => {
         router.push('/');
       }, 2000);
-      console.log('Profile saved successfully:', data);
-    } catch (error: any) {
-      toast.error(error.message || "An error occurred while saving your profile");
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      toast.error('Failed to save profile. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -136,6 +158,7 @@ export default function MultiStepForm() {
 
   return (
     <FormProvider>
+      <Toaster />
       <div className="max-w-4xl mx-auto">
         <ProgressStepper steps={steps.slice(0, 6)} currentStep={currentStep} onStepClick={goToStep} />
 
@@ -155,7 +178,7 @@ export default function MultiStepForm() {
                 }}
                 className="absolute inset-0"
               >
-                <CurrentStepComponent />
+                <CurrentStepComponent ref={stepRef} />
               </motion.div>
             </AnimatePresence>
           </div>

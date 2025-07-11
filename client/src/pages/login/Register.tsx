@@ -233,9 +233,18 @@ export default function RegisterForm() {
                 <Phone className="absolute left-3 top-4 h-4 w-4 text-gray-400" />
                 <Input
                   id="number"
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d*"
+                  maxLength={10}
                   value={formData.number}
-                  onChange={(e) => handleInputChange("number", e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Allow only digits up to 10
+                    if (/^\d{0,10}$/.test(value)) {
+                      handleInputChange("number", value);
+                    }
+                  }}
                   className={cn(
                     "pl-10 h-12 border-gray-300 focus:border-[#255cf4] focus:ring-[#255cf4] transition-all duration-200",
                     errors.number && "border-red-500 focus:border-red-500 focus:ring-red-500",
@@ -252,6 +261,7 @@ export default function RegisterForm() {
                   <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-green-500" />
                 ) : null}
               </div>
+
               {errors.number && (
                 <p id="number-error" className="text-sm text-red-600 flex items-center">
                   <AlertCircle className="w-4 h-4 mr-1" />

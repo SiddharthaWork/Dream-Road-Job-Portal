@@ -8,18 +8,57 @@ import { useRouter } from 'next/navigation';
 
 const Dashboard = () => {
   const router = useRouter();
+  const [company, setCompany] = useState<any>('');
+  const [jobCounts, setJobCounts] = useState({ activeJobs: 0, totalApplicants: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const company = localStorage.getItem('companyName');
+    setCompany(company);
+    
+    // Fetch job counts when component mounts
+    const fetchJobCounts = async () => {
+      try {
+        const companyId = localStorage.getItem('companyId');
+        if (!companyId) {
+          throw new Error('Company ID not found');
+        }
+        
+        const response = await fetch(`http://localhost:4000/api/job/getjobcount/${companyId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch job count');
+        }
+        
+        const data = await response.json();
+        if (data.success) {
+          setJobCounts({
+            activeJobs: data.data.jobCount || 0,
+            totalApplicants: data.data.applicationCount || 0  
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching job counts:', err);
+        setError('Failed to load job data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchJobCounts();
+  }, []);
   
   const stats = [
     {
       title: 'Active Jobs',
-      value: '1',
+      value: loading ? '...' : error ? 'Error' : jobCounts.activeJobs.toString(),
       change: '',
       icon: Briefcase,
       color: 'text-blue-600',
     },
     {
       title: 'Total Applicants',
-      value: '1',
+      value: loading ? '...' : error ? 'Error' : jobCounts.totalApplicants.toString(),
       change: '',
       icon: Users,
       color: 'text-green-600',
@@ -80,27 +119,13 @@ const Dashboard = () => {
     }
   };
 
-  // const [company, setCompany] = useState([]);
-
-  // useEffect(() => {
-  //   const fetchCompany = async () => {
-  //     try {
-  //       const response = await fetch(`http://localhost:4000/api/company/getallcompanies`);
-  //       if (!response.ok) {
-  //         throw new Error('Failed to fetch company');
-  //       }
-  //       const data = await response.json();
-  //       console.log(data);
-  //       setCompany(data);
-  //     } catch (error) {
-  //       console.error('Error fetching company:', error);
-  //     }
-  //   };
-  //   fetchCompany();
-  // }, []);
-
   return (
     <div className="space-y-8">
+
+      {/* {Welcome Banner} */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Welcome {company} to DreamRoad</h1>
+      </div>
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
@@ -137,7 +162,7 @@ const Dashboard = () => {
               className="h-20 flex flex-col gap-2"
             >
               <Users className="h-6 w-6" />
-              Review Applicants
+              Job Posts
             </Button>
             <Button 
               variant="outline" 
@@ -153,7 +178,7 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Job Posts */}
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle>Recent Job Posts</CardTitle>
             <CardDescription>Your latest job postings</CardDescription>
@@ -190,10 +215,10 @@ const Dashboard = () => {
               View All Jobs
             </Button>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Recent Applicants */}
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle>Recent Applicants</CardTitle>
             <CardDescription>Latest applications received</CardDescription>
@@ -224,7 +249,7 @@ const Dashboard = () => {
               View All Applicants
             </Button>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );

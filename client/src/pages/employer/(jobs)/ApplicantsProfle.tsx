@@ -64,6 +64,7 @@ const ApplicantProfile = () => {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [actionCompleted, setActionCompleted] = useState(false);
   const [coverLetter, setCoverLetter] = useState('');
+  const [backupResume, setBackupResume] = useState('');
   console.log(applicationId);
 
   useEffect(() => {
@@ -82,13 +83,16 @@ const ApplicantProfile = () => {
           const applicationId = response.data.data?.appliedJobs?.map((job: any) => job._id);
           const shortlist = response.data.data?.appliedJobs?.map((job: any) => job.status);
           const coverLetter = response.data.data?.appliedJobs?.map((job: any) => job.coverLetter);
+          const backupResume = response.data.data?.profile?.resume;
+
           console.log(shortlist)
           console.log(applicationId)
           setResume(mapResume);
           setApplicationId(applicationId[0]);
           setShortlist(shortlist[0]);
           setCoverLetter(coverLetter[0]);
-        }
+          setBackupResume(backupResume);
+          }
       } catch (error) {
         console.error('Error fetching user data:', error);
         toast.error("Failed to fetch applicant data");
@@ -99,6 +103,8 @@ const ApplicantProfile = () => {
 
     fetchUserData();
   }, [id, jobId]);
+  console.log(resume,"resume")
+  console.log(backupResume,"klsahdlkashdlsaj")
 
   const handleShortlist = async () => {
     if (!user || !applicationId) return;
@@ -153,6 +159,8 @@ const ApplicantProfile = () => {
     document.body.removeChild(a);
   };
 
+  const displayResume = resume[0] === null ? backupResume : resume;
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -185,7 +193,7 @@ const ApplicantProfile = () => {
           onClick={() => router.back()}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Jobs
+          Back to Applicants
         </Button>
       <div>
           <h2 className="text-3xl font-bold tracking-tight">Applicant Profile</h2>
@@ -326,14 +334,14 @@ const ApplicantProfile = () => {
                       Preview
                     </Button> */}
                     <Button variant="outline" size="sm" onClick={() => {
-                      const downloadUrl = resume + (resume.includes('?') ? '&' : '?') + 'fl_attachment';
+                      const downloadUrl = displayResume + (displayResume.includes('?') ? '&' : '?') + 'fl_attachment';
                       handleDownload(downloadUrl, 'resume.pdf');
                     }}>
                       <Download className="h-4 w-4 mr-2" />
                       Download
                     </Button>
-                    {resume && (
-                      <Button variant="outline" size="sm" onClick={() => window.open(resume, '_blank')}>
+                    {displayResume && (
+                      <Button variant="outline" size="sm" onClick={() => window.open(displayResume, '_blank')}>
                         <Eye className="h-4 w-4 mr-2" />
                         Preview Resume
                       </Button>

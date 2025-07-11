@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle, ForwardedRef } from "react"
 import { motion } from "framer-motion"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,7 +15,7 @@ import { FormProvider } from "@/contexts/form-context"
 
 const genderOptions = ["Male", "Female", "Other", "Prefer not to say"]
 
-export default function AboutYourselfStep() {
+const AboutYourselfStep = forwardRef((props, ref: ForwardedRef<{ validate: () => boolean }>) => {
   try {
     const { formData, updateFormData } = useFormContext()
     const [selectedSectors, setSelectedSectors] = useState<string[]>(formData.sectors || [])
@@ -26,6 +26,46 @@ export default function AboutYourselfStep() {
     const [resume, setResume] = useState<File | null>(null)
     const [fullname, setFullname] = useState<string>("")
     const [dateError, setDateError] = useState<string | null>(null)
+    const [errors, setErrors] = useState({
+      gender: '',
+      dateOfBirth: '',
+      phoneNumber: '',
+      city: '',
+      postalCode: '',
+      aboutMe: '',
+      profilePicture: '',
+      resume: ''
+    })
+
+    const validateField = (field: string, value: any) => {
+      let error = ''
+      
+      if (!value) {
+        error = `${field.replace(/([A-Z])/g, ' $1').toLowerCase()} is required`
+      }
+      
+      setErrors(prev => ({ ...prev, [field]: error }))
+      return error
+    }
+
+    const validateForm = () => {
+      const newErrors = {
+        gender: validateField('gender', formData.gender),
+        dateOfBirth: validateField('dateOfBirth', formData.dateOfBirth),
+        phoneNumber: validateField('phoneNumber', formData.phoneNumber),
+        city: validateField('city', formData.city),
+        postalCode: validateField('postalCode', formData.postalCode),
+        aboutMe: validateField('aboutMe', formData.aboutMe),
+        profilePicture: validateField('profilePicture', profilePic),
+        resume: validateField('resume', resume)
+      }
+      
+      return Object.values(newErrors).every(error => error === '')
+    }
+
+    useEffect(() => {
+      validateForm()
+    }, [formData, profilePic, resume])
 
     const handleSectorToggle = (sector: string) => {
       const newSectors = selectedSectors.includes(sector)
@@ -68,6 +108,7 @@ export default function AboutYourselfStep() {
 
     const handleInputChange = (field: string, value: string) => {
       updateFormData({ [field]: value })
+      validateField(field, value)
       
       if (field === "dateOfBirth") {
         const error = validateDateOfBirth(value);
@@ -75,12 +116,29 @@ export default function AboutYourselfStep() {
       }
     }
 
+    const handleFileChange = (type: 'profilePicture' | 'resume', file: File | null) => {
+      if (type === 'profilePicture') {
+        setProfilePic(file)
+        updateFormData({ profilePicture: file })
+      } else {
+        setResume(file)
+        updateFormData({ resume: file })
+      }
+      validateField(type, file)
+    }
+
     useEffect(() => {
-     const fullname = localStorage.getItem("fullname")
+      const fullname = localStorage.getItem("fullname")
       if(fullname){
         setFullname(fullname)
       }
     }, [])
+
+    useImperativeHandle(ref, () => ({
+      validate: () => {
+        return validateForm();
+      }
+    }));
 
     return (
       <FormProvider>    
@@ -119,11 +177,15 @@ export default function AboutYourselfStep() {
             className="hidden"
             onChange={e => {
               if (e.target.files && e.target.files[0]) {
-                setProfilePic(e.target.files[0])
+                const file = e.target.files[0];
+                handleFileChange('profilePicture', file);
+              } else {
+                handleFileChange('profilePicture', null);
               }
             }}
           />
         </div>
+        {errors.profilePicture && <p className="text-red-500 text-sm px-4">{errors.profilePicture}</p>}
 
         {/* Name Fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
@@ -140,18 +202,6 @@ export default function AboutYourselfStep() {
               className="rounded-lg hover:none focus:none border-0 ring-0"
             />
           </div>
-          {/* <div className="space-y-2">
-            <Label htmlFor="lastName">
-              Last Name <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="lastName"
-              value={fullname}
-              onChange={(e) => handleInputChange("lastName", e.target.value)}
-              placeholder="eg. Copper"
-              className="rounded-lg"
-            />
-          </div> */}
         </div>
 
         {/* Gender and Date of Birth */}
@@ -172,6 +222,7 @@ export default function AboutYourselfStep() {
                 ))}
               </SelectContent>
             </Select>
+            {errors.gender && <p className="text-red-500 text-sm">{errors.gender}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="dateOfBirth">
@@ -184,9 +235,9 @@ export default function AboutYourselfStep() {
               onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
               className="rounded-lg"
               max={new Date().toISOString().split("T")[0]}  
-              // min={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]}
               required
             />
+            {errors.dateOfBirth && <p className="text-red-500 text-sm">{errors.dateOfBirth}</p>}
             {dateError && <p className="text-red-500 text-sm mt-1">{dateError}</p>}
           </div>
         </div>
@@ -198,13 +249,24 @@ export default function AboutYourselfStep() {
           </Label>
           <Input
             id="phoneNumber"
-            type="tel"
+            type="text"
+            inputMode="numeric"
+            pattern="\d*"
+            maxLength={10}
             value={formData.phoneNumber}
-            onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              // Allow only digits up to 10
+              if (/^\d{0,10}$/.test(value)) {
+                handleInputChange("phoneNumber", value);
+              }
+            }}
             placeholder="Enter your phone number"
             className="rounded-lg"
           />
+          {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber}</p>}
         </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
           <div className="space-y-2">
             <Label htmlFor="city">
@@ -217,6 +279,7 @@ export default function AboutYourselfStep() {
               placeholder="Enter your city"
               className="rounded-lg"
             />
+            {errors.city && <p className="text-red-500 text-sm">{errors.city}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="postalCode">
@@ -229,6 +292,7 @@ export default function AboutYourselfStep() {
               placeholder="Enter postal code"
               className="rounded-lg"
             />
+            {errors.postalCode && <p className="text-red-500 text-sm">{errors.postalCode}</p>}
           </div>
         </div>
 
@@ -281,7 +345,10 @@ export default function AboutYourselfStep() {
               }}
             />
           </div>
+          {errors.aboutMe && <p className="text-red-500 text-sm">{errors.aboutMe}</p>}
         </div>
+        
+        {/* Resume Upload */}
         <div className="flex items-center space-x-4 px-4">
           <div className="w-10 h-10 bg-gray-200 rounded-xl flex items-center justify-center">
             <File className="w-6 h-6 text-gray-400" />
@@ -301,7 +368,10 @@ export default function AboutYourselfStep() {
             className="hidden"
             onChange={e => {
               if (e.target.files && e.target.files[0]) {
-                setResume(e.target.files[0])
+                const file = e.target.files[0];
+                handleFileChange('resume', file);
+              } else {
+                handleFileChange('resume', null);
               }
             }}
           />
@@ -309,6 +379,8 @@ export default function AboutYourselfStep() {
             <span className="ml-2 text-[#255cf4] font-medium">{resume.name}</span>
           )}
         </div>
+        {errors.resume && <p className="text-red-500 text-sm px-4">{errors.resume}</p>}
+        
       </motion.div>
       </ScrollArea>
       </FormProvider>
@@ -316,8 +388,9 @@ export default function AboutYourselfStep() {
   } catch (e) {
     return <div>Error: AboutYourselfStep must be used within a FormProvider.</div>;
   }
-}
+});
 
+export default AboutYourselfStep;
 
 export const Preview = () => {
   return (

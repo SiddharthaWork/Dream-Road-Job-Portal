@@ -38,7 +38,6 @@ import {
   Clock,
   XCircle,
   MapPin,
-  DollarSign,
   Calendar,
   Building2
 } from 'lucide-react';
@@ -49,9 +48,9 @@ const jobs = [
     id: '1',
     title: 'Senior Software Engineer',
     company: 'TechCorp Solutions',
-    location: 'San Francisco, CA',
+    location: 'Kathmandu, Nepal',
     type: 'Full-time',
-    salary: '$120,000 - $150,000',
+    salary: 'Rs 120,000 - Rs 150,000',
     status: 'active',
     postedDate: '2024-01-20',
     applications: 45,
@@ -61,9 +60,9 @@ const jobs = [
     id: '2',
     title: 'Product Manager',
     company: 'InnovateCorp',
-    location: 'New York, NY',
+    location: 'Kathmandu, Nepal',
     type: 'Full-time',
-    salary: '$100,000 - $130,000',
+    salary: 'Rs 100,000 - Rs 130,000',
     status: 'pending',
     postedDate: '2024-01-19',
     applications: 23,
@@ -73,9 +72,9 @@ const jobs = [
     id: '3',
     title: 'Data Scientist',
     company: 'DataTech Inc',
-    location: 'Remote',
+    location: 'Kathmandu, Nepal',
     type: 'Contract',
-    salary: '$80,000 - $100,000',
+    salary: 'Rs 80,000 - Rs 100,000',
     status: 'expired',
     postedDate: '2024-01-10',
     applications: 67,
@@ -85,9 +84,9 @@ const jobs = [
     id: '4',
     title: 'UX Designer',
     company: 'DesignStudio',
-    location: 'Los Angeles, CA',
+    location: 'Kathmandu, Nepal',
     type: 'Part-time',
-    salary: '$60,000 - $80,000',
+    salary: 'Rs 60,000 - Rs 80,000',
     status: 'active',
     postedDate: '2024-01-18',
     applications: 34,
@@ -110,13 +109,13 @@ const stats = [
     icon: CheckCircle,
     color: 'text-green-600'
   },
-  {
-    title: 'Pending Approval',
-    value: '89',
-    change: '+8.9%',
-    icon: Clock,
-    color: 'text-yellow-600'
-  },
+  // {
+  //   title: 'Pending Approval',
+  //   value: '89',
+  //   change: '+8.9%',
+  //   icon: Clock,
+  //   color: 'text-yellow-600'
+  // },
   {
     title: 'Total Applications',
     value: '12,847',
@@ -314,7 +313,6 @@ export default function JobsPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center text-sm text-gray-900">
-                            <DollarSign className="h-4 w-4 mr-1 text-gray-400" />
                             {job.salary}
                           </div>
                         </TableCell>

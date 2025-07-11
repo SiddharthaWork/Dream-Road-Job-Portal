@@ -45,7 +45,7 @@ const JobSeekersNavbar = () => {
       label: "Edit Profile",
       href: "/profile",
       icon: <Settings className="h-4 w-4" />,
-      onClick: () => console.log("Navigate to edit profile"),
+      onClick: () => router.push("/profile/edit/" + localStorage.getItem('userId')),
     },
     {
       label: "Logout",

@@ -46,7 +46,7 @@ const Confetti = ({ isActive }: { isActive: boolean }) => {
   )
 }
 
-export default function JobApplicationModal({ jobId, userId, onApplied, onClose }: { jobId: string, userId: string, onApplied?: () => void, onClose?: () => void }) {
+export default function JobApplicationModal({ jobId, userId, onApplied, onClose, onSuccess }: { jobId: string, userId: string, onApplied?: () => void, onClose?: () => void, onSuccess?: () => void }) {
   const [isOpen, setIsOpen] = useState(true)
   const [isApplying, setIsApplying] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
@@ -55,7 +55,7 @@ export default function JobApplicationModal({ jobId, userId, onApplied, onClose 
   const [coverLetter, setCoverLetter] = useState('');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
 
-  const resumeFileName = "resume-siddhartha.pdf"
+  const resumeFileName = "resume.pdf"
 
   const handleApply = async () => {
     setIsApplying(true);
@@ -81,6 +81,8 @@ export default function JobApplicationModal({ jobId, userId, onApplied, onClose 
       if (response.data.success) {
         setShowSuccess(true);
         setShowConfetti(true);
+        onApplied?.();
+        onSuccess?.(); 
         setTimeout(() => {
           setShowSuccess(false);
           setShowConfetti(false);
@@ -119,7 +121,7 @@ export default function JobApplicationModal({ jobId, userId, onApplied, onClose 
   }, [isOpen])
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <>
       <Confetti isActive={showConfetti} />
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -268,6 +270,6 @@ export default function JobApplicationModal({ jobId, userId, onApplied, onClose 
           )}
         </DialogContent>
       </Dialog>
-    </div>
+      </>
   )
 }

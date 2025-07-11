@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import AppliedJobCard from "./AppliedJobCard";
 import { useRouter } from "next/navigation";
+import ShortlistJobCard from "./Shortlist";
+import RejectedJobCard from "./RejectedJobCard";
 
 export default function AppliedShortlistPage() {
   const router = useRouter();
@@ -23,6 +25,7 @@ export default function AppliedShortlistPage() {
         const response = await axios.get(
           `http://localhost:4000/api/application/getAppliedJobUsers/${userId}`
         );
+        console.log(response.data)
         const applications = response.data.application;
         const jobsWithDates = applications.map((app: any) => ({
           job: app.job,
@@ -43,6 +46,11 @@ export default function AppliedShortlistPage() {
   const onJobClick = (id: string) => {
     console.log(id);
   };
+
+  const pendingJobs = appliedJobs.filter(item => item.status === 'pending');
+  const shortlistedJobs = appliedJobs.filter(item => item.status === 'shortlisted');
+  const rejectedJobs = appliedJobs.filter(item => item.status === 'rejected'); // Filter rejected jobs
+
   return (
     <div className="bg-[#f8f9fa]">
       <div className="min-h-screen w-full max-w-7xl mx-auto">
@@ -53,12 +61,15 @@ export default function AppliedShortlistPage() {
           </div>
 
           <Tabs defaultValue="applied" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8 h-full">
+            <TabsList className="grid w-full grid-cols-3 mb-8 h-full">
               <TabsTrigger value="applied" className="text-lg py-3">
                 Applied Jobs
               </TabsTrigger>
               <TabsTrigger value="shortlisted" className="text-lg py-3">
                 Shortlisted
+              </TabsTrigger>
+              <TabsTrigger value="rejected" className="text-lg py-3">
+                Rejected
               </TabsTrigger>
             </TabsList>
 
@@ -66,10 +77,10 @@ export default function AppliedShortlistPage() {
               <div className="flex flex-col gap-4">
                 {loading ? (
                   <p>Loading...</p>
-                ) : appliedJobs.length === 0 ? (
+                ) : pendingJobs.length === 0 ? (
                   <p>No applied jobs found.</p>
                 ) : (
-                  appliedJobs.map((item) => (
+                  pendingJobs.map((item) => (
                     <AppliedJobCard
                       key={item.job._id}
                       job={item.job}
@@ -84,12 +95,41 @@ export default function AppliedShortlistPage() {
 
             <TabsContent value="shortlisted">
               <div className="flex flex-col gap-4">
-                {/* {jobsData.map((job) => (
-              <ShortlistTable key={job.id} job={job} />
-            ))} */}
-                <div className="flex flex-col items-center justify-center">
-                  <h1 className="text-2xl font-semibold">No Shortlisted Jobs</h1>
-                </div>
+                {loading ? (
+                  <p>Loading...</p>
+                ) : shortlistedJobs.length === 0 ? (
+                  <p>No shortlisted jobs found.</p>
+                ) : (
+                  shortlistedJobs.map((item) => (
+                    <ShortlistJobCard 
+                      key={item.job._id}
+                      job={item.job}
+                      onJobClick={() => router.push(`/job/${item.job._id}`)}
+                      appliedDate={item.appliedDate}
+                      status={item.status}
+                    />
+                  ))
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="rejected">
+              <div className="flex flex-col gap-4">
+                {loading ? (
+                  <p>Loading...</p>
+                ) : rejectedJobs.length === 0 ? (
+                  <p>No rejected jobs found.</p>
+                ) : (
+                  rejectedJobs.map((item) => (
+                    <RejectedJobCard 
+                      key={item.job._id}
+                      job={item.job}
+                      onJobClick={() => router.push(`/job/${item.job._id}`)}
+                      appliedDate={item.appliedDate}
+                      status={item.status}
+                    />
+                  ))
+                )}
               </div>
             </TabsContent>
           </Tabs>

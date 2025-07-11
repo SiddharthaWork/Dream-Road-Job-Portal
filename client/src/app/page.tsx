@@ -23,6 +23,14 @@ export default function Home() {
     setIsLoading(false);
   }, []);
 
+  useEffect(() => {
+    if (isLoading) return;
+    
+    if (isLoggedIn && role === 'company') {
+      router.push('/employer/dashboard');
+    }
+  }, [isLoggedIn, role, isLoading, router]);
+  
   if (isLoading) {
     return <div><Loading /></div>;
   }
@@ -30,7 +38,7 @@ export default function Home() {
 
   return (
     <>
-      {isLoggedIn && role === 'user' ? <JobSeekers /> : role === 'company' ? router.push('/employer/dashboard') : <Landing />}
+      {isLoggedIn && role === 'user' ? <JobSeekers /> : !isLoggedIn ? <Landing /> : null}
     </>
   );
 }
