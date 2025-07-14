@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { motion } from "framer-motion"
 import { FormProvider } from "@/contexts/form-context"
+import { useRouter } from "next/navigation"
 
 interface JobPost {
   id: number
@@ -23,6 +24,7 @@ interface RecentJobPostsProps {
 }
 
 export default function RecentJobPosts({ jobPosts = [], onViewAllJobs }: RecentJobPostsProps) {
+  const router = useRouter()
   // Duplicate the job posts for seamless looping
   const duplicatedPosts = [...jobPosts, ...jobPosts]
 
@@ -39,13 +41,13 @@ export default function RecentJobPosts({ jobPosts = [], onViewAllJobs }: RecentJ
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <Button variant="link" size="sm" className="text-sm relative gap-0 -right-4 w-fit px-0 text-blue-600 flex items-center" onClick={onViewAllJobs}>
+            <Button onClick={() => router.push('/job')} variant="link" size="sm" className="text-sm relative gap-0 -right-4 w-fit px-0 text-blue-600 flex items-center">
               View All Jobs
               <ChevronRight className="w-4 h-4 " />
             </Button>
           </motion.div>
         </div>
-
+      
         <div className="relative h-[26rem] overflow-hidden cursor-pointer">
           <motion.div
             className="space-y-3"

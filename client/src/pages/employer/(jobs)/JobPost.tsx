@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,13 +8,37 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MapPin, Users, Calendar, Eye, MoreVertical, Briefcase } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
-import { useApp } from '@/contexts/AppContext';
+import axios from 'axios';
 
 const JobPosts = () => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const { jobs } = useApp();
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const companyId = localStorage.getItem('companyId');
+        if (!companyId) {
+          throw new Error('Company ID not found');
+        }
+        const response = await axios.get(`http://localhost:4000/api/job/getjobbycompany/${companyId}`);
+        if (response.data.success) {
+          setJobs(response.data.data);
+        }
+      } catch (err) {
+        setError('Failed to fetch jobs');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -29,23 +53,27 @@ const JobPosts = () => {
     }
   };
 
+  const formatSalary = (min: number, max: number) => {
+    return `Rs ${min.toLocaleString()} - Rs ${max.toLocaleString()}`;
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         job.location.toLowerCase().includes(searchTerm.toLowerCase());
+                          job.department.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || job.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  const formatSalary = (min: string, max: string) => {
-    if (!min && !max) return 'Not specified';
-    if (!min) return `Up to $${max}k`;
-    if (!max) return `From $${min}k`;
-    return `NPR ${min} - ${max}`;
-  };
-
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Job Posts</h2>
@@ -56,7 +84,6 @@ const JobPosts = () => {
         </Button>
       </div>
 
-      {/* Filters */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -82,10 +109,9 @@ const JobPosts = () => {
         </CardContent>
       </Card>
 
-      {/* Jobs Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {filteredJobs.map((job) => (
-          <Card key={job.id} className="hover:shadow-md transition-shadow">
+          <Card key={job._id} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
@@ -103,15 +129,16 @@ const JobPosts = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2">
+                  <Briefcase className="h-4 w-4 text-gray-500" />
                   <span>{formatSalary(job.salaryMin, job.salaryMax)}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-gray-500" />
-                  <span>{job.applicants?.length || 0} applicants</span>
+                  <span>{job.applications?.length || 0} applicants</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-gray-500" />
-                  <span>Posted {format(job.postedDate, 'MMM d, yyyy')}</span>
+                  <span>Posted {format(new Date(job.createdAt), 'MMM d, yyyy')}</span>
                 </div>
                 <div className="text-gray-500">
                   {job.type} • {job.department}
@@ -123,7 +150,7 @@ const JobPosts = () => {
                   variant="outline" 
                   size="sm" 
                   className="flex-1"
-                  onClick={() => router.push(`/jobs/${job.id}`)}
+                  onClick={() => router.push(`/employer/dashboard/jobs/${job._id}`)}
                 >
                   <Eye className="h-4 w-4 mr-2" />
                   View Details
@@ -132,13 +159,10 @@ const JobPosts = () => {
                   variant="outline" 
                   size="sm" 
                   className="flex-1"
-                  onClick={() => router.push(`/employer/dashboard/applicants/${job.id}`)}
+                  onClick={() => router.push(`/employer/dashboard/jobs/applicant/${job._id}`)}
                 >
                   <Users className="h-4 w-4 mr-2" />
                   View Applicants
-                </Button>
-                <Button variant="outline" size="sm">
-                  <MoreVertical className="h-4 w-4" />
                 </Button>
               </div>
             </CardContent>

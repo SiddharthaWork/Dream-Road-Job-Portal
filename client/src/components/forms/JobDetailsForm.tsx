@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,23 +10,9 @@ import { Button } from '@/components/ui/button';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { UseFormRegister, UseFormSetValue, FieldErrors } from 'react-hook-form';
+import { UseFormRegister, UseFormSetValue, FieldErrors, UseFormWatch } from 'react-hook-form';
 import LocationInput from '../LocationInput';
-  
-interface JobFormData {
-  title: string;
-  department: string;
-  location: string;
-  type: string;
-  experience: string;
-  salaryMin: string;
-  salaryMax: string;
-  description: string;
-  requirements: string;
-  benefits: string;
-  hasDeadline: boolean;
-  deadline?: Date;
-}
+import { JobFormData } from '@/types/job';
 
 interface JobDetailsFormProps {
   register: UseFormRegister<JobFormData>;
@@ -37,8 +22,15 @@ interface JobDetailsFormProps {
   setLocation: (value: string) => void;
   hasDeadline: boolean;
   setHasDeadline: (value: boolean) => void;
-  deadline?: Date;
-  setDeadline: (date?: Date) => void;
+  deadline?: any;
+  setDeadline: (date?: any) => void;
+  watch: UseFormWatch<JobFormData>;
+  department?: string;
+  type?: any;
+  experience?: any;
+  salaryMin?: any;
+  salaryMax?: any;
+  
 }
 
 const JobDetailsForm = ({
@@ -51,7 +43,32 @@ const JobDetailsForm = ({
   setHasDeadline,
   deadline,
   setDeadline,
+  watch,
+  department,
+  type,
+  experience,
+  salaryMin,
+  salaryMax,
 }: JobDetailsFormProps) => {
+  const [salaryError, setSalaryError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const min = watch('salaryMin');
+    const max = watch('salaryMax');
+    if (min !== undefined && max !== undefined && min !== null && max !== null) {
+      if (max < min) {
+        setSalaryError('Maximum salary must be greater than minimum salary');
+        // prevent form submission
+        register('salaryMax', { valueAsNumber: true })
+        return; 
+      } else {
+        setSalaryError(null);
+      }
+    } else {
+      setSalaryError(null);
+    }
+  }, [watch('salaryMin'), watch('salaryMax')]);
+
   const handleLocationChange = (value: string) => {
     setLocation(value);
     setValue('location', value);
@@ -79,7 +96,10 @@ const JobDetailsForm = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Department *</Label>
-            <Select onValueChange={(value) => setValue('department', value)}>
+            <Select onValueChange={(value) => setValue('department', value)}
+              value={watch('department')}
+              required
+              >
               <SelectTrigger>
                 <SelectValue placeholder="Select department" />
               </SelectTrigger>
@@ -113,7 +133,10 @@ const JobDetailsForm = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Employment Type *</Label>
-            <Select onValueChange={(value) => setValue('type', value)}>
+            <Select onValueChange={(value) => setValue('type', value)}
+              value={watch('type')}
+              required
+              >
               <SelectTrigger>
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
@@ -128,7 +151,10 @@ const JobDetailsForm = ({
 
           <div className="space-y-2">
             <Label>Experience Level *</Label>
-            <Select onValueChange={(value) => setValue('experience', value)}>
+            <Select onValueChange={(value) => setValue('experience', value)}
+              value={watch('experience')}
+              required
+              >
               <SelectTrigger>
                 <SelectValue placeholder="Select level" />
               </SelectTrigger>
@@ -142,19 +168,44 @@ const JobDetailsForm = ({
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label>Salary Range</Label>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="salaryMin">Minimum Salary Per Month*</Label>
             <Input
-              placeholder="Min (e.g. 80000)"
-              {...register('salaryMin')}
+              id="salaryMin"
+              type="number"
+              placeholder="Minimum"
+              {...register('salaryMin', { 
+                required: 'Minimum salary is required',
+                valueAsNumber: true,
+                validate: value => !isNaN(value) || 'Please enter a valid number'
+              })}
             />
+            {errors.salaryMin && (
+              <p className="text-sm text-red-600">{errors.salaryMin.message}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="salaryMax">Maximum Salary Per Month*</Label>
             <Input
-              placeholder="Max (e.g. 120000)"
-              {...register('salaryMax')}
+              id="salaryMax"
+              type="number"
+              placeholder="Maximum"
+              max="1000000"
+              {...register('salaryMax', {
+                required: 'Maximum salary is required',
+                valueAsNumber: true,
+                validate: value => !isNaN(value) || 'Please enter a valid number'
+              })}
             />
+            {errors.salaryMax && (
+              <p className="text-sm text-red-600">{errors.salaryMax.message}</p>
+            )}
           </div>
         </div>
+        {salaryError && (
+          <p className="text-sm text-red-600">{salaryError}</p>
+        )}
 
         <div className="space-y-4 border-t pt-4">
           <div className="flex items-center space-x-2">
@@ -181,7 +232,7 @@ const JobDetailsForm = ({
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal",
+                      "w-full justify-start text-left font-normal bg-white text-black",
                       !deadline && "text-muted-foreground"
                     )}
                   >

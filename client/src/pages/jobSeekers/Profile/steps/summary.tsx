@@ -7,12 +7,39 @@ import { User, MapPin, GraduationCap, Briefcase, Code, Award } from "lucide-reac
 import { useFormContext } from "@/contexts/form-context"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { FormProvider } from "@/contexts/form-context"
+import { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
 
 // NOTE: This component must be rendered inside a <FormProvider> from '@/contexts/form-context'.
 export default function SummaryStep() {
   try {
     const { formData, updateFormData } = useFormContext()
+    const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(null);
+    const [resumeUrl, setResumeUrl] = useState<string | null>(null);
 
+    useEffect(() => {
+      // Create URLs for file previews
+      if (formData.profilePicture instanceof File) {
+        const url = URL.createObjectURL(formData.profilePicture);
+        setProfilePictureUrl(url);
+      } else if (typeof formData.profilePicture === 'string') {
+        setProfilePictureUrl(formData.profilePicture);
+      }
+
+      if (formData.resume instanceof File) {
+        const url = URL.createObjectURL(formData.resume);
+        setResumeUrl(url);
+      } else if (typeof formData.resume === 'string') {
+        setResumeUrl(formData.resume);
+      }
+
+      // Clean up object URLs
+      return () => {
+        if (profilePictureUrl) URL.revokeObjectURL(profilePictureUrl);
+        if (resumeUrl) URL.revokeObjectURL(resumeUrl);
+      };
+    }, [formData.profilePicture, formData.resume]);
+    
     return (
       <ScrollArea className="h-full w-full">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -29,9 +56,9 @@ export default function SummaryStep() {
               <h3 className="text-lg font-semibold">Personal Information</h3>
             </div>
             <div className="space-y-2 text-sm">
-              <p>
-                <span className="font-medium">Name:</span> {formData.firstName} {formData.lastName}
-              </p>
+              {/* <p>
+                <span className="font-medium">Name:</span> {formData.firstName}
+              </p> */}
               <p>
                 <span className="font-medium">Gender:</span> {formData.gender}
               </p>
@@ -41,27 +68,73 @@ export default function SummaryStep() {
               <p>
                 <span className="font-medium">Date of Birth:</span> {formData.dateOfBirth}
               </p>
-              <p>
-                <span className="font-medium">Designation:</span> {formData.designation}
-              </p>
-              <div>
-                <span className="font-medium">Sectors:</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {formData.sectors.map((sector) => (
-                    <Badge key={sector} variant="secondary" className="text-xs">
-                      {sector}
-                    </Badge>
-                  ))}
-                </div>
+              <div className="flex flex-col">
+                <span className="font-medium">About:</span>
+                <p className="text-gray-600 mt-1">{formData.aboutMe}</p>
               </div>
-              {formData.aboutMe && (
-                <div>
-                  <span className="font-medium">About:</span>
-                  <p className="text-gray-600 mt-1">{formData.aboutMe}</p>
-                </div>
-              )}
             </div>
           </Card>
+
+          {/* Profile Picture */}
+          <Card className="p-6 rounded-lg">
+            <div className="flex items-center mb-4">
+              <User className="w-5 h-5 mr-2 text-blue-500" />
+              <h3 className="text-lg font-semibold">Profile Picture</h3>
+            </div>
+            {profilePictureUrl ? (
+              <img 
+                src={profilePictureUrl} 
+                alt="Profile" 
+                className="w-32 h-32 rounded-full object-cover" 
+              />
+            ) : (
+              <p>No profile picture uploaded</p>
+            )}
+          </Card>
+
+          {/* Resume */}
+          <Card className="p-6 rounded-lg">
+            <div className="flex items-center mb-4">
+              <Briefcase className="w-5 h-5 mr-2 text-blue-500" />
+              <h3 className="text-lg font-semibold">Resume</h3>
+            </div>
+            {resumeUrl ? (
+              <a 
+                href={resumeUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-blue-500 hover:underline"
+              >
+                View Resume
+              </a>
+            ) : (
+              <p>No resume uploaded</p>
+            )}
+          </Card>
+
+          {/* Work Experience */}
+          {formData.experiences.length > 0 && (
+            <Card className="p-6 rounded-lg">
+              <div className="flex items-center mb-4">
+                <Briefcase className="w-5 h-5 mr-2 text-blue-500" />
+                <h3 className="text-lg font-semibold">Work Experience</h3>
+              </div>
+              <div className="space-y-4">
+                {formData.experiences.map((exp) => (
+                  <div key={exp.id} className="border-l-4 border-l-blue-500 pl-4 py-2">
+                    <h4 className="font-semibold">{exp.jobTitle}</h4>
+                    <p className="text-gray-600">{exp.company} • {exp.location}</p>
+                    <p className="text-sm text-gray-500">
+                      {exp.startDate} - {exp.currentlyWorking ? "Present" : exp.endDate}
+                    </p>
+                    {exp.description && (
+                      <p className="text-sm text-gray-700 mt-2">{exp.description}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
 
           {/* Address */}
           <Card className="p-6 rounded-lg">

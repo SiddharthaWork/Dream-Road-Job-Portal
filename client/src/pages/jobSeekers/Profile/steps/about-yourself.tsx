@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle, ForwardedRef } from "react"
 import { motion } from "framer-motion"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,20 +14,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { FormProvider } from "@/contexts/form-context"
 
 const genderOptions = ["Male", "Female", "Other", "Prefer not to say"]
-const sectorOptions = [
-  "Technology",
-  "Healthcare",
-  "Finance",
-  "Education",
-  "Marketing",
-  "Sales",
-  "Design",
-  "Engineering",
-  "Human Resources",
-  "Operations",
-]
 
-export default function AboutYourselfStep() {
+const AboutYourselfStep = forwardRef((props, ref: ForwardedRef<{ validate: () => boolean }>) => {
   try {
     const { formData, updateFormData } = useFormContext()
     const [selectedSectors, setSelectedSectors] = useState<string[]>(formData.sectors || [])
@@ -36,6 +24,48 @@ export default function AboutYourselfStep() {
     const resumeInputRef = useRef<HTMLInputElement>(null)
     const [profilePic, setProfilePic] = useState<File | null>(null)
     const [resume, setResume] = useState<File | null>(null)
+    const [fullname, setFullname] = useState<string>("")
+    const [dateError, setDateError] = useState<string | null>(null)
+    const [errors, setErrors] = useState({
+      gender: '',
+      dateOfBirth: '',
+      phoneNumber: '',
+      city: '',
+      postalCode: '',
+      aboutMe: '',
+      profilePicture: '',
+      resume: ''
+    })
+
+    const validateField = (field: string, value: any) => {
+      let error = ''
+      
+      if (!value) {
+        error = `${field.replace(/([A-Z])/g, ' $1').toLowerCase()} is required`
+      }
+      
+      setErrors(prev => ({ ...prev, [field]: error }))
+      return error
+    }
+
+    const validateForm = () => {
+      const newErrors = {
+        gender: validateField('gender', formData.gender),
+        dateOfBirth: validateField('dateOfBirth', formData.dateOfBirth),
+        phoneNumber: validateField('phoneNumber', formData.phoneNumber),
+        city: validateField('city', formData.city),
+        postalCode: validateField('postalCode', formData.postalCode),
+        aboutMe: validateField('aboutMe', formData.aboutMe),
+        profilePicture: validateField('profilePicture', profilePic),
+        resume: validateField('resume', resume)
+      }
+      
+      return Object.values(newErrors).every(error => error === '')
+    }
+
+    useEffect(() => {
+      validateForm()
+    }, [formData, profilePic, resume])
 
     const handleSectorToggle = (sector: string) => {
       const newSectors = selectedSectors.includes(sector)
@@ -46,9 +76,69 @@ export default function AboutYourselfStep() {
       updateFormData({ sectors: newSectors })
     }
 
+    const validateDateOfBirth = (dateString: string) => {
+      if (!dateString) return "Date of birth is required";
+      
+      const today = new Date();
+      const birthDate = new Date(dateString);
+      
+      // Check if the date is valid
+      if (isNaN(birthDate.getTime())) {
+        return "Invalid date";
+      }
+      
+      // Check if the birth date is in the future
+      if (birthDate > today) {
+        return "Birth date cannot be in the future";
+      }
+      
+      // Calculate age
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      
+      if (age < 18) {
+        return "You must be at least 18 years old";
+      }
+      
+      return null;
+    };
+
     const handleInputChange = (field: string, value: string) => {
       updateFormData({ [field]: value })
+      validateField(field, value)
+      
+      if (field === "dateOfBirth") {
+        const error = validateDateOfBirth(value);
+        setDateError(error);
+      }
     }
+
+    const handleFileChange = (type: 'profilePicture' | 'resume', file: File | null) => {
+      if (type === 'profilePicture') {
+        setProfilePic(file)
+        updateFormData({ profilePicture: file })
+      } else {
+        setResume(file)
+        updateFormData({ resume: file })
+      }
+      validateField(type, file)
+    }
+
+    useEffect(() => {
+      const fullname = localStorage.getItem("fullname")
+      if(fullname){
+        setFullname(fullname)
+      }
+    }, [])
+
+    useImperativeHandle(ref, () => ({
+      validate: () => {
+        return validateForm();
+      }
+    }));
 
     return (
       <FormProvider>    
@@ -87,36 +177,29 @@ export default function AboutYourselfStep() {
             className="hidden"
             onChange={e => {
               if (e.target.files && e.target.files[0]) {
-                setProfilePic(e.target.files[0])
+                const file = e.target.files[0];
+                handleFileChange('profilePicture', file);
+              } else {
+                handleFileChange('profilePicture', null);
               }
             }}
           />
         </div>
+        {errors.profilePicture && <p className="text-red-500 text-sm px-4">{errors.profilePicture}</p>}
 
         {/* Name Fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
           <div className="space-y-2">
             <Label htmlFor="firstName">
-              First Name <span className="text-red-500">*</span>
+              Full Name <span className="text-red-500">*</span>
             </Label>
             <Input
               id="firstName"
-              value={formData.firstName}
+              value={fullname}
+              readOnly
               onChange={(e) => handleInputChange("firstName", e.target.value)}
               placeholder="Enter your first name"
-              className="rounded-lg"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lastName">
-              Last Name <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="lastName"
-              value={formData.lastName}
-              onChange={(e) => handleInputChange("lastName", e.target.value)}
-              placeholder="eg. Copper"
-              className="rounded-lg"
+              className="rounded-lg hover:none focus:none border-0 ring-0"
             />
           </div>
         </div>
@@ -139,6 +222,7 @@ export default function AboutYourselfStep() {
                 ))}
               </SelectContent>
             </Select>
+            {errors.gender && <p className="text-red-500 text-sm">{errors.gender}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="dateOfBirth">
@@ -150,7 +234,11 @@ export default function AboutYourselfStep() {
               value={formData.dateOfBirth}
               onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
               className="rounded-lg"
+              max={new Date().toISOString().split("T")[0]}  
+              required
             />
+            {errors.dateOfBirth && <p className="text-red-500 text-sm">{errors.dateOfBirth}</p>}
+            {dateError && <p className="text-red-500 text-sm mt-1">{dateError}</p>}
           </div>
         </div>
 
@@ -161,48 +249,51 @@ export default function AboutYourselfStep() {
           </Label>
           <Input
             id="phoneNumber"
-            type="tel"
+            type="text"
+            inputMode="numeric"
+            pattern="\d*"
+            maxLength={10}
             value={formData.phoneNumber}
-            onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              // Allow only digits up to 10
+              if (/^\d{0,10}$/.test(value)) {
+                handleInputChange("phoneNumber", value);
+              }
+            }}
             placeholder="Enter your phone number"
             className="rounded-lg"
           />
+          {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber}</p>}
         </div>
-
-        {/* Sectors */}
-        <div className="space-y-2 px-4">
-          <Label>
-            Sectors <span className="text-red-500">*</span>
-          </Label>
-          <div className="flex flex-wrap gap-2 p-3 border rounded-lg min-h-[50px] bg-gray-50">
-            {sectorOptions.map((sector) => (
-              <Badge
-                key={sector}
-                variant={selectedSectors.includes(sector) ? "default" : "outline"}
-                className={`cursor-pointer transition-colors ${
-                  selectedSectors.includes(sector) ? "bg-[#255cf4] hover:bg-blue-300 text-white" : "hover:bg-gray-200"
-                }`}
-                onClick={() => handleSectorToggle(sector)}
-              >
-                {sector}
-                {selectedSectors.includes(sector) && <X className="w-3 h-3 ml-1" />}
-              </Badge>
-            ))}
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
+          <div className="space-y-2">
+            <Label htmlFor="city">
+              City <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="city"
+              value={formData.city}
+              onChange={(e) => handleInputChange("city", e.target.value)}
+              placeholder="Enter your city"
+              className="rounded-lg"
+            />
+            {errors.city && <p className="text-red-500 text-sm">{errors.city}</p>}
           </div>
-        </div>
-
-        {/* Designation */}
-        <div className="space-y-2 px-4">
-          <Label htmlFor="designation">
-            Designation <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="designation"
-            value={formData.designation}
-            onChange={(e) => handleInputChange("designation", e.target.value)}
-            placeholder="eg. UI UX designer"
-            className="rounded-lg"
-          />
+          <div className="space-y-2">
+            <Label htmlFor="postalCode">
+              Postal Code <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="postalCode"
+              value={formData.postalCode}
+              onChange={(e) => handleInputChange("postalCode", e.target.value)}
+              placeholder="Enter postal code"
+              className="rounded-lg"
+            />
+            {errors.postalCode && <p className="text-red-500 text-sm">{errors.postalCode}</p>}
+          </div>
         </div>
 
         {/* About Me */}
@@ -240,6 +331,7 @@ export default function AboutYourselfStep() {
                 <Underline className="w-4 h-4" />
               </Button>
             </div>
+            
             <Textarea
               id="aboutMe"
               value={formData.aboutMe}
@@ -253,7 +345,10 @@ export default function AboutYourselfStep() {
               }}
             />
           </div>
+          {errors.aboutMe && <p className="text-red-500 text-sm">{errors.aboutMe}</p>}
         </div>
+        
+        {/* Resume Upload */}
         <div className="flex items-center space-x-4 px-4">
           <div className="w-10 h-10 bg-gray-200 rounded-xl flex items-center justify-center">
             <File className="w-6 h-6 text-gray-400" />
@@ -273,7 +368,10 @@ export default function AboutYourselfStep() {
             className="hidden"
             onChange={e => {
               if (e.target.files && e.target.files[0]) {
-                setResume(e.target.files[0])
+                const file = e.target.files[0];
+                handleFileChange('resume', file);
+              } else {
+                handleFileChange('resume', null);
               }
             }}
           />
@@ -281,6 +379,8 @@ export default function AboutYourselfStep() {
             <span className="ml-2 text-[#255cf4] font-medium">{resume.name}</span>
           )}
         </div>
+        {errors.resume && <p className="text-red-500 text-sm px-4">{errors.resume}</p>}
+        
       </motion.div>
       </ScrollArea>
       </FormProvider>
@@ -288,8 +388,9 @@ export default function AboutYourselfStep() {
   } catch (e) {
     return <div>Error: AboutYourselfStep must be used within a FormProvider.</div>;
   }
-}
+});
 
+export default AboutYourselfStep;
 
 export const Preview = () => {
   return (
@@ -298,4 +399,3 @@ export const Preview = () => {
     </FormProvider>
   )
 }
-

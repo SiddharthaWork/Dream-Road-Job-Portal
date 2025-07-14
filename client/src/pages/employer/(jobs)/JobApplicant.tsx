@@ -1,7 +1,8 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,18 +13,114 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ArrowLeft, Mail, Star, ExternalLink, Users, Eye } from 'lucide-react';
 import { AppProvider, useApp } from '@/contexts/AppContext';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
+
+
+interface Applicant {
+  id: string;
+  name: string;
+  email: string;
+  status: string;
+  resume: string;
+  coverLetter: string;
+  createdAt: string;
+}
+
+interface Job {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  experience: string;
+  salaryMin: number;
+  salaryMax: number;
+  description: string;
+  requirements: string;
+  benefits: string;
+  skills: string;
+  deadline: string;
+  createdAt: string;
+}
 
 const JobApplicants = () => {
   const params = useParams();
-    const id = params?.id as string;
+  const jobId = params?.id as string;
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [job, setJob] = useState<Job | null>(null);
+  const [loading, setLoading] = useState(true);
   const { getJob, getApplicantsForJob, toggleShortlist, updateApplicant } = useApp();
 
-  const job = id ? getJob(id) : null;
-  const applicants = id ? getApplicantsForJob(id) : [];
+  useEffect(() => { 
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/api/application/getApplicants/${jobId}`
+        );
+        
+        if (response.data.success) {
+          // Map API response to component structure
+          const jobData = response.data.job;
+          setJob({
+            id: jobData._id,
+            title: jobData.title,
+            department: jobData.department,
+            location: jobData.location,
+            type: jobData.type,
+            experience: jobData.experience,
+            salaryMin: jobData.salaryMin,
+            salaryMax: jobData.salaryMax,
+            description: jobData.description,
+            requirements: jobData.requirements,
+            benefits: jobData.benefits,
+            skills: jobData.skills,
+            deadline: jobData.deadline,
+            createdAt: jobData.createdAt,
+          });
+          console.log("jobData", jobData)
+          
+          // Map applicants data
+          const applicantsData = jobData.applications.map((app: any) => ({
+            id: app._id,
+            name: app.user.fullname,
+            email: app.user.email,
+            status: app.status,
+            resume: app.resume,
+            coverLetter: app.coverLetter,
+            createdAt: app.createdAt,
+            userId: app.user._id,
+          }));
+          
+          setApplicants(applicantsData);
+        }
+      } catch (error) {
+        console.error('Error fetching applicants:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [jobId]);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="text-center py-12">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Loading...</h3>
+            <p className="text-gray-500 mb-4">
+              Please wait while we load the applicants.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!job) {
     return (
@@ -50,7 +147,7 @@ const JobApplicants = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const shortlistedApplicants = applicants.filter(applicant => applicant.isShortlisted);
+  const shortlistedApplicants = applicants.filter(applicant => applicant.status === 'shortlisted');
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -95,7 +192,7 @@ const JobApplicants = () => {
       </TableCell>
       <TableCell>
         <div className="text-sm">
-          {format(applicant.appliedDate, 'MMM d, yyyy')}
+         {format(new Date(applicant.createdAt), 'MMM d, yyyy h:mm a')}
         </div>
       </TableCell>
       <TableCell>
@@ -103,38 +200,46 @@ const JobApplicants = () => {
           <Badge className={getStatusColor(applicant.status)}>
             {applicant.status}
           </Badge>
-          {applicant.isShortlisted && (
+          {applicant.status === 'shortlisted' && (
             <Badge className="bg-green-100 text-green-800">
               <Star className="h-3 w-3 mr-1" />
               Shortlisted
             </Badge>
           )}
         </div>
+     
       </TableCell>
       <TableCell>
         <div className="flex gap-2">
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => router.push(`/employer/dashboard/applicants/${applicant.id}`)}
+            onClick={() => router.push(`/employer/dashboard/applicants/profile/${applicant.userId}?jobid=${jobId}`)}
           >
             <Eye className="h-4 w-4" />
           </Button>
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => window.open(applicant.resumeLink, '_blank')}
+            onClick={() => router.push(`/employer/dashboard/applicants/profile/${applicant.userId}?jobid=${jobId}`)}
           >
             <ExternalLink className="h-4 w-4" />
           </Button>
-          <Button 
-            variant={applicant.isShortlisted ? "default" : "outline"}
-            size="sm"
-            onClick={() => toggleShortlist(applicant.id)}
-          >
-            <Star className={`h-4 w-4 ${applicant.isShortlisted ? 'fill-current' : ''}`} />
-          </Button>
-          <Select
+      
+
+          {/* <div>
+          {applicant.status !== 'shortlisted' && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => handleStatusChange(applicant.id, 'shortlisted')}
+            >
+              <Star className="h-4 w-4 mr-1" />
+              Shortlisted
+            </Button>
+          )}
+        </div> */}
+          {/* <Select
             value={applicant.status}
             onValueChange={(value) => handleStatusChange(applicant.id, value)}
           >
@@ -149,7 +254,7 @@ const JobApplicants = () => {
               <SelectItem value="hired">Hired</SelectItem>
               <SelectItem value="rejected">Rejected</SelectItem>
             </SelectContent>
-          </Select>
+          </Select> */}
         </div>
       </TableCell>
     </TableRow>
@@ -181,28 +286,28 @@ const JobApplicants = () => {
             <p className="text-sm text-muted-foreground">Total Applications</p>
           </CardContent>
         </Card>
-        <Card>
+        {/* <Card>
           <CardContent className="pt-4">
             <div className="text-2xl font-bold">
               {applicants.filter(a => a.status === 'new').length}
             </div>
             <p className="text-sm text-muted-foreground">New Applications</p>
           </CardContent>
-        </Card>
+        </Card> */}
         <Card>
           <CardContent className="pt-4">
             <div className="text-2xl font-bold">{shortlistedApplicants.length}</div>
             <p className="text-sm text-muted-foreground">Shortlisted</p>
           </CardContent>
         </Card>
-        <Card>
+        {/* <Card>
           <CardContent className="pt-4">
             <div className="text-2xl font-bold">
               {applicants.filter(a => a.status === 'interviewed').length}
             </div>
             <p className="text-sm text-muted-foreground">Interviewed</p>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       {/* Filters */}
@@ -222,7 +327,7 @@ const JobApplicants = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="new">New</SelectItem>
+                {/* <SelectItem value="new">New</SelectItem> */}
                 <SelectItem value="reviewed">Reviewed</SelectItem>
                 <SelectItem value="shortlisted">Shortlisted</SelectItem>
                 <SelectItem value="interviewed">Interviewed</SelectItem>
@@ -323,4 +428,4 @@ export const ApplicantsProflePreview = () => {
       <JobApplicants />
     </AppProvider>
   )
-} 
+}

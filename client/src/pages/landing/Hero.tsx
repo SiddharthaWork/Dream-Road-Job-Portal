@@ -2,8 +2,10 @@ import React from 'react'
 import { Icon } from '@iconify/react';
 import TopCompaniesMarquee from '@/components/topcompanies';
 import { clipPath } from 'motion/react-client';
+import { useRouter } from 'next/navigation';
 
 const Hero = () => {
+  const router = useRouter();
   return (
     <>
     <div className='w-full h-[75vh] relative flex flex-col justify-start items-center'>
@@ -14,7 +16,7 @@ const Hero = () => {
         <span className='text-black'>Find Work That Works for You</span>
         </h1>
         <p className='text-lg text-center text-black/60'>Say goodbye to endless scrolling. Dream Road brings you closer to jobs that matter<br/>faster, smarter, and tailored just for you.</p>
-        <button className='px-6 h-10 rounded-md text-lg tracking-tight flex items-center gap-2 cursor-pointer font-semibold bg-[#255cf4] text-white '>
+        <button onClick={() => router.push('/login')} className='px-6 h-10 rounded-md text-lg tracking-tight flex items-center gap-2 cursor-pointer font-semibold bg-[#255cf4] text-white '>
             <Icon icon="ix:explore" />
             Explore Jobs Now
         </button>

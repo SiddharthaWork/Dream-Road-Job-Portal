@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,6 +16,20 @@ export default function SkillsStep() {
   try {
     const { formData, updateFormData } = useFormContext()
     const [newSkill, setNewSkill] = useState("")
+    const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+      validateSkills();
+    }, [formData.skills]);
+
+    const validateSkills = () => {
+      if (formData.skills.length < 5) {
+        setError('Please add at least 5 skills');
+        return false;
+      }
+      setError(null);
+      return true;
+    };
 
     const handleAddSkill = () => {
       if (newSkill.trim() && !formData.skills.includes(newSkill.trim())) {
@@ -45,6 +59,7 @@ export default function SkillsStep() {
         </div>
 
         <div className="space-y-4 px-4">
+          {error && <p className="text-red-500 text-sm">{error}</p>}
           <div className="flex space-x-2">
             <div className="flex-1 ">
               <Label htmlFor="newSkill">Add Skill</Label>

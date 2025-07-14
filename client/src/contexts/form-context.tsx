@@ -33,8 +33,18 @@ interface Certificate {
   description: string
 }
 
+export interface Experience {
+  id: string
+  jobTitle: string
+  company: string
+  location: string
+  description: string
+  startDate: string
+  endDate: string
+  currentlyWorking: boolean
+}
+
 interface FormData {
-  // About Yourself
   firstName: string
   lastName: string
   gender: string
@@ -43,27 +53,23 @@ interface FormData {
   sectors: string[]
   designation: string
   aboutMe: string
-  profilePicture?: string
+  profilePicture?: File | any
+  resume?: File | any
 
-  // Address
   city: string
   currentAddress: string
   postalCode: string
   province: string
 
-  // Education
   education: Education[]
-
-  // Projects
   projects: Project[]
-
-  // Skills
   skills: string[]
-
-  // Achievements & Certifications
   achievements: Achievement[]
   certificates: Certificate[]
+  experiences: Experience[]
 }
+
+export type FormContextData = FormData;
 
 interface FormContextType {
   formData: FormData
@@ -76,6 +82,8 @@ interface FormContextType {
   removeAchievement: (id: string) => void
   addCertificate: (certificate: Omit<Certificate, "id">) => void
   removeCertificate: (id: string) => void
+  addExperience: (experience: Omit<Experience, "id">) => void
+  removeExperience: (id: string) => void
 }
 
 const FormContext = createContext<FormContextType | undefined>(undefined)
@@ -98,6 +106,9 @@ const initialFormData: FormData = {
   skills: [],
   achievements: [],
   certificates: [],
+  experiences: [],
+  profilePicture: '',
+  resume: '',
 }
 
 export function FormProvider({ children }: { children: ReactNode }) {
@@ -122,6 +133,21 @@ export function FormProvider({ children }: { children: ReactNode }) {
 
   const updateFormData = (data: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...data }))
+  }
+
+  const addExperience = (experience: Omit<Experience, "id">) => {
+    const newExperience = { ...experience, id: Date.now().toString() }
+    setFormData((prev) => ({
+      ...prev,
+      experiences: [...prev.experiences, newExperience],
+    }))
+  }
+
+  const removeExperience = (id: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      experiences: prev.experiences.filter((exp) => exp.id !== id),
+    }))
   }
 
   const addEducation = (education: Omit<Education, "id">) => {
@@ -197,6 +223,8 @@ export function FormProvider({ children }: { children: ReactNode }) {
         removeAchievement,
         addCertificate,
         removeCertificate,
+        addExperience,
+        removeExperience,
       }}
     >
       {children}

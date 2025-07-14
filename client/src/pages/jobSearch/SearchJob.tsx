@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { startOfWeek, isWithinInterval } from 'date-fns';
 
 import { useState } from "react"
 import { Search, MapPin, Briefcase, Building2, ChevronDown, Filter, Star } from "lucide-react"
@@ -14,79 +15,125 @@ import { Separator } from "@/components/ui/separator"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Slider } from "@/components/ui/slider"
 import JobSearch from "@/components/shared/Jobsearch"
-import { jobsData } from "@/data/mockData"
-import JobCardTable from "@/components/shared/JobCard"
+import JobCard from '@/pages/jobSeekers/JobCard';
 import { div } from "motion/react-client"
-import { Job } from "@/types/_type-Job"
+import { Job } from "@/types/job"
+import axios from "axios"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import Loading from "@/components/shared/loading"
 
-// Map jobsData to match the jobListings structure
-const jobListings = jobsData.map((job) => ({
-  id: job.id,
-  title: job.title,
-  company: job.company,
-  location: job.location,
-  type: job.type,
-  industry: "Technology", // Default or map if available
-  experienceLevel: "Mid-level", // Default or map if available
-  salaryMin: parseInt(job.salary.replace(/[^\d]/g, "").split("–")[0]) || 0,
-  salaryMax: parseInt(job.salary.replace(/[^\d]/g, "").split("–")[1]) || 0,
-  description: `${job.title} at ${job.company} in ${job.location}`,
-  postedDate: job.dueDate || "1 day ago",
-  rating: 4.2, // Default or map if available
-  logo: job.company[0], // Use first letter of company as logo fallback
-  featured: false, // Default or map if available
-  skills: [job.title], // Use job title as a skill, or map if available
-  benefits: [], // Default empty array
-  companyLogo: job.companyLogo, // Add for use in JobCardTable if needed
-  applicants: job.applicants, // Default or map if available
-}))
 
-const locations = [
-  "All Locations",
-  "San Francisco, CA",
-  "New York, NY",
-  "Remote",
-  "Austin, TX",
-  "Los Angeles, CA",
-  "Seattle, WA",
-]
-const employmentTypes = ["All Types", "Full-time", "Part-time", "Contract", "Internship"]
+
+const employmentTypes = ["All Types", "Full-Time", "Part-Time", "Contract", "Internship"]
 const industries = ["All Industries", "Technology", "Design", "Marketing", "Finance", "Healthcare", "Education"]
-const experienceLevels = ["All Levels", "Entry-level", "Mid-level", "Senior", "Executive"]
+const experienceLevels = ["All Levels", "Entry", "Mid", "Senior", "Lead"]
 
 export default function SearchJob() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedLocation, setSelectedLocation] = useState("All Locations")
+  const [selectedLocation, setSelectedLocation] = useState("")  
   const [selectedType, setSelectedType] = useState("All Types")
   const [selectedIndustry, setSelectedIndustry] = useState("All Industries")
-  const [currentPage, setCurrentPage] = useState(1)
   const [showFilters, setShowFilters] = useState(false)
   const [selectedExperience, setSelectedExperience] = useState("All Levels")
-  const [salaryRange, setSalaryRange] = useState([0, 200000])
+  const [salaryRange, setSalaryRange] = useState<number[]>([0, 1000000]);
   const [showRemoteOnly, setShowRemoteOnly] = useState(false)
-  const [showFeaturedOnly, setShowFeaturedOnly] = useState(false)
+  const [showHighSalaryOnly, setShowHighSalaryOnly] = useState(false)
   const [showRecentOnly, setShowRecentOnly] = useState(false)
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [selectedDepartment, setSelectedDepartment] = useState("All Departments")
+  const [sortOption, setSortOption] = useState('relevance');
 
-  const itemsPerPage = 4
-  const totalPages = Math.ceil(jobListings.length / itemsPerPage)
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/api/job/getalljobs');
+        if (response.data.success) {
+          setJobs(response.data.data);
+          console.log("here is the jobs", response.data.data)
+        } else {
+          setError('Failed to fetch jobs');
+        }
+      } catch (err) {
+        setError('Failed to connect to server');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <Loading/>
+  }
 
   // Filter jobs based on search and filters
-  const filteredJobs = jobListings.filter((job) => {
+  const filteredJobs = jobs.filter((job) => {
+    if (!job) return false;
+    
+    // Check if any filter has been changed from default
+    const isFilterActive = 
+      searchQuery !== "" ||
+      (selectedLocation !== "" && selectedLocation !== "All Locations") ||
+      selectedType !== "All Types" ||
+      selectedIndustry !== "All Industries" ||
+      selectedExperience !== "All Levels" ||
+      selectedDepartment !== "All Departments" ||
+      !(salaryRange[0] === 0 && salaryRange[1] === 1000000) ||
+      showRemoteOnly ||
+      showHighSalaryOnly ||
+      showRecentOnly;
+
+    // If no filters are active, show all jobs
+    if (!isFilterActive) return true;
+    
     const matchesSearch =
       searchQuery === "" ||
-      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.skills.some((skill) => skill.toLowerCase().includes(searchQuery.toLowerCase()))
+      (job.title?.toLowerCase()?.includes(searchQuery.toLowerCase()) ?? false) ||
+      (job.createdBy?.name.toLowerCase()?.includes(searchQuery.toLowerCase()) ?? false) ||
+      (job.description?.toLowerCase()?.includes(searchQuery.toLowerCase()) ?? false) ||
+      (job.skills?.some(skill => 
+        skill?.toLowerCase()?.includes(searchQuery.toLowerCase())
+      ) ?? false);
 
-    const matchesLocation = selectedLocation === "All Locations" || job.location === selectedLocation
-    const matchesType = selectedType === "All Types" || job.type === selectedType
-    const matchesIndustry = selectedIndustry === "All Industries" || job.industry === selectedIndustry
-    const matchesExperience = selectedExperience === "All Levels" || job.experienceLevel === selectedExperience
-    const matchesSalary = job.salaryMin >= salaryRange[0] && job.salaryMax <= salaryRange[1]
-    const matchesRemote = !showRemoteOnly || job.location.toLowerCase().includes("remote")
-    const matchesFeatured = !showFeaturedOnly || job.featured
-    const matchesRecent = !showRecentOnly || job.postedDate.includes("day") || job.postedDate.includes("1 week")
+    const matchesLocation = selectedLocation === "" || selectedLocation === "All Locations" || (job.location?.toLowerCase() || "").includes(selectedLocation.toLowerCase());
+    const matchesType = selectedType === "All Types" || job.type.toLowerCase() === selectedType.toLowerCase();
+    const matchesIndustry = selectedIndustry === "All Industries" || job.createdBy?.industry?.toLowerCase() === selectedIndustry.toLowerCase();
+    const matchesExperience = selectedExperience === "All Levels" || job.experience?.toLowerCase() === selectedExperience.toLowerCase()
+    const matchesDepartment = selectedDepartment === "All Departments" || (job.department && job.department.toLowerCase() === selectedDepartment.toLowerCase());
+
+    console.log("matchtype", matchesType)
+
+
+    const matchesSalary = 
+      job.salaryMin != null && 
+      job.salaryMax != null &&
+      job.salaryMin >= salaryRange[0] && 
+      job.salaryMax <= salaryRange[1];
+      
+    const matchesRemote = !showRemoteOnly || 
+      (job.location?.toLowerCase()?.includes("remote") ?? false);
+      
+    const matchesHighSalary = !showHighSalaryOnly || (job.salaryMax && job.salaryMax > 500000);
+    
+    const matchesRecent = !showRecentOnly || (job.createdAt && isWithinInterval(new Date(job.createdAt), { start: startOfWeek(new Date()), end: new Date() }));
+
+    // if (!matchesSearch) console.log(`Job ${job.title} (${job._id}) filtered by search`);
+    // if (!matchesLocation) console.log(`Job ${job.title} (${job._id}) filtered by location: job location '${job.location}' vs selected '${selectedLocation}'`);
+    // if (!matchesType) console.log(`Job ${job.title} (${job._id}) filtered by type: job type '${job.type}' vs selected '${selectedType}'`);
+    // if (!matchesIndustry) console.log(`Job ${job.title} (${job._id}) filtered by industry: job industry '${job.createdBy?.industry}' vs selected '${selectedIndustry}'`);
+    // if (!matchesExperience) console.log(`Job ${job.title} (${job._id}) filtered by experience: job experience '${job.experience}' vs selected '${selectedExperience}'`);
+    // if (!matchesDepartment) console.log(`Job ${job.title} (${job._id}) filtered by department: job department '${job.department}' vs selected '${selectedDepartment}'`);
+    // if (!matchesSalary) console.log(`Job ${job.title} (${job._id}) filtered by salary: job salary '${job.salaryMin}-${job.salaryMax}' vs selected '${salaryRange[0]}-${salaryRange[1]}'`);
+    // if (!matchesRemote) console.log(`Job ${job.title} (${job._id}) filtered by remote: job location '${job.location}' vs selected 'remote'`);
+    // if (!matchesHighSalary) console.log(`Job ${job.title} (${job._id}) filtered by high salary: job salary '${job.salaryMax}' vs selected 'high salary'`);
+    // if (!matchesRecent) console.log(`Job ${job.title} (${job._id}) filtered by recent: job created at '${job.createdAt}' vs selected 'recent'`);
 
     return (
       matchesSearch &&
@@ -94,20 +141,36 @@ export default function SearchJob() {
       matchesType &&
       matchesIndustry &&
       matchesExperience &&
+      matchesDepartment &&
       matchesSalary &&
       matchesRemote &&
-      matchesFeatured &&
+      matchesHighSalary &&
       matchesRecent
-    )
-  })
+    );
+  });
 
-  // Paginate filtered results
-  const paginatedJobs = filteredJobs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  let sortedJobs = [...filteredJobs];
+  if (sortOption === 'date') {
+    sortedJobs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  } else if (sortOption === 'salary') {
+    sortedJobs.sort((a, b) => (b.salaryMax || 0) - (a.salaryMax || 0));
+  }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    setCurrentPage(1) // Reset to first page when searching
   }
+
+  const handleRemoteOnlyChange = (checked: boolean) => {
+    setShowRemoteOnly(checked);
+  };
+
+  const handleHighSalaryOnlyChange = (checked: boolean) => {
+    setShowHighSalaryOnly(checked);
+  };
+
+  const handleRecentOnlyChange = (checked: boolean) => {
+    setShowRecentOnly(checked);
+  };
 
   return (
     <div className="min-h-[100vh] bg-gray-50">
@@ -149,25 +212,6 @@ export default function SearchJob() {
                 <h3 className="text-lg font-semibold">Filter Jobs</h3>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Location Filter */}
-                <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    <MapPin className="h-4 w-4 inline mr-1" />
-                    Location
-                  </label>
-                  <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {locations.map((location) => (
-                        <SelectItem key={location} value={location}>
-                          {location}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
 
                 {/* Employment Type Filter */}
                 <div>
@@ -209,6 +253,33 @@ export default function SearchJob() {
                   </Select>
                 </div>
 
+                {/* Department Filter */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    <Building2 className="h-4 w-4 inline mr-1" />
+                    Department
+                  </label>
+                   <Select onValueChange={setSelectedDepartment}
+                               value={selectedDepartment}
+                               required
+                               >
+                               <SelectTrigger>
+                                 <SelectValue placeholder="Select department" />
+                               </SelectTrigger>
+                               <SelectContent >
+                                <SelectItem value="All Departments">All Departments</SelectItem>
+                                 <SelectItem value="engineering">Engineering</SelectItem>
+                                 <SelectItem value="product">Product</SelectItem>
+                                 <SelectItem value="design">Design</SelectItem>
+                                 <SelectItem value="marketing">Marketing</SelectItem>
+                                 <SelectItem value="sales">Sales</SelectItem>
+                                 <SelectItem value="hr">Human Resources</SelectItem>
+                                 <SelectItem value="finance">Finance</SelectItem>
+                                 <SelectItem value="operations">Operations</SelectItem>
+                               </SelectContent>
+                             </Select>
+                </div>
+
                 {/* Experience Level Filter */}
                 <div>
                   <label className="text-sm font-medium mb-2 block">
@@ -236,7 +307,7 @@ export default function SearchJob() {
                     <Slider
                       value={salaryRange}
                       onValueChange={setSalaryRange}
-                      max={200000}
+                      max={1000000}
                       min={0}
                       step={5000}
                       className="mb-3"
@@ -255,19 +326,19 @@ export default function SearchJob() {
                   <h4 className="text-sm font-medium mb-3">Quick Filters</h4>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <Checkbox id="remote" checked={showRemoteOnly}  />
+                      <Checkbox id="remote" checked={showRemoteOnly} onCheckedChange={(checked) => setShowRemoteOnly(Boolean(checked))} />
                       <label htmlFor="remote" className="text-sm">
                         Remote Only
                       </label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Checkbox id="featured" checked={showFeaturedOnly}  />
-                      <label htmlFor="featured" className="text-sm">
-                        Featured Jobs
+                      <Checkbox id="highSalary" checked={showHighSalaryOnly} onCheckedChange={(checked) => setShowHighSalaryOnly(Boolean(checked))} />
+                      <label htmlFor="highSalary" className="text-sm">
+                        High Salary (500k+)
                       </label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Checkbox id="recent" checked={showRecentOnly} />
+                      <Checkbox id="recent" checked={showRecentOnly} onCheckedChange={(checked) => setShowRecentOnly(Boolean(checked))} />
                       <label htmlFor="recent" className="text-sm">
                         Posted This Week
                       </label>
@@ -282,68 +353,37 @@ export default function SearchJob() {
           <div className="flex-1 ">
             <div className="flex justify-between items-center mb-6">
               <div>
-                {/* <h2 className="text-2xl font-bold text-gray-900">{filteredJobs.length} Jobs Found</h2> */}
-                <h2 className="text-2xl font-bold text-gray-900">16 Jobs Found</h2>
+                <h2 className="text-2xl font-bold text-gray-900">{sortedJobs.length} Jobs Found</h2>
                 <p className="text-gray-600">
-                  Showing {(currentPage - 1) * itemsPerPage + 1} -{" "}
-                  {Math.min(currentPage * itemsPerPage, filteredJobs.length)} of 16 results
+                  Showing all {sortedJobs.length} results
                 </p>
               </div>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline">
-                    Sort by: Relevance
+                    Sort by: {sortOption === 'relevance' ? 'Relevance' : sortOption === 'date' ? 'Date Posted' : 'Salary (High to Low)'}
                     <ChevronDown className="h-4 w-4 ml-2" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem>Relevance</DropdownMenuItem>
-                  <DropdownMenuItem>Date Posted</DropdownMenuItem>
-                  <DropdownMenuItem>Salary (High to Low)</DropdownMenuItem>
-                  <DropdownMenuItem>Company Rating</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortOption('relevance')}>Relevance</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortOption('date')}>Date Posted</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortOption('salary')}>Salary (High to Low)</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
 
             {/* Job Cards */}
             <div className="flex flex-col gap-4">
-              {paginatedJobs.map((job) => (
-                <JobCardTable key={job.id} job={job as unknown as Job} />
+              {sortedJobs.map((job: Job) => (
+                <JobCard 
+                  key={job._id}
+                  job={job}
+                  onJobClick={() => router.push(`/job/${job._id}`)}
+                />
               ))}
             </div>
-           
-            {/* Pagination */}
-            {/* {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-2 mt-8">
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                >
-                  Previous
-                </Button>
-
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? "default" : "outline"}
-                    onClick={() => setCurrentPage(page)}
-                    className="w-10"
-                  >
-                    {page}
-                  </Button>
-                ))}
-
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                </Button>
-              </div>
-            )} */}
           </div>
         </div>
       </div>

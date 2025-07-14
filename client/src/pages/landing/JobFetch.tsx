@@ -1,5 +1,6 @@
 import JobCard, { type JobListing } from "@/components/job-card-landing"
 import { Icon } from "@iconify/react/dist/iconify.js"
+import { useRouter } from "next/navigation"
 const sampleJobs: JobListing[] = [
   {
     id: "1",
@@ -105,6 +106,8 @@ export default function JobListingsDemo() {
 //     // Handle save logic here
 //   }
 
+const router = useRouter();
+
   return (
     <div className="min-h-screen py-16 relative max-w-7xl mx-auto">
       <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -116,7 +119,7 @@ export default function JobListingsDemo() {
         </div>
         <div className="absolute z-20 bottom-10 h-2/3 bg-gradient-to-b from-transparent via-white to-white/80 w-full flex gap-4 flex-col justify-center items-center">
         <h1 className="text-4xl font-bold tracking-tighter text-black/80">Log in to explores <span className="text-[#255cf4] "> 1000+</span> Jobs!</h1>
-          <button className="bg-[#255cf4]  text-white px-6 h-10 rounded-md text-lg tracking-tight flex items-center gap-2 cursor-pointer font-semibold">
+          <button onClick={() => router.push('/login')} className="bg-[#255cf4]  text-white px-6 h-10 rounded-md text-lg tracking-tight flex items-center gap-2 cursor-pointer font-semibold">
             <Icon icon="ic:outline-lock" />
             Log In Now
           </button>

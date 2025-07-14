@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Icon } from "@iconify/react"
+import { useRouter } from "next/navigation"
 
 interface JobsearchProps {
   searchQuery: string;
@@ -24,6 +25,7 @@ export default function JobSearch({
   setSelectedLocation,
   onSearch,
 }: JobsearchProps) {
+  const router = useRouter();
   return (
     <div className="w-full max-w-6xl mx-auto p-4">
       <div className="flex flex-col items-center justify-center md:flex-row gap-2 bg-white rounded-lg border-2 border-gray-200 p-2">
@@ -53,10 +55,10 @@ export default function JobSearch({
                 <SelectValue placeholder="Your Experience" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Entry-level">Entry Level</SelectItem>
-                <SelectItem value="Mid-level">Mid Level</SelectItem>
-                <SelectItem value="Senior">Senior Level</SelectItem>
-                <SelectItem value="Executive">Executive</SelectItem>
+                <SelectItem value="entry">Entry</SelectItem>
+                <SelectItem value="mid">Mid</SelectItem>
+                <SelectItem value="senior">Senior</SelectItem>
+                <SelectItem value="lead">Lead/Principal</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -80,7 +82,7 @@ export default function JobSearch({
         </div>
 
         {/* Search Button */}
-        <Button type="submit" className="bg-[#255cf4] hover:bg-[#255cf5] text-white px-8 py-4 h-12 font-medium whitespace-nowrap">
+        <Button onClick={() => router.push('/login')}  type="submit" className="bg-[#255cf4] hover:bg-[#255cf5] text-white px-8 py-4 h-12 font-medium whitespace-nowrap">
           Search jobs
           <Icon icon="line-md:search" />
         </Button>

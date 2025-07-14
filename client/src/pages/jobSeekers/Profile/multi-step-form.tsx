@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { FormProvider } from "@/contexts/form-context"
+import { FormProvider, useFormContext, FormContextData } from "@/contexts/form-context"
 import  AboutYourselfStep  from "./steps/about-yourself"
-  import  AddressStep  from "./steps/address"
+import  ExperienceStep  from "./steps/address"
 import  EducationStep  from "./steps/education"
 import  SkillsStep  from "./steps/skills"
 import  AchievementsStep  from "./steps/achivements"
@@ -15,11 +15,11 @@ import  SummaryStep  from "./steps/summary"
 import  ProjectsStep  from "./steps/project-step"
 import  ProgressStepper  from "./ProjectStepper"
 import { useRouter } from "next/navigation"
-import toast from "react-hot-toast"
+import toast, { Toaster } from "react-hot-toast"
 
 const steps = [
   { id: 1, title: "About Yourself", component: AboutYourselfStep },
-  { id: 2, title: "Address", component: AddressStep },
+  { id: 2, title: "Experience", component: ExperienceStep },
   { id: 3, title: "Education", component: EducationStep },
   { id: 4, title: "Projects", component: ProjectsStep },
   { id: 5, title: "Skills", component: SkillsStep },
@@ -27,11 +27,41 @@ const steps = [
   { id: 7, title: "Summary", component: SummaryStep },
 ]
 
+const FormSubmitButton = ({ onSubmit, isSubmitting }: any) => {
+  const { formData } = useFormContext();
+  const router = useRouter();
+  
+  const handleClick = async () => {
+    // Combine firstName and lastName into fullName for backend
+    const { firstName, lastName, ...rest } = formData;
+    const fullname = [firstName, lastName].filter(Boolean).join(' ').trim();
+    await onSubmit({ ...rest });
+  };
+  
+  return (
+    <Button 
+      onClick={handleClick} 
+      disabled={isSubmitting}
+      className="bg-[#255cf4] hover:bg-blue-500 text-white"
+    >
+      {isSubmitting ? 'Saving Profile...' : 'Complete Profile'}
+    </Button>
+  );
+};
+
 export default function MultiStepForm() {
   const [currentStep, setCurrentStep] = useState(1)
   const [direction, setDirection] = useState(0)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter();
-  const nextStep = () => {
+  const stepRef = useRef<{ validate: () => boolean } | null>(null);
+
+  const nextStep = async () => {
+    if (stepRef.current) {
+      const isValid = await stepRef.current.validate();
+      if (!isValid) return;
+    }
+    
     if (currentStep < steps.length) {
       setDirection(1)
       setCurrentStep(currentStep + 1)
@@ -69,8 +99,66 @@ export default function MultiStepForm() {
     }),
   }
 
+  const handleSubmit = async (formContextData: FormContextData) => {
+    setIsSubmitting(true);
+    
+    try {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      
+      if (!userId) {
+        throw new Error('User ID not found');
+      }
+
+      const formDataToSend = new FormData();
+      formDataToSend.append('userId', userId);
+
+      // Extract non-file data and stringify it
+      const { profilePicture, resume, ...rest } = formContextData;
+      formDataToSend.append('data', JSON.stringify(rest));
+
+      if (profilePicture instanceof File) {
+        formDataToSend.append('profilePicture', profilePicture);
+      } else if (typeof profilePicture === 'string') {
+        formDataToSend.append('profilePictureUrl', profilePicture);
+      }
+
+      if (resume instanceof File) {
+        formDataToSend.append('resume', resume);
+      } else if (typeof resume === 'string') {
+        formDataToSend.append('resumeUrl', resume);
+      }
+
+      const response = await fetch('http://localhost:4000/api/user/save-profile', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formDataToSend
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save profile');
+      }
+
+      const result = await response.json();
+      console.log('Profile saved successfully:', result);
+      toast.success('Profile Saved');
+      localStorage.setItem('profile', 'true');
+      setTimeout(() => {
+        router.push('/');
+      }, 2000);
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      toast.error('Failed to save profile. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <FormProvider>
+      <Toaster />
       <div className="max-w-4xl mx-auto">
         <ProgressStepper steps={steps.slice(0, 6)} currentStep={currentStep} onStepClick={goToStep} />
 
@@ -90,7 +178,7 @@ export default function MultiStepForm() {
                 }}
                 className="absolute inset-0"
               >
-                <CurrentStepComponent />
+                <CurrentStepComponent ref={stepRef} />
               </motion.div>
             </AnimatePresence>
           </div>
@@ -112,10 +200,7 @@ export default function MultiStepForm() {
                 <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button onClick={() => 
-                {toast.success("Profile Completed")
-                  setTimeout(() => router.push("/"), 2200)
-              }} className="bg-[#255cf4] hover:bg-blue-500 text-white">Complete Profile</Button>
+              <FormSubmitButton onSubmit={handleSubmit} isSubmitting={isSubmitting} />
             )}
           </div>
         </Card>

@@ -31,11 +31,11 @@ const menuItems = [
     url: '/employer/dashboard/post-job',
     icon: PlusCircle,
   },
-  {
-    title: 'Applicants',
-    url: '/employer/dashboard/applicants',
-    icon: Users,
-  },
+  // {
+  //   title: 'Applicants',
+  //   url: '/employer/dashboard/applicants',
+  //   icon: Users,
+  // },
   {
     title: 'Company Profile',
     url: '/employer/dashboard/company',

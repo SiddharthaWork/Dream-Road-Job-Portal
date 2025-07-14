@@ -1,5 +1,5 @@
 'use client'
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
@@ -12,15 +12,24 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
-  
-  const recruiterName = localStorage.getItem('recruiter_name') || 'Recruiter';
-  const recruiterEmail = localStorage.getItem('recruiter_email') || '';
+  const [companyName, setCompanyName] = useState('');
+  // wrap inside the useEffect
+  useEffect(() => {
+    const companyName = localStorage.getItem('companyName') || 'Company';
+    setCompanyName(companyName);
+    // const companyEmail = localStorage.getItem('companyEmail') || '';
+  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('recruiter_auth');
-    localStorage.removeItem('recruiter_email');
-    localStorage.removeItem('recruiter_name');
+    localStorage.removeItem('company_auth');
+    localStorage.removeItem('company_email');
+    localStorage.removeItem('companyName');
     localStorage.removeItem('company_data');
+    localStorage.removeItem('companyId');
+    localStorage.removeItem('role');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('token');
+    localStorage.removeItem('profile');
     toast({
       title: "Logged out successfully",
       description: "See you next time!",
@@ -65,12 +74,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                   <Avatar>
                     <AvatarImage src="" />
                     <AvatarFallback>
-                      {recruiterName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                      {companyName.split(' ').map(n => n[0]).join('').toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="hidden md:block">
-                    <p className="text-sm font-medium">{recruiterName}</p>
-                    <p className="text-xs text-gray-500">{recruiterEmail}</p>
+                    <p className="text-sm font-medium">{companyName}</p>
+                    {/* <p className="text-xs text-gray-500">{companyEmail}</p> */}
                   </div>
                 </div>
                 <Button variant="ghost" size="icon" onClick={handleLogout}>

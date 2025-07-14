@@ -5,7 +5,6 @@ import AdminLogin from '@/pages/admin/adminLoginPage'
 const page = () => {
   return (
     <div>
-      <Navbar/>
       <AdminLogin/>
     </div>
   )

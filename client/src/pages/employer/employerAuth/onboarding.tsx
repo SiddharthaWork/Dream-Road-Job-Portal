@@ -7,8 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building2, Upload, CheckCircle } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 
 const Onboarding = () => {
   const [step, setStep] = useState(1);
@@ -18,11 +18,24 @@ const Onboarding = () => {
     industry: '',
     size: '',
     description: '',
+    password: '',
     logo: null as File | null,
+    email: '',
+    phoneNumber: '',
+  });
+  const [errors, setErrors] = useState({
+    name: '',
+    website: '',
+    industry: '',
+    size: '',
+    description: '',
+    password: '',
+    logo: '',
+    email: '',
+    phoneNumber: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { toast } = useToast();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setCompanyData(prev => ({
@@ -48,25 +61,126 @@ const Onboarding = () => {
     }
   };
 
+  const handlePhoneNumberChange = (value: string) => {
+    setCompanyData(prev => ({ ...prev, phoneNumber: value }));
+  };
+
+  const validateForm = (): boolean => {
+    let isValid = true;
+    const newErrors = { ...errors };
+
+    // Reset errors
+    (Object.keys(newErrors) as Array<keyof typeof newErrors>).forEach(key => {
+      newErrors[key] = '';
+    });
+
+    // Validate name
+    if (!companyData.name.trim()) {
+      newErrors.name = 'Company name is required';
+      isValid = false;
+    }
+
+    // Validate email
+    if (!companyData.email.trim()) {
+      newErrors.email = 'Email is required';
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(companyData.email)) {
+      newErrors.email = 'Email is invalid';
+      isValid = false;
+    }
+
+    // Validate phoneNumber
+    const phoneDigits = companyData.phoneNumber.replace(/\D/g, '');
+    if (!phoneDigits) {
+      newErrors.phoneNumber = 'Phone number is required';
+      isValid = false;
+    } else if (phoneDigits.length < 10) {
+      newErrors.phoneNumber = 'Phone number must be at least 10 digits';
+      isValid = false;
+    }
+
+    // Validate industry
+    if (!companyData.industry) {
+      newErrors.industry = 'Industry is required';
+      isValid = false;
+    }
+
+    // Validate size
+    if (!companyData.size) {
+      newErrors.size = 'Company size is required';
+      isValid = false;
+    }
+
+    // Validate password
+    if (!companyData.password) {
+      newErrors.password = 'Password is required';
+      isValid = false;
+    } else if (companyData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+      isValid = false;
+    }
+
+    // Validate confirmPassword
+
+    // Validate logo (optional)
+    // If you want to make the logo required, uncomment:
+    // if (!companyData.logo) {
+    //   newErrors.logo = 'Company logo is required';
+    //   isValid = false;
+    // }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
-    // Mock company creation
-    setTimeout(() => {
-      localStorage.setItem('company_data', JSON.stringify(companyData));
-      localStorage.setItem('company_verified', 'pending');
-      setStep(2);
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', companyData.name);
+    formDataToSend.append('website', companyData.website);
+    formDataToSend.append('industry', companyData.industry);
+    formDataToSend.append('size', companyData.size);
+    formDataToSend.append('description', companyData.description);
+    formDataToSend.append('password', companyData.password);
+    formDataToSend.append('email', companyData.email); 
+    formDataToSend.append('phoneNumber', companyData.phoneNumber); 
+    formDataToSend.append('role', 'company'); 
+    if (companyData.logo) {
+      formDataToSend.append('file', companyData.logo);
+    }
+
+    try {
+      const response = await fetch('http://localhost:4000/api/company/register', {
+        method: 'POST',
+        body: formDataToSend,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+     toast.success("Company registered successfully");
+      router.push('/employer/login');
+    } catch (error: any) {
+      toast.error(error.message || 'An error occurred during registration');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleContinue = () => {
-    toast({
-      title: "Company profile created",
-      description: "Welcome to your Dream Road dashboard!",
-    });
-    router.push('/employer/dashboard');
+    toast.success("Company profile created");
+    router.push('/employer/login');
   };
 
   if (step === 2) {
@@ -92,7 +206,7 @@ const Onboarding = () => {
               </p>
             </div>
             <Button onClick={handleContinue} className="w-full">
-              Continue to Dashboard
+              Continue to Login
             </Button>
           </CardContent>
         </Card>
@@ -125,6 +239,7 @@ const Onboarding = () => {
                   onChange={handleInputChange}
                   required
                 />
+                {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="website">Website</Label>
@@ -155,6 +270,7 @@ const Onboarding = () => {
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.industry && <p className="text-red-500 text-sm">{errors.industry}</p>}
               </div>
               <div className="space-y-2">
                 <Label>Company Size *</Label>
@@ -171,6 +287,7 @@ const Onboarding = () => {
                     <SelectItem value="1000+">1000+ employees</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.size && <p className="text-red-500 text-sm">{errors.size}</p>}
               </div>
             </div>
 
@@ -185,6 +302,7 @@ const Onboarding = () => {
                 onChange={handleInputChange}
                 required
               />
+              {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
             </div>
 
             <div className="space-y-2">
@@ -208,10 +326,60 @@ const Onboarding = () => {
                   Logo uploaded: {companyData.logo.name}
                 </p>
               )}
+              {errors.logo && <p className="text-red-500 text-sm">{errors.logo}</p>}
             </div>
+            <div className="space-y-2">
+                <Label htmlFor="email">Company Email *</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="example@example.com"
+                  value={companyData.email}
+                  onChange={handleInputChange}
+                  required
+                />
+                {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber">Phone Number *</Label>
+                <Input
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d*"
+                  placeholder="123-456-7890"
+                  value={companyData.phoneNumber}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Allow only digits up to 10
+                    if (/^\d{0,10}$/.test(value)) {
+                      handlePhoneNumberChange(value);
+                    }
+                  }}
+                  maxLength={10}
+                  required
+                />
+                {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="name">Password *</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="******"
+                  value={companyData.password}
+                  onChange={handleInputChange}
+                  required
+                />
+                {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+              </div>
+            
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Creating company profile..." : "Create Company Profile"}
+              {isLoading ? "Registering..." : "Register Company"}
             </Button>
           </form>
         </CardContent>

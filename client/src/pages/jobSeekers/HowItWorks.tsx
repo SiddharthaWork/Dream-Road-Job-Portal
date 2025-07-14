@@ -3,6 +3,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react";
+import { profile } from "console"
+
 export default function HowItWorks() {
 
     interface ProfileStep {
@@ -33,7 +36,7 @@ export default function HowItWorks() {
         },
         {
           id: 3,
-          icon: <DollarSign className="w-4 h-4" />,
+          icon: "Rs",
           title: "Get Shortlisted & Hired",
           description: "Get hired and grow professionally",
           bgColor: "bg-green-100",
@@ -98,17 +101,13 @@ export default function HowItWorks() {
   const totalSteps = profileSteps.length
   const completionPercentage = Math.round((completedSteps / totalSteps) * 100)
   const router = useRouter();
+  // wrap inside the useEffect
+ 
 
   // Get next incomplete step
   const nextStep = profileSteps.find((step) => !step.isCompleted)
 
   
-  const getProgressColor = (percentage: number) => {
-    if (percentage >= 80) return "bg-green-500"
-    if (percentage >= 60) return "bg-blue-500"
-    if (percentage >= 40) return "bg-yellow-500"
-    return "bg-red-500"
-  }
 
   const getProgressTextColor = (percentage: number) => {
     if (percentage >= 80) return "text-green-600"
@@ -118,9 +117,23 @@ export default function HowItWorks() {
   }
 
 
+  const [profile, setProfile] = useState(false);
+  const [userId, setUserId] = useState( '');
+  
+
+  useEffect(() => {
+    const profileInfo = localStorage.getItem('profile') || 'false'
+    const profile = JSON.parse(profileInfo)
+    const userId = localStorage.getItem('userId') || ''
+    setProfile(profile);
+    setUserId(userId);
+    console.log('Profile status:', profileInfo);
+  }, []);
+
   return (
     <Card className="py-6">
       <CardContent className="px-6">
+        {profile}
 
         {/* Progress Bar */}
       <div className="space-y-2">
@@ -133,12 +146,30 @@ export default function HowItWorks() {
               </span>
             </div>
             <div className="relative flex flex-col gap-2">
-              <Progress value={completionPercentage} className="h-3 bg-gray-200" />
+              <Progress value={profile? 100 : 0} className="h-3 bg-gray-200" />
               {/* <div
                 className={`absolute top-0 left-0 h-3 rounded-full transition-all duration-500 ${getProgressColor(completionPercentage)}`}
                 style={{ width: `${completionPercentage}%` }}
               /> */}
-              <Button onClick={() => router.push("/profile")} variant={'default'} size={'custom'} className='bg-[#255cf4] cursor-pointer'>View Profile</Button>
+              {profile ? (
+                  <Button 
+                    onClick={() => router.push(`/profile/${userId}`)}
+                    variant={'default'}
+                    size={'custom'}
+                    className='bg-[#255cf4] cursor-pointer'
+                  >
+                    View Profile
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => router.push('/profile')}
+                    variant={'default'}
+                    size={'custom'}
+                    className='bg-[#255cf4] cursor-pointer'
+                  >
+                    Complete Profile
+                  </Button>
+                )}
             </div>
           </div>
 

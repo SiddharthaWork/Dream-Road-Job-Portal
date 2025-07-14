@@ -73,6 +73,7 @@ const LocationInput = ({ value, onChange, placeholder, id }: LocationInputProps)
           onFocus={handleFocus}
           placeholder={placeholder}
           className="pl-10"
+          required
         />
         <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         {isLoading && (
