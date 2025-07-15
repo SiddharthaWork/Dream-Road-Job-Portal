@@ -245,9 +245,9 @@ export default function JobOverviewPage() {
                       <span>Posted: {formatDistanceToNow(new Date(job?.createdAt), { addSuffix: true }).replace("about ", "")}</span>
                       <span>Applicants: {job?.applications.length}</span>
                     </div>
-                    <Button variant="link" className="text-blue-600 p-0">
+                    {/* <Button variant="link" className="text-blue-600 p-0">
                       Send me jobs like this
-                    </Button>
+                    </Button> */}
                   </div>
                 </CardContent>
               </Card>

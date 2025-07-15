@@ -153,3 +153,6 @@ export const PDFExporter = ({ resumeData }: PDFExporterProps) => {
     </Button>
   );
 };
+
+export default PDFExporter;
+  

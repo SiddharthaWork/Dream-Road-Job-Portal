@@ -267,3 +267,11 @@ export const SkillsEditor = ({ skills, languages, onUpdate }: SkillsEditorProps)
     </Tabs>
   );
 };
+
+export const getStaticProps = async () => {
+  return {
+    notFound: true,
+  };
+};
+
+export default SkillsEditor;

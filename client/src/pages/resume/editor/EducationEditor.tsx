@@ -415,3 +415,11 @@ export const EducationEditor = ({ education, projects, certifications, onUpdate 
     </Tabs>
   );
 };
+
+export const getStaticProps = async () => {
+  return {
+    notFound: true,
+  };
+};
+
+export default EducationEditor;

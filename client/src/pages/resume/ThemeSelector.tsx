@@ -32,7 +32,7 @@ const themes: { value: ResumeTheme; label: string; description: string }[] = [
   }
 ];
 
-export const ThemeSelector = ({ selectedTheme, onThemeChange }: ThemeSelectorProps) => {
+export default function ThemeSelector({ selectedTheme, onThemeChange }: ThemeSelectorProps) {
   const currentTheme = themes.find(theme => theme.value === selectedTheme);
 
   return (
@@ -64,4 +64,4 @@ export const ThemeSelector = ({ selectedTheme, onThemeChange }: ThemeSelectorPro
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
+}

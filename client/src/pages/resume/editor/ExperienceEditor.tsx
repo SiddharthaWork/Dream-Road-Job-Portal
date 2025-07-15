@@ -16,7 +16,7 @@ interface ExperienceEditorProps {
   onUpdate: (experience: Experience[]) => void;
 }
 
-export const ExperienceEditor = ({ experience, onUpdate }: ExperienceEditorProps) => {
+export default function ExperienceEditor({ experience, onUpdate }: ExperienceEditorProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const { toast } = useToast();
   
@@ -203,4 +203,10 @@ export const ExperienceEditor = ({ experience, onUpdate }: ExperienceEditorProps
       )}
     </div>
   );
+}
+
+export const getStaticProps = async () => {
+  return {
+    notFound: true,
+  };
 };

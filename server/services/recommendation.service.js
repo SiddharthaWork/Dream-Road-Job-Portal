@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { Job } from '../models/job.model.js';
 import { User } from '../models/user.model.js';
+import { Application } from '../models/application.model.js';
 
 const cosineSimilarity = (vecA, vecB) => {
   const dotProduct = vecA.reduce((sum, a, i) => sum + a * vecB[i], 0);
@@ -25,7 +26,12 @@ export const getJobRecommendations = async (userId) => {
       return [];
     }
     
-    const jobs = await Job.find().populate('company');
+    // Get applied job IDs for this user
+    const appliedApplications = await Application.find({ user: userId });
+    const appliedJobIds = appliedApplications.map(app => app.job);
+    
+    // Fetch jobs excluding applied ones
+    const jobs = await Job.find({ _id: { $nin: appliedJobIds } }).populate('company');
     
     if (!jobs.length) return [];
     

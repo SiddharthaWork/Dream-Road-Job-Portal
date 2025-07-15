@@ -116,3 +116,11 @@ export const PersonalInfoEditor = ({ personalInfo, onUpdate }: PersonalInfoEdito
     </div>
   );
 };
+
+export const getStaticProps = async () => {
+  return {
+    notFound: true,
+  };
+};
+
+export default PersonalInfoEditor;
