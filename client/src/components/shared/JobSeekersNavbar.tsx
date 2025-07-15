@@ -95,7 +95,7 @@ const JobSeekersNavbar = () => {
           </div>
 
           <div className='flex items-center '>
-            <Bell className="w-6 h-6" color='#121224' />
+            {/* <Bell className="w-6 h-6" color='#121224' /> */}
             <NavDropdown
               user={{
                 name: fullname,

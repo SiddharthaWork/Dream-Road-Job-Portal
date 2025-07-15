@@ -4,7 +4,7 @@ interface MinimalistTemplateProps {
   data: ResumeData;
 }
 
-export const MinimalistTemplate = ({ data }: MinimalistTemplateProps) => {
+export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
   const { personalInfo, experience, education, projects, skills, languages, certifications } = data;
 
   const skillsByCategory = skills.reduce((acc, skill) => {
@@ -19,27 +19,27 @@ export const MinimalistTemplate = ({ data }: MinimalistTemplateProps) => {
     <div style={{ backgroundColor: '#ffffff', color: '#000000' }} className="font-sans leading-relaxed">
       {/* Header */}
       <div className="mb-8">
-        <h1 style={{ color: '#111827' }} className="text-4xl font-light mb-2">{personalInfo.fullName}</h1>
-        <h2 style={{ color: '#4b5563' }} className="text-xl mb-4">{personalInfo.jobTitle}</h2>
+        <h1 style={{ color: '#111827' }} className="text-4xl font-light mb-2">{personalInfo?.fullName}</h1>
+        <h2 style={{ color: '#4b5563' }} className="text-xl mb-4">{personalInfo?.jobTitle}</h2>
         
         <div style={{ color: '#4b5563' }} className="flex flex-wrap gap-4 text-sm">
-          <span>{personalInfo.email}</span>
-          <span>{personalInfo.phone}</span>
-          <span>{personalInfo.address}</span>
-          {personalInfo.linkedin && <span>{personalInfo.linkedin}</span>}
-          {personalInfo.website && <span>{personalInfo.website}</span>}
+          <span>{personalInfo?.email}</span>
+          <span>{personalInfo?.phone}</span>
+          <span>{personalInfo?.address}</span>
+          {personalInfo?.linkedin && <span>{personalInfo?.linkedin}</span>}
+          {personalInfo?.website && <span>{personalInfo?.website}</span>}
         </div>
       </div>
 
       {/* Professional Summary */}
-      {personalInfo.summary && (
+      {personalInfo?.summary && (
         <section className="mb-8">
-          <p style={{ color: '#374151' }} className="leading-relaxed text-sm">{personalInfo.summary}</p>
+          <p style={{ color: '#374151' }} className="leading-relaxed text-sm">{personalInfo?.summary}</p>
         </section>
       )}
 
       {/* Experience */}
-      {experience.length > 0 && (
+      {experience?.length > 0 && (
         <section className="mb-8">
           <h3 style={{ color: '#111827' }} className="text-sm font-semibold mb-4 uppercase tracking-wider">
             Experience
@@ -168,4 +168,10 @@ export const MinimalistTemplate = ({ data }: MinimalistTemplateProps) => {
       </div>
     </div>
   );
+}
+
+export const getStaticProps = async () => {
+  return {
+    notFound: true,
+  };
 };

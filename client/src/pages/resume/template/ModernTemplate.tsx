@@ -183,3 +183,11 @@ export const ModernTemplate = ({ data }: ModernTemplateProps) => {
     </div>
   );
 };
+
+export const getStaticProps = async () => {
+  return {
+    notFound: true,
+  };
+};
+
+export default ModernTemplate;

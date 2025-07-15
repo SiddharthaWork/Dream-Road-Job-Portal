@@ -187,3 +187,11 @@ export const ClassicTemplate = ({ data }: ClassicTemplateProps) => {
     </div>
   );
 };
+
+export const getStaticProps = async () => {
+  return {
+    notFound: true,
+  };
+};
+
+export default ClassicTemplate;

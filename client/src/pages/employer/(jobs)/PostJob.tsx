@@ -12,6 +12,7 @@ import JobDescriptionForm from '@/components/forms/JobDescriptionForm';
 import { toast } from 'react-hot-toast';
 import { JobFormData } from '@/types/job';
 import { Card } from '@/components/ui/card';
+import { set } from 'date-fns';
 
 const PostJob = () => {
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<JobFormData>();
@@ -23,6 +24,7 @@ const PostJob = () => {
   const [deadline, setDeadline] = useState('');
   const [newSkill, setNewSkill] = useState('');
   const [skills, setSkills] = useState<string[]>([]);
+  const [error, setError] = useState<any>(null);
 
   const handleAddSkill = () => {
     if (newSkill.trim() && !skills.includes(newSkill.trim())) {
@@ -65,6 +67,7 @@ const PostJob = () => {
       }
     } catch (error: any) {
       console.error('Error creating job:', error.message);
+      setError(error.message);
       toast.error('Failed to post job. Please try again.',error.message);
     } finally {
       setIsSubmitting(false);

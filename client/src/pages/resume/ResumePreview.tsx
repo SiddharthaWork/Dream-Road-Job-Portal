@@ -1,14 +1,14 @@
 import { ResumeData, ResumeTheme } from "@/types/resume";
-import { ModernTemplate } from "./template/ModernTemplate";
 import { ClassicTemplate } from "./template/ClassicTemplate";
-import { MinimalistTemplate } from "./template/MinimalistTemplate";
+import MinimalistTemplate from "./template/MinimalistTemplate";
+import { ModernTemplate } from "./template/ModernTemplate";
 
 interface ResumePreviewProps {
   resumeData: ResumeData;
   theme: ResumeTheme;
 }
 
-export const ResumePreview = ({ resumeData, theme }: ResumePreviewProps) => {
+export default function ResumePreview({ resumeData, theme }: ResumePreviewProps) {
   const renderTemplate = () => {
     switch (theme) {
       case 'modern':
@@ -40,4 +40,10 @@ export const ResumePreview = ({ resumeData, theme }: ResumePreviewProps) => {
       {renderTemplate()}
     </div>
   );
+}
+
+export const getStaticProps = async () => {
+  return {
+    notFound: true,
+  };
 };
