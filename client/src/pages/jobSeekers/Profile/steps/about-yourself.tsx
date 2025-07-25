@@ -81,18 +81,16 @@ const AboutYourselfStep = forwardRef((props, ref: ForwardedRef<{ validate: () =>
       
       const today = new Date();
       const birthDate = new Date(dateString);
-      
+
       // Check if the date is valid
       if (isNaN(birthDate.getTime())) {
         return "Invalid date";
       }
       
-      // Check if the birth date is in the future
       if (birthDate > today) {
         return "Birth date cannot be in the future";
       }
       
-      // Calculate age
       let age = today.getFullYear() - birthDate.getFullYear();
       const monthDiff = today.getMonth() - birthDate.getMonth();
       if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
@@ -136,7 +134,9 @@ const AboutYourselfStep = forwardRef((props, ref: ForwardedRef<{ validate: () =>
 
     useImperativeHandle(ref, () => ({
       validate: () => {
-        return validateForm();
+        const isValid = validateForm();
+        const dobError = validateDateOfBirth(formData.dateOfBirth);
+        return isValid && !dobError;
       }
     }));
 

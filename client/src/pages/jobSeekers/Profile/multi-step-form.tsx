@@ -59,7 +59,10 @@ export default function MultiStepForm() {
   const nextStep = async () => {
     if (stepRef.current) {
       const isValid = await stepRef.current.validate();
-      if (!isValid) return;
+      if (!isValid) {
+        toast.error("Please fill all the fields");
+        return;
+      }
     }
     
     if (currentStep < steps.length) {

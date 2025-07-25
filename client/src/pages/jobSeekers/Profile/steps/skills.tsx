@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState, useEffect } from "react"
+import { forwardRef, ForwardedRef, useState, useEffect, useImperativeHandle } from "react"
 import { motion } from "framer-motion"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,7 +11,7 @@ import { Plus, X } from "lucide-react"
 import { useFormContext } from "@/contexts/form-context"
 
 // NOTE: This component must be rendered inside a <FormProvider> from '@/contexts/form-context'.
-export default function SkillsStep() {
+const SkillsStep = forwardRef((props, ref: ForwardedRef<{ validate: () => boolean }>) => {
   try {
     const { formData, updateFormData } = useFormContext()
     const [newSkill, setNewSkill] = useState("")
@@ -30,6 +29,12 @@ export default function SkillsStep() {
       setError(null);
       return true;
     };
+
+    useImperativeHandle(ref, () => ({
+      validate: () => {
+        return validateSkills();
+      }
+    }));
 
     const handleAddSkill = () => {
       if (newSkill.trim() && !formData.skills.includes(newSkill.trim())) {
@@ -118,4 +123,6 @@ export default function SkillsStep() {
   } catch (e) {
     return <div>Error: SkillsStep must be used within a FormProvider.</div>
   }
-}
+})
+
+export default SkillsStep;

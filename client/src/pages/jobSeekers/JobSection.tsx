@@ -104,7 +104,7 @@ export default function RecommendedJobs({
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">Recommended Jobs</h2>
         </div>
-        <div className="bg-[#255cf4] text-white p-4 rounded">Please complete your profile to see job recommendations.</div>
+        <div className="bg-[#255cf4] text-white p-4 rounded-lg font-bold text-center">Please complete your profile to see job recommendations.</div>
       </div>
     );
   }
