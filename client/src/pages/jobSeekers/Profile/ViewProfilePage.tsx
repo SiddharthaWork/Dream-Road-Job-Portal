@@ -185,7 +185,7 @@ export default function ViewProfilePage() {
 
   if (loading) {
     return <div>Loading...</div>;
-  }
+}
 
   if (!profile) {
     return <div>Profile not found</div>;
