@@ -39,12 +39,12 @@ const navigation = [
     name: 'Companies',
     href: '/admin/companies',
     icon: Building2,
-    description: 'Company Management',
-    submenu: [
-      { name: 'All Companies', href: '/admin/companies' },
-      { name: 'Pending Review', href: '/admin/companies/pending' },
-      { name: 'Verified', href: '/admin/companies/verified' }
-    ]
+    description: 'Company Management'
+    // submenu: [
+    //   { name: 'All Companies', href: '/admin/companies' },
+    //   { name: 'Pending Review', href: '/admin/companies/pending' },
+    //   { name: 'Verified', href: '/admin/companies/verified' }
+    // ]
   },
   {
     name: 'Jobseekers',
@@ -154,7 +154,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             <nav className="space-y-1">
               {navigation.map((item) => (
                 <div key={item.name}>
-                  {item.submenu ? (
+                  {/* {item.submenu ? (
                     <>
                       <Button
                         variant="ghost"
@@ -199,7 +199,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                         </div>
                       )}
                     </>
-                  ) : (
+                  ) : ( */}
                     <Link
                       href={item.href}
                       onClick={onClose}
@@ -216,7 +216,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                         <div className="text-xs text-gray-500">{item.description}</div>
                       </div>
                     </Link>
-                  )}
                 </div>
               ))}
             </nav>

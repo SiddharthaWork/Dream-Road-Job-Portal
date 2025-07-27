@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { UserLoginProvider } from "@/contexts/userLogin-context";
 import { Toaster } from "react-hot-toast";
+import UserBlockWrapper from "@/components/shared/UserBlockWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,8 +35,10 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         <UserLoginProvider>
-          <Toaster position="top-center"   />
-          {children}
+          <UserBlockWrapper>
+            <Toaster position="top-center"   />
+            {children}
+          </UserBlockWrapper>
         </UserLoginProvider>
       </body>
     </html>

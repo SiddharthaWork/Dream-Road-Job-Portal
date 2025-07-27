@@ -24,7 +24,10 @@ export default function AdminLayout({
   const router = useRouter();
   const handleLogout = () => {
     console.log('Logout clicked');
-    router.push('/adminlogin');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    router.push('/adminlogin'); 
     // Mock logout - just log to console
   };
 
