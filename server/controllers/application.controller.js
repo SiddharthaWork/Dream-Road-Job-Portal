@@ -362,4 +362,30 @@ export const getApplicantsByCompanyId = async (req,res) => {
         return res.status(500).json({message:"Internal server error",success:false});   
     }
 }   
+
+// delete application
+export const deleteApplication = async (req,res) => {
+    if(!req.params.id){
+        return res.status(400).json({message:"Application id is required",success:false});
+    }   
+    try {
+        const application = await Application.findByIdAndDelete(req.params.id);
+        return res.status(200).json({message:"Application deleted successfully",success:true,data:application});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}   
+
+// delete application by job id
+export const deleteApplicationByJobId = async (req,res) => {
+    if(!req.params.id){
+        return res.status(400).json({message:"Job id is required",success:false});
+    }   
+    try {
+        const application = await Application.deleteMany({job:req.params.id});
+        return res.status(200).json({message:"Application deleted successfully",success:true,data:application});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+   }
+}
     

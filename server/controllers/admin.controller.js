@@ -1,6 +1,51 @@
 import { User } from "../models/user.model.js";
 import { Company } from "../models/company.model.js";
 import { Job } from "../models/job.model.js";
+import { Admin } from "../models/admin.model.js";
+import { Application } from "../models/application.model.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+// admin login
+export const login = async (req,res) => {
+    try{
+        const {email,password} = req.body;
+        if(!email || !password){
+            return res.status(400).json({message:"All fields are required",success:false});
+        }
+        const admin = await Admin.findOne({email});
+        if(!admin){
+            return res.status(400).json({message:"Admin not found",success:false});
+        }
+        const isPasswordMatched = await bcrypt.compare(password,admin.password);
+        if(!isPasswordMatched){
+            return res.status(400).json({message:"Invalid credentials",success:false});
+        }
+        const token = jwt.sign({id:admin._id},process.env.JWT_SECRET,{expiresIn:"1d"});
+        return res.status(200).json({message:"Admin logged in successfully",success:true,token,role:admin.role});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}
+
+// admin register
+export const register = async (req,res) => {
+    try{
+        const {email,password} = req.body;
+        if(!email || !password){
+            return res.status(400).json({message:"All fields are required",success:false});
+        }
+        const admin = await Admin.findOne({email});
+        if(admin){
+            return res.status(400).json({message:"Email already exists",success:false});
+        }
+        const hashedPassword = await bcrypt.hash(password,10);
+        await Admin.create({email, password:hashedPassword, role:"admin"});
+        return res.status(201).json({message:"Admin created successfully",success:true});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}   
 
 // getAllUser
 export const getAllUser = async (req,res) => {
@@ -122,14 +167,24 @@ export const getAllJobs = async (req,res) => {
     }
 }
 
-export const deleteJob = async (req,res) => {
-    try{
-        const job = await Job.findByIdAndDelete(req.params.id);
-        const company = await Company.findById(job.createdBy);
-        company.deletedJobs.push(job.title);
-        await company.save();
-        return res.status(200).json({message:"Job deleted successfully",success:true});
-    } catch (error) {
-        return res.status(500).json({message:"Internal server error",success:false});   
+export const deleteJob = async (req, res) => {
+  try {
+    const jobId = req.params.id;
+    
+    const job = await Job.findByIdAndDelete(jobId);
+    if (!job) {
+        return res.status(404).json({ message: "Job not found", success: false });
     }
+    
+    // Delete all applications associated with this job
+    await Application.deleteMany({ job: jobId });
+
+    const company = await Company.findById(job.createdBy);
+    company.deletedJobs.push(job.title);
+    await company.save();
+
+    return res.status(200).json({ message: "Job and associated applications deleted successfully", success: true, data: job });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error", success: false, error: error.message });
+  }
 }

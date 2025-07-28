@@ -201,4 +201,26 @@ export const deleteCompany = async (req,res) => {
         return res.status(500).json({message:"Internal server error",success:false});   
     }
 }
-    
+
+// get deleted jobs by company id
+export const getDeletedJobsByCompanyId = async (req,res) => {
+    try {
+        const company = await Company.findById(req.params.id);
+        if(!company){
+            return res.status(404).json({message:"Company not found",success:false});
+        }
+        return res.status(200).json({message:"Deleted jobs fetched successfully",success:true,data:company.deletedJobs});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}
+
+// get all company count
+export const getAllCompanyCount = async (req,res) => {
+    try {
+        const count = await Company.countDocuments();
+        return res.status(200).json({message:"Company count fetched successfully",success:true,data:count});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}

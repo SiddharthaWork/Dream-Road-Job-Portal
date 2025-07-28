@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, login, logout, getAllUser, getUserById, updateProfile, saveProfile,getUserByIdforAppliedJobs ,getUserProfileLogo, getRecommendations } from "../controllers/user.controller.js";
+import { registerUser, login, logout, getAllUser, getUserById, updateProfile, saveProfile,getUserByIdforAppliedJobs ,getUserProfileLogo, getRecommendations, getAllUserCount } from "../controllers/user.controller.js";
 import { profileUpload } from "../middlewares/multer.js";
 const router = express.Router();
 
@@ -13,6 +13,7 @@ router.route("/save-profile").put(profileUpload,saveProfile);
 router.route("/getuserappliedjobs/:id").get(getUserByIdforAppliedJobs);
 router.route("/getuserprofilelogo/:id").get(getUserProfileLogo);
 router.get('/recommendations/:id', getRecommendations);
+router.route("/getallusercount").get(getAllUserCount);  
 
 // to test use
 // localhost:4000/api/user/register
@@ -24,6 +25,7 @@ router.get('/recommendations/:id', getRecommendations);
 // localhost:4000/api/user/save-profile
 // localhost:4000/api/user/getuserappliedjobs/:id
 // localhost:4000/api/user/getuserprofilelogo/:id
-// localhost:4000/api/user/recommendations/:id
+// localhost:4000/api/user/recommendations/:id  
+// localhost:4000/api/user/getallusercount  
 
 export default router;  

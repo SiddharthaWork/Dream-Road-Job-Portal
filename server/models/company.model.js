@@ -24,6 +24,10 @@ const companySchema = new mongoose.Schema({
     deletedJobs:{
         type:[String],
         default:[]
+    },
+    block:{
+        type:Boolean,
+        default:false
     }
 },{timestamps:true});
 

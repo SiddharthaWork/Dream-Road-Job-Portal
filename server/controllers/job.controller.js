@@ -193,6 +193,16 @@ export const getAllJobs = async (req,res) => {
     }
 }
 
+// get all job count
+export const getAllJobCount = async (req,res) => {
+    try {
+        const count = await Job.countDocuments();
+        return res.status(200).json({message:"Job count fetched successfully",success:true,data:count});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+} 
+
 // Get Job By Company this is for adminsite
 export const getJobByCompany = async (req,res) => {
     try {
