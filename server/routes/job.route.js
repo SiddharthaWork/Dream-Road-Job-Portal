@@ -7,6 +7,7 @@ import { getJobById } from "../controllers/job.controller.js";
 import { deleteJob } from "../controllers/job.controller.js";
 import { getJobCountByCompanyId } from "../controllers/job.controller.js";
 import { getAllJobCount } from "../controllers/job.controller.js";
+import { getJobCountByDepartment } from "../controllers/job.controller.js";
 // import { getJobRecommendations } from "../controllers/job.controller.js";
 const router = express.Router();
 
@@ -18,6 +19,7 @@ router.route("/updatejob/:id").put(updateJob);
 router.route("/getjobbyid/:id").get(getJobById);
 router.route("/deletejob/:id").delete(deleteJob);
 router.route("/getjobcount/:id").get(getJobCountByCompanyId);
+router.route("/getjobcountbydepartment").get(getJobCountByDepartment);
 // router.route("/getjobrecommendations/:id").get(getJobRecommendations);
 
 // to test use
@@ -29,6 +31,7 @@ router.route("/getjobcount/:id").get(getJobCountByCompanyId);
 // localhost:4000/api/job/getjobbyid/:id
 // localhost:4000/api/job/deletejob/:id
 // localhost:4000/api/job/getjobcount/:id
+// localhost:4000/api/job/getjobcountbydepartment
 // localhost:4000/api/job/getjobrecommendations/:id
 
 export default router;

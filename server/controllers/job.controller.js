@@ -203,6 +203,16 @@ export const getAllJobCount = async (req,res) => {
     }
 } 
 
+// // get all job count of all department the department are Engineering the departments are 
+// Product
+// Design
+// Marketing
+// Sales
+// Human Resources
+// Finance
+// Operations
+
+
 // Get Job By Company this is for adminsite
 export const getJobByCompany = async (req,res) => {
     try {
@@ -277,5 +287,46 @@ export const deleteJob = async (req,res) => {
         return res.status(200).json({message:"Job deleted successfully",success:true,data:job});
     } catch (error) {
         return res.status(500).json({message:"Internal server error",success:false, error: error.message});   
+    }
+}
+
+// get all job count of all department the department are Engineering the departments are 
+// Product
+// Design
+// Marketing
+// Sales
+// Human Resources
+// Finance
+// Operations
+
+export const getJobCountByDepartment = async (req, res) => {
+    try {
+        const departments = [
+            "engineering",
+            "product",
+            "design",
+            "marketing",
+            "sales",
+            "human resources",
+            "finance",
+            "operations"
+        ];
+
+        const counts = {};
+        for (const department of departments) {
+            counts[department] = await Job.countDocuments({ department: department });
+        }
+
+        return res.status(200).json({ 
+            message: "Job counts by department fetched successfully",
+            success: true,
+            data: counts
+        });
+    } catch (error) {
+        return res.status(500).json({ 
+            message: "Internal server error", 
+            success: false,
+            error: error.message 
+        });   
     }
 }
