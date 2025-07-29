@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, MapPin, Loader2, Shield, Users, Building2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -19,20 +21,25 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
-    // Mock login delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Mock validation - accept any email/password
-    if (email && password) {
+    axios.post('http://localhost:4000/api/admin/login',{
+      email,
+      password
+    })
+    .then((response) => {
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('role', response.data.role);
+      localStorage.setItem('isLoggedIn', "true");
+      toast.success("Login successful!");
       router.push('/admin/dashboard');
-    } else {
-      setError('Please enter both email and password');
-    }
-    
-    setLoading(false);
+    })
+    .catch((error: any) => {
+      toast.error(error.response?.data?.message || 'An error occurred')
+    })
+    .finally(() => {
+      setLoading(false)
+    })
   };
 
   return (
@@ -150,7 +157,7 @@ export default function LoginPage() {
         {/* Footer */}
         <div className="text-center mt-8">
           <p className="text-sm text-gray-500">
-            © 2024 DreamRoad. All rights reserved.
+            2024 DreamRoad. All rights reserved.
           </p>
         </div>
       </div>

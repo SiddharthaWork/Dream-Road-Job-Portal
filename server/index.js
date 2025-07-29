@@ -7,6 +7,7 @@ import userRoute from "./routes/user.route.js";
 import companyRoute from "./routes/company.route.js";
 import jobRoute from "./routes/job.route.js";
 import applicationRoute from "./routes/application.route.js";
+import adminRoute from "./routes/admin.route.js";
 
 dotenv.config({});    
 
@@ -36,6 +37,7 @@ app.use("/api/user",userRoute);
 app.use("/api/company", companyRoute);
 app.use("/api/job", jobRoute);
 app.use("/api/application", applicationRoute);
+app.use("/api/admin", adminRoute);
 
 // For Testing
 // localhost:4000/api/user/register
@@ -62,8 +64,6 @@ app.use("/api/application", applicationRoute);
 // localhost:4000/api/application/getApplications
 // localhost:4000/api/application/getApplicants/:id
 // localhost:4000/api/application/updateStatus/:id    
-
-
 
 
 

@@ -17,7 +17,18 @@ const companySchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:"User"   
     },
-
+    block:{
+        type:Boolean,
+        default:false
+    },
+    deletedJobs:{
+        type:[String],
+        default:[]
+    },
+    block:{
+        type:Boolean,
+        default:false
+    }
 },{timestamps:true});
 
 export const Company = mongoose.model('Company',companySchema);

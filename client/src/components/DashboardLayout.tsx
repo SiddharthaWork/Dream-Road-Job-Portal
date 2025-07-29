@@ -5,19 +5,45 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut, Bell } from 'lucide-react';
+import { LogOut, Bell, Mail, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import axios from 'axios';
+import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
   const [companyName, setCompanyName] = useState('');
-  // wrap inside the useEffect
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [deletedJobs, setDeletedJobs] = useState<string[]>([]);
+
   useEffect(() => {
     const companyName = localStorage.getItem('companyName') || 'Company';
     setCompanyName(companyName);
-    // const companyEmail = localStorage.getItem('companyEmail') || '';
+  }, []);
+
+  useEffect(() => {
+    
+  const fetchDeletedJobs = async () => {
+    const companyId = localStorage.getItem('companyId');
+    if (!companyId) return;
+    try {
+      const response = await axios.get(`http://localhost:4000/api/company/getdeletedjobs/${companyId}`);
+      if (response.data.success) {
+        setDeletedJobs(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching deleted jobs:', error);
+    }
+  };
+  fetchDeletedJobs(); 
   }, []);
 
   const handleLogout = () => {
@@ -38,7 +64,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   const getPageTitle = () => {
-        const path = pathname;
+    const path = pathname;
     switch (path) {
       case '/employer/dashboard':
         return 'Dashboard';
@@ -67,24 +93,67 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                 <h1 className="text-2xl font-semibold text-gray-900">{getPageTitle()}</h1>
               </div>
               <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon">
-                  <Bell className="h-5 w-5" />
-                </Button>
-                <div className="flex items-center gap-3">
-                  <Avatar>
-                    <AvatarImage src="" />
-                    <AvatarFallback>
-                      {companyName.split(' ').map(n => n[0]).join('').toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="hidden md:block">
-                    <p className="text-sm font-medium">{companyName}</p>
-                    {/* <p className="text-xs text-gray-500">{companyEmail}</p> */}
-                  </div>
+                <Popover open={isNotificationsOpen} onOpenChange={setIsNotificationsOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="relative">
+                      <Bell className="h-5 w-5" />
+                      <Badge 
+                        variant="destructive"
+                        className="absolute -top-1 -right-2 h-5 w-5 p-0 text-xs flex items-center justify-center"
+                      >
+                        {deletedJobs.length}
+                      </Badge>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-0" align="end">
+                    <div className="p-4">
+                      <h3 className="font-semibold mb-2">Notifications</h3>
+                      {deletedJobs.length === 0 ? (
+                        <p className="text-sm">No notifications yet.</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {deletedJobs.map((job, index) => (
+                            <div key={index} className="text-sm p-2 bg-red-100 rounded">
+                              <p className="font-medium">{job}</p>
+                              <p className="text-xs text-gray-600">This job has been deleted by Dream Road due to some violation. <br /> <span className="text-blue-600 cursor-pointer">Contact Support <Mail className="h-4 w-4" />dreamroad@dr.com</span></p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className="flex items-center gap-3 cursor-pointer">
+                      <div className="hidden md:block">
+                        <p className="text-sm font-medium">{companyName}</p>
+                      </div>
+                      <Avatar>
+                        <AvatarImage src="" />
+                        <AvatarFallback>
+                          {companyName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-48" align="end">
+                  <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <div className="flex items-center gap-1 mt-1">
+                  <Shield className="h-3 w-3" />
+                  <Badge variant="secondary" className="text-xs">
+                    Company
+                  </Badge>
                 </div>
-                <Button variant="ghost" size="icon" onClick={handleLogout}>
-                  <LogOut className="h-5 w-5" />
-                </Button>
+              </div>
+            </DropdownMenuLabel>
+                    <DropdownMenuItem onClick={handleLogout}>
+                      <LogOut className="h-4 w-4 mr-2" />
+                      <span className="text-red-400">Logout</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </header>

@@ -88,7 +88,11 @@ const userSchema = new mongoose.Schema({
     appliedJobs:{
       type:[mongoose.Schema.Types.ObjectId],
       ref:"Application" 
-    }
+    },
+    block:{
+        type:Boolean,
+        default:false
+    } 
 },{timestamps:true});
 
 export const User = mongoose.model('User',userSchema);

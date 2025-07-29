@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,60 +39,15 @@ import {
   XCircle,
   TrendingUp,
   Users,
-  Briefcase
+  Briefcase,
+  UserX
 } from 'lucide-react';
-
+import axios from 'axios';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 // Mock data
-const companies = [
-  {
-    id: '1',
-    name: 'TechCorp Solutions',
-    email: 'contact@techcorp.com',
-    industry: 'Technology',
-    size: '100-500',
-    status: 'verified',
-    joinDate: '2024-01-15',
-    activeJobs: 12,
-    totalEmployees: 250,
-    location: 'Kathmandu, Nepal'
-  },
-  {
-    id: '2',
-    name: 'HealthCare Plus',
-    email: 'hr@healthcareplus.com',
-    industry: 'Healthcare',
-    size: '500-1000',
-    status: 'pending',
-    joinDate: '2024-01-18',
-    activeJobs: 8,
-    totalEmployees: 750,
-    location: 'Kathmandu, Nepal'
-  },
-  {
-    id: '3',
-    name: 'FinanceFirst',
-    email: 'jobs@financefirst.com',
-    industry: 'Finance',
-    size: '50-100',
-    status: 'suspended',
-    joinDate: '2024-01-10',
-    activeJobs: 0,
-    totalEmployees: 85,
-    location: 'Kathmandu, Nepal'
-  },
-  {
-    id: '4',
-    name: 'EduTech Innovations',
-    email: 'careers@edutech.com',
-    industry: 'Education',
-    size: '10-50',
-    status: 'verified',
-    joinDate: '2024-01-12',
-    activeJobs: 5,
-    totalEmployees: 35,
-    location: 'Kathmandu, Nepal'
-  }
-];
+
 
 const stats = [
   {
@@ -102,43 +57,18 @@ const stats = [
     icon: Building2,
     color: 'text-blue-600'
   },
-  {
-    title: 'Verified Companies',
-    value: '987',
-    change: '+12.1%',
-    icon: CheckCircle,
-    color: 'text-green-600'
-  },
-  {
-    title: 'Pending Verification',
-    value: '156',
-    change: '+5.3%',
-    icon: Clock,
-    color: 'text-yellow-600'
-  },
-  {
-    title: 'Active Job Posts',
-    value: '3,456',
-    change: '+15.7%',
-    icon: Briefcase,
-    color: 'text-purple-600'
-  }
 ];
+
 
 export default function CompaniesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [industryFilter, setIndustryFilter] = useState('all');
+  const [companies, setCompanies] = useState<any>([]);  
+  const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const router = useRouter();
 
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      verified: 'bg-green-100 text-green-800',
-      pending: 'bg-yellow-100 text-yellow-800',
-      suspended: 'bg-red-100 text-red-800',
-      rejected: 'bg-gray-100 text-gray-800'
-    };
-    return variants[status as keyof typeof variants] || 'bg-gray-100 text-gray-800';
-  };
 
   const getStatusIcon = (status: string) => {
     const icons = {
@@ -150,7 +80,7 @@ export default function CompaniesPage() {
     return icons[status as keyof typeof icons] || Clock;
   };
 
-  const filteredCompanies = companies.filter(company => {
+  const filteredCompanies = companies.filter((company: any) => {
     const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          company.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || company.status === statusFilter;
@@ -158,23 +88,27 @@ export default function CompaniesPage() {
     return matchesSearch && matchesStatus && matchesIndustry;
   });
 
+  const fetchCompanies = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/getAllCompany`);
+      console.log(response.data.data)
+      setCompanies(response.data.data);
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
+
   return (
     <div className="">
       <div className="py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Companies</h1>
             <p className="text-gray-600 mt-1">Manage and monitor all registered companies</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-            <Button size="sm">
-              Add Company
-            </Button>
           </div>
         </div>
 
@@ -186,8 +120,7 @@ export default function CompaniesPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                    <p className="text-sm text-green-600">{stat.change} from last month</p>
+                    <p className="text-2xl font-bold text-gray-900">{filteredCompanies.length}</p>
                   </div>
                   <div className={`p-3 rounded-full bg-gray-50 ${stat.color}`}>
                     <stat.icon className="h-6 w-6" />
@@ -196,10 +129,11 @@ export default function CompaniesPage() {
               </CardContent>
             </Card>
           ))}
-        </div>
+        
 
         {/* Filters and Search */}
-        <Card className="mb-6">
+
+        <Card className="mb-6 col-span-3 h-full">
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
@@ -243,16 +177,17 @@ export default function CompaniesPage() {
             </div>
           </CardContent>
         </Card>
+        </div>
 
         {/* Data Table */}
         <Card>
           <CardHeader>
-            <CardTitle>All Companies</CardTitle>
-            <CardDescription>
+            <CardTitle className="px-2">All Companies</CardTitle>
+            <CardDescription className="px-2">
               A list of all registered companies and their verification status
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="px-6">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -261,21 +196,20 @@ export default function CompaniesPage() {
                     <TableHead>Industry</TableHead>
                     <TableHead>Size</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Active Jobs</TableHead>
                     <TableHead>Join Date</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className="divide-y divide-gray-200">
-                  {filteredCompanies.map((company) => {
+                  {filteredCompanies.map((company: any) => {
                     const StatusIcon = getStatusIcon(company.status);
                     
                     return (
-                      <TableRow key={company.id}>
+                      <TableRow key={company._id}>
                         <TableCell>
                           <div className="flex items-center">
-                            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center mr-3">
-                              <Building2 className="h-5 w-5 text-blue-600" />
+                            <div className="h-10 w-10 rounded-lg overflow-hidden bg-blue-100 flex items-center justify-center mr-3">
+                              <img src={company.logo} alt={company.name} className="w-full h-full object-cover" />
                             </div>
                             <div>
                               <div className="font-medium text-gray-900">{company.name}</div>
@@ -291,19 +225,13 @@ export default function CompaniesPage() {
                           {company.size} employees
                         </TableCell>
                         <TableCell>
-                          <Badge className={getStatusBadge(company.status)}>
+                          <Badge className={company.block ? 'bg-red-100 text-red-800' : 'bg-green-600 text-white'}>
                             <StatusIcon className="h-3 w-3 mr-1" />
-                            {company.status}
+                            {company.block ? 'Blocked' : 'Active'}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-sm text-gray-900">
-                          <div className="flex items-center">
-                            <Briefcase className="h-4 w-4 mr-1 text-gray-400" />
-                            {company.activeJobs}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm text-gray-900">
-                          {new Date(company.joinDate).toLocaleDateString()}
+                          {new Date(company.createdAt).toLocaleDateString()}
                         </TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
@@ -313,22 +241,28 @@ export default function CompaniesPage() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => router.push(`/admin/companies/${company._id}`)}>
                                 <Eye className="mr-2 h-4 w-4" />
                                 View Profile
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit Company
+                              <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedCompany(company);
+                                setIsDialogOpen(true);
+                              }}
+                              >
+                                <UserX className="mr-2 h-4 w-4" />
+                                {company.block ? 'Unblock Company' : 'Block Company'}
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              {/* <DropdownMenuItem>
                                 <CheckCircle className="mr-2 h-4 w-4" />
                                 Verify Company
                               </DropdownMenuItem>
                               <DropdownMenuItem className="text-red-600">
                                 <XCircle className="mr-2 h-4 w-4" />
                                 Suspend Company
-                              </DropdownMenuItem>
+                              </DropdownMenuItem> */}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -356,6 +290,48 @@ export default function CompaniesPage() {
           </CardContent>
         </Card>
       </div>
+      {/* Block/Unblock Confirmation Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedCompany?.block ? 'Unblock Company' : 'Block Company'}</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to {selectedCompany?.block ? 'unblock' : 'block'} {selectedCompany?.fullname}?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+            <Button 
+              variant="destructive" 
+              onClick={async () => {
+                if (!selectedCompany) return;
+                try {
+                  if (selectedCompany.block) {
+                    // Unblock user
+                    await axios.put(`http://localhost:4000/api/admin/unblockCompany/${selectedCompany._id}`);
+                  } else {
+                    // Block user
+                    await axios.put(`http://localhost:4000/api/admin/blockCompany/${selectedCompany._id}`);
+                  }
+                  // Update the user state to reflect the change
+                  setCompanies((prev: any) => prev.map((company: any) => 
+                    company._id === selectedCompany._id ? { ...company, block: !company.block } : company
+                  ));
+                  toast.success(`Company ${selectedCompany.block ? 'unblocked' : 'blocked'} successfully`);
+                } catch (error) {
+                  toast.error('Failed to update user status');
+                  console.error(error);
+                } finally {
+                  setIsDialogOpen(false);
+                }
+              }}
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 }

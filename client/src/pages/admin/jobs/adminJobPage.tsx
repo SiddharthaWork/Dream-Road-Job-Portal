@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,95 +42,59 @@ import {
   Calendar,
   Building2
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from 'react-hot-toast';
 
-// Mock data
-const jobs = [
-  {
-    id: '1',
-    title: 'Senior Software Engineer',
-    company: 'TechCorp Solutions',
-    location: 'Kathmandu, Nepal',
-    type: 'Full-time',
-    salary: 'Rs 120,000 - Rs 150,000',
-    status: 'active',
-    postedDate: '2024-01-20',
-    applications: 45,
-    category: 'Technology'
-  },
-  {
-    id: '2',
-    title: 'Product Manager',
-    company: 'InnovateCorp',
-    location: 'Kathmandu, Nepal',
-    type: 'Full-time',
-    salary: 'Rs 100,000 - Rs 130,000',
-    status: 'pending',
-    postedDate: '2024-01-19',
-    applications: 23,
-    category: 'Management'
-  },
-  {
-    id: '3',
-    title: 'Data Scientist',
-    company: 'DataTech Inc',
-    location: 'Kathmandu, Nepal',
-    type: 'Contract',
-    salary: 'Rs 80,000 - Rs 100,000',
-    status: 'expired',
-    postedDate: '2024-01-10',
-    applications: 67,
-    category: 'Technology'
-  },
-  {
-    id: '4',
-    title: 'UX Designer',
-    company: 'DesignStudio',
-    location: 'Kathmandu, Nepal',
-    type: 'Part-time',
-    salary: 'Rs 60,000 - Rs 80,000',
-    status: 'active',
-    postedDate: '2024-01-18',
-    applications: 34,
-    category: 'Design'
-  }
-];
+interface Job {
+  _id: string;
+  title: string;
+  company: string;
+  category: string;
+  type: string;
+  status: string;
+  applications: string[];
+}
 
-const stats = [
-  {
-    title: 'Total Jobs',
-    value: '3,456',
-    change: '+15.7%',
-    icon: Briefcase,
-    color: 'text-blue-600'
-  },
-  {
-    title: 'Active Jobs',
-    value: '2,234',
-    change: '+12.3%',
-    icon: CheckCircle,
-    color: 'text-green-600'
-  },
-  // {
-  //   title: 'Pending Approval',
-  //   value: '89',
-  //   change: '+8.9%',
-  //   icon: Clock,
-  //   color: 'text-yellow-600'
-  // },
-  {
-    title: 'Total Applications',
-    value: '12,847',
-    change: '+22.1%',
-    icon: Calendar,
-    color: 'text-purple-600'
-  }
-];
-
-export default function JobsPage() {
+export default function AdminJobPage() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const router = useRouter();
+  const [deleteJobId, setDeleteJobId] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [totalJobs, setTotalJobs] = useState(0);
+
+  const stats = [
+    { title: 'Total Jobs', value: jobs.length, change: '+12%', icon: Briefcase, color: 'text-blue-500' },
+  ];
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/api/admin/getAllJobs');
+        if (response.data.success) {
+          setJobs(response.data.data);
+          setTotalJobs(response.data.data.length);
+        } else {
+          setError('Failed to fetch jobs');
+        }
+      } catch (err) {
+        setError('Error fetching jobs');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, []);
 
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -151,7 +116,7 @@ export default function JobsPage() {
     return icons[status as keyof typeof icons] || Clock;
   };
 
-  const filteredJobs = jobs.filter(job => {
+  const filteredJobs = jobs.filter((job: any) => {
     const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          job.company.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || job.status === statusFilter;
@@ -159,6 +124,38 @@ export default function JobsPage() {
     const matchesType = typeFilter === 'all' || job.type === typeFilter;
     return matchesSearch && matchesStatus && matchesCategory && matchesType;
   });
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentJobs = filteredJobs.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handleDeleteJob = async () => {
+    if (!deleteJobId) return;
+    try {
+      const response = await axios.delete(`http://localhost:4000/api/admin/deleteJob/${deleteJobId}`);
+      if (response.data.success) {
+        // Remove the job from the state
+        setJobs(jobs.filter((job: any) => job._id !== deleteJobId));
+        toast.success('Job deleted successfully');
+      } else {
+        toast.error('Failed to delete job');
+      }
+    } catch (error) {
+      toast.error('An error occurred while deleting the job');
+      console.error(error);
+    } finally {
+      setDeleteJobId(null);
+      setIsDeleteModalOpen(false);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <div className="">
@@ -168,15 +165,6 @@ export default function JobsPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Job Management</h1>
             <p className="text-gray-600 mt-1">Manage and monitor all job postings</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-            <Button size="sm">
-              Add Job
-            </Button>
           </div>
         </div>
 
@@ -188,20 +176,18 @@ export default function JobsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                    <p className="text-sm text-green-600">{stat.change} from last month</p>
+                    <p className="text-2xl font-bold text-gray-900">{totalJobs}</p>
                   </div>
                   <div className={`p-3 rounded-full bg-gray-50 ${stat.color}`}>
-                    <stat.icon className="h-6 w-6" />
+                    <stat.icon className="h-6 w-6"   />
                   </div>
                 </div>
               </CardContent>
             </Card>
           ))}
-        </div>
 
         {/* Filters and Search */}
-        <Card className="mb-6">
+        <Card className="mb-6 col-span-3 h-full">
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
@@ -258,6 +244,8 @@ export default function JobsPage() {
             </div>
           </CardContent>
         </Card>
+        </div>
+
 
         {/* Data Table */}
         <Card>
@@ -273,94 +261,63 @@ export default function JobsPage() {
                 <TableHeader>
                   <TableRow className="divide-y divide-gray-200">
                     <TableHead>Job Details</TableHead>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Location & Type</TableHead>
+                    <TableHead>Industry</TableHead>
+                    <TableHead>Type</TableHead>
                     <TableHead>Salary</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead>Applications</TableHead>
                     <TableHead>Posted Date</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className="divide-y divide-gray-200">
-                  {filteredJobs.map((job) => {
-                    const StatusIcon = getStatusIcon(job.status);
-                    
-                    return (
-                      <TableRow key={job.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium text-gray-900">{job.title}</div>
-                            <div className="text-sm text-gray-500">{job.category}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center">
-                            <Building2 className="h-4 w-4 mr-2 text-gray-400" />
-                            <span className="text-sm text-gray-900">{job.company}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="flex items-center text-sm text-gray-900">
-                              <MapPin className="h-4 w-4 mr-1 text-gray-400" />
-                              {job.location}
+                  {currentJobs.map((job: any) => (
+                    <TableRow key={job._id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-gray-100 border-2 overflow-hidden rounded-xl w-16 h-16" >
+                            <img src={job.createdBy?.logo} alt="profile" />
                             </div>
-                            <Badge variant="outline" className="text-xs">
-                              {job.type}
-                            </Badge>
+                          <div>
+                            <div className="font-medium">{job.title}</div>
+                            <div className="text-sm text-gray-500">{job.createdBy?.name}</div>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center text-sm text-gray-900">
-                            {job.salary}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={getStatusBadge(job.status)}>
-                            <StatusIcon className="h-3 w-3 mr-1" />
-                            {job.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm text-gray-900">
-                          <div className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-1 text-gray-400" />
-                            {job.applications}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm text-gray-900">
-                          {new Date(job.postedDate).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Job
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit Job
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                Approve Job
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="text-red-600">
-                                <XCircle className="mr-2 h-4 w-4" />
-                                Deactivate Job
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                        </div>
+                      </TableCell>
+                      <TableCell>{job.createdBy?.industry}</TableCell>
+                      <TableCell>
+                        <Badge variant="default">{job.type}</Badge>
+                      </TableCell>
+                      <TableCell>Rs{job.salaryMin} - Rs{job.salaryMax}</TableCell>
+                  
+                      <TableCell>
+                        <Badge variant="destructive">{job?.applications?.length}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(job.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="icon" variant="ghost">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => router.push(`/admin/jobs/${job._id}`)}>View Details</DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="text-red-600" 
+                              onClick={() => {
+                                setDeleteJobId(job._id);
+                                setIsDeleteModalOpen(true);
+                              }}
+                            >
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>
@@ -368,13 +325,13 @@ export default function JobsPage() {
             {/* Pagination */}
             <div className="flex items-center justify-between px-6 py-4 border-t">
               <div className="text-sm text-gray-700">
-                Showing 1 to {Math.min(10, filteredJobs.length)} of {filteredJobs.length} results
+                Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredJobs.length)} of {filteredJobs.length} results
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
                   Previous
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => setCurrentPage(currentPage + 1)} disabled={indexOfLastItem >= filteredJobs.length}>
                   Next
                 </Button>
               </div>
@@ -382,6 +339,25 @@ export default function JobsPage() {
           </CardContent>
         </Card>
       </div>
+      {/* Delete Confirmation Modal */}
+      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Job</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this job? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteJob}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

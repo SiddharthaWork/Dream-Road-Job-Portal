@@ -261,6 +261,16 @@ export const getUserProfileLogo = async (req,res) => {
     }
 }
 
+// get all user count
+export const getAllUserCount = async (req,res) => {
+    try {
+        const count = await User.countDocuments();
+        return res.status(200).json({message:"User count fetched successfully",success:true,data:count});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}   
+
 // getRecommendations
 export const getRecommendations = async (req, res) => {
   try {

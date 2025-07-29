@@ -1,5 +1,5 @@
 import express from "express";
-import { applyJob, getApplicants, getAppliedJobs, getAppliedJobUsers, getAppliedJobCount, updateStatus, getAllApplicant, getShortlistedJobByUserId, getApplicantsByCompanyId, getShortlistedJobCount } from "../controllers/application.controller.js";
+import { applyJob, getApplicants, getAppliedJobs, getAppliedJobUsers, getAppliedJobCount, updateStatus, getAllApplicant, getShortlistedJobByUserId, getApplicantsByCompanyId, getShortlistedJobCount, deleteApplication, deleteApplicationByJobId } from "../controllers/application.controller.js";
 import { singleUpload }from "../middlewares/multer.js";
 
 const router = express.Router();
@@ -14,10 +14,12 @@ router.route("/getAllApplicant").get(getAllApplicant);
 router.route("/getShortlistedJobByUserId/:id").get(getShortlistedJobByUserId);
 router.route("/getApplicantsByCompanyId/:id").get(getApplicantsByCompanyId);
 router.route("/getShortlistedJobCount/:id").get(getShortlistedJobCount);
-``
+router.route("/deleteApplication/:id").delete(deleteApplication);
+router.route("/deleteApplicationByJobId/:id").delete(deleteApplicationByJobId);
+
 // to test use
 // localhost:4000/api/application/applyJob/:id
-// localhost:4000/api/application/getApplications
+// localhost:4000/api/application/getApplications   
 // localhost:4000/api/application/getApplicants/:id
 // localhost:4000/api/application/updateStatus/:id
 // localhost:4000/api/application/getAppliedJobUsers/:id
@@ -26,5 +28,7 @@ router.route("/getShortlistedJobCount/:id").get(getShortlistedJobCount);
 // localhost:4000/api/application/getShortlistedJobByUserId/:id    
 // localhost:4000/api/application/getApplicantsByCompanyId/:id  
 // localhost:4000/api/application/getShortlistedJobCount/:id
+// localhost:4000/api/application/deleteApplication/:id
+// localhost:4000/api/application/deleteApplicationByJobId/:id
 
 export default router;

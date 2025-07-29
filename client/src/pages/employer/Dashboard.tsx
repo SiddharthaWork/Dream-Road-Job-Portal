@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Briefcase, Users, Eye, TrendingUp, Calendar, MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
 const Dashboard = () => {
   const router = useRouter();
@@ -12,6 +13,10 @@ const Dashboard = () => {
   const [jobCounts, setJobCounts] = useState({ activeJobs: 0, totalApplicants: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [chartData, setChartData] = useState([
+    { name: 'Active Jobs', value: 0 },
+    { name: 'Total Applicants', value: 0 }
+  ]);
 
   useEffect(() => {
     const company = localStorage.getItem('companyName');
@@ -36,6 +41,10 @@ const Dashboard = () => {
             activeJobs: data.data.jobCount || 0,
             totalApplicants: data.data.applicationCount || 0  
           });
+          setChartData([
+            { name: 'Active Jobs', value: data.data.jobCount || 0 },
+            { name: 'Total Applicants', value: data.data.applicationCount || 0 }
+          ]);
         }
       } catch (err) {
         console.error('Error fetching job counts:', err);
@@ -176,6 +185,61 @@ const Dashboard = () => {
         </CardContent>
       </Card>
 
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7 mt-4">
+        <Card className="col-span-3">
+          <CardHeader>
+            <CardTitle>Overview</CardTitle>
+          </CardHeader>
+          <CardContent className="pl-2 h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                width={500}
+                height={300}
+                data={chartData}
+                margin={{
+                  top: 5,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="value" fill="#3B82F6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+        <Card className="col-span-4">
+          <CardHeader>
+            <CardTitle>Metrics Distribution</CardTitle>
+          </CardHeader>
+          <CardContent className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={true}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={index === 0 ? '#3B82F6' : '#10B981'} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Job Posts */}
         {/* <Card>

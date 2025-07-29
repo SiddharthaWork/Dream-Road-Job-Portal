@@ -29,6 +29,9 @@ export default function Home() {
     if (isLoggedIn && role === 'company') {
       router.push('/employer/dashboard');
     }
+    if (isLoggedIn && role === 'admin') {
+      router.push('/admin/dashboard');
+    }
   }, [isLoggedIn, role, isLoading, router]);
   
   if (isLoading) {
