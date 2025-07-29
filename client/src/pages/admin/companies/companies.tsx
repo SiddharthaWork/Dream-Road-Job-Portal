@@ -57,27 +57,6 @@ const stats = [
     icon: Building2,
     color: 'text-blue-600'
   },
-  {
-    title: 'Verified Companies',
-    value: '987',
-    change: '+12.1%',
-    icon: CheckCircle,
-    color: 'text-green-600'
-  },
-  {
-    title: 'Pending Verification',
-    value: '156',
-    change: '+5.3%',
-    icon: Clock,
-    color: 'text-yellow-600'
-  },
-  {
-    title: 'Active Job Posts',
-    value: '3,456',
-    change: '+15.7%',
-    icon: Briefcase,
-    color: 'text-purple-600'
-  }
 ];
 
 
@@ -129,17 +108,7 @@ export default function CompaniesPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Companies</h1>
             <p className="text-gray-600 mt-1">Manage and monitor all registered companies</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-            <Button size="sm">
-              Add Company
-            </Button>
           </div>
         </div>
 
@@ -151,8 +120,7 @@ export default function CompaniesPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                    <p className="text-sm text-green-600">{stat.change} from last month</p>
+                    <p className="text-2xl font-bold text-gray-900">{filteredCompanies.length}</p>
                   </div>
                   <div className={`p-3 rounded-full bg-gray-50 ${stat.color}`}>
                     <stat.icon className="h-6 w-6" />
@@ -161,10 +129,11 @@ export default function CompaniesPage() {
               </CardContent>
             </Card>
           ))}
-        </div>
+        
 
         {/* Filters and Search */}
-        <Card className="mb-6">
+
+        <Card className="mb-6 col-span-3 h-full">
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
@@ -208,16 +177,17 @@ export default function CompaniesPage() {
             </div>
           </CardContent>
         </Card>
+        </div>
 
         {/* Data Table */}
         <Card>
           <CardHeader>
-            <CardTitle>All Companies</CardTitle>
-            <CardDescription>
+            <CardTitle className="px-2">All Companies</CardTitle>
+            <CardDescription className="px-2">
               A list of all registered companies and their verification status
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="px-6">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>

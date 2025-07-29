@@ -42,6 +42,9 @@ import {
   Calendar,
   Building2
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from 'react-hot-toast';
 
 interface Job {
   _id: string;
@@ -61,12 +64,15 @@ export default function AdminJobPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const router = useRouter();
+  const [deleteJobId, setDeleteJobId] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [totalJobs, setTotalJobs] = useState(0);
 
   const stats = [
     { title: 'Total Jobs', value: jobs.length, change: '+12%', icon: Briefcase, color: 'text-blue-500' },
-    { title: 'Active Jobs', value: jobs.filter(job => job.status === 'active').length, change: '+8%', icon: CheckCircle, color: 'text-green-500' },
-    { title: 'Pending Jobs', value: jobs.filter(job => job.status === 'pending').length, change: '+3%', icon: Clock, color: 'text-yellow-500' },
-    { title: 'Expired Jobs', value: jobs.filter(job => job.status === 'expired').length, change: '-2%', icon: XCircle, color: 'text-red-500' },
   ];
 
   useEffect(() => {
@@ -75,6 +81,7 @@ export default function AdminJobPage() {
         const response = await axios.get('http://localhost:4000/api/admin/getAllJobs');
         if (response.data.success) {
           setJobs(response.data.data);
+          setTotalJobs(response.data.data.length);
         } else {
           setError('Failed to fetch jobs');
         }
@@ -118,6 +125,30 @@ export default function AdminJobPage() {
     return matchesSearch && matchesStatus && matchesCategory && matchesType;
   });
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentJobs = filteredJobs.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handleDeleteJob = async () => {
+    if (!deleteJobId) return;
+    try {
+      const response = await axios.delete(`http://localhost:4000/api/admin/deleteJob/${deleteJobId}`);
+      if (response.data.success) {
+        // Remove the job from the state
+        setJobs(jobs.filter((job: any) => job._id !== deleteJobId));
+        toast.success('Job deleted successfully');
+      } else {
+        toast.error('Failed to delete job');
+      }
+    } catch (error) {
+      toast.error('An error occurred while deleting the job');
+      console.error(error);
+    } finally {
+      setDeleteJobId(null);
+      setIsDeleteModalOpen(false);
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -135,15 +166,6 @@ export default function AdminJobPage() {
             <h1 className="text-3xl font-bold text-gray-900">Job Management</h1>
             <p className="text-gray-600 mt-1">Manage and monitor all job postings</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-            <Button size="sm">
-              Add Job
-            </Button>
-          </div>
         </div>
 
         {/* Stats Cards */}
@@ -154,20 +176,18 @@ export default function AdminJobPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                    <p className="text-sm text-green-600">{stat.change} from last month</p>
+                    <p className="text-2xl font-bold text-gray-900">{totalJobs}</p>
                   </div>
                   <div className={`p-3 rounded-full bg-gray-50 ${stat.color}`}>
-                    <stat.icon className="h-6 w-6" />
+                    <stat.icon className="h-6 w-6"   />
                   </div>
                 </div>
               </CardContent>
             </Card>
           ))}
-        </div>
 
         {/* Filters and Search */}
-        <Card className="mb-6">
+        <Card className="mb-6 col-span-3 h-full">
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
@@ -224,6 +244,8 @@ export default function AdminJobPage() {
             </div>
           </CardContent>
         </Card>
+        </div>
+
 
         {/* Data Table */}
         <Card>
@@ -248,7 +270,7 @@ export default function AdminJobPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody className="divide-y divide-gray-200">
-                  {filteredJobs.map((job: any) => (
+                  {currentJobs.map((job: any) => (
                     <TableRow key={job._id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-3">
@@ -281,9 +303,16 @@ export default function AdminJobPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>View Details</DropdownMenuItem>
-                            <DropdownMenuItem>Edit</DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => router.push(`/admin/jobs/${job._id}`)}>View Details</DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="text-red-600" 
+                              onClick={() => {
+                                setDeleteJobId(job._id);
+                                setIsDeleteModalOpen(true);
+                              }}
+                            >
+                              Delete
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -296,13 +325,13 @@ export default function AdminJobPage() {
             {/* Pagination */}
             <div className="flex items-center justify-between px-6 py-4 border-t">
               <div className="text-sm text-gray-700">
-                Showing 1 to {Math.min(10, filteredJobs.length)} of {filteredJobs.length} results
+                Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredJobs.length)} of {filteredJobs.length} results
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
                   Previous
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => setCurrentPage(currentPage + 1)} disabled={indexOfLastItem >= filteredJobs.length}>
                   Next
                 </Button>
               </div>
@@ -310,6 +339,25 @@ export default function AdminJobPage() {
           </CardContent>
         </Card>
       </div>
+      {/* Delete Confirmation Modal */}
+      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Job</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this job? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteJob}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

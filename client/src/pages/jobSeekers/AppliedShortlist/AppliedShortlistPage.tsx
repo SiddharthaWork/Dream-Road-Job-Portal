@@ -6,6 +6,7 @@ import AppliedJobCard from "./AppliedJobCard";
 import { useRouter } from "next/navigation";
 import ShortlistJobCard from "./Shortlist";
 import RejectedJobCard from "./RejectedJobCard";
+import { Badge } from "@/components/ui/badge";
 
 export default function AppliedShortlistPage() {
   const router = useRouter();
@@ -62,13 +63,16 @@ export default function AppliedShortlistPage() {
 
           <Tabs defaultValue="applied" className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-8 h-full">
-              <TabsTrigger value="applied" className="text-lg py-3">
+              <TabsTrigger value="applied" className="text-lg py-3 relative">
+                <Badge variant="destructive" className="absolute top-1 right-1">{pendingJobs?.length}</Badge>
                 Applied Jobs
               </TabsTrigger>
-              <TabsTrigger value="shortlisted" className="text-lg py-3">
+              <TabsTrigger value="shortlisted" className="text-lg py-3 relative ">
+                <Badge variant="destructive" className="absolute top-1 right-1">{shortlistedJobs?.length}</Badge>
                 Shortlisted
               </TabsTrigger>
-              <TabsTrigger value="rejected" className="text-lg py-3">
+              <TabsTrigger value="rejected" className="text-lg py-3 relative">
+                <Badge variant="destructive" className="absolute top-1 right-1">{rejectedJobs?.length}</Badge>
                 Rejected
               </TabsTrigger>
             </TabsList>
@@ -82,11 +86,11 @@ export default function AppliedShortlistPage() {
                 ) : (
                   pendingJobs.map((item) => (
                     <AppliedJobCard
-                      key={item.job._id}
-                      job={item.job}
-                      onJobClick={() => router.push(`/job/${item.job._id}`)}
-                      appliedDate={item.appliedDate}
-                      status={item.status}
+                      key={item?.job?._id}
+                      job={item?.job}
+                      onJobClick={() => router.push(`/job/${item?.job?._id}`)}
+                      appliedDate={item?.appliedDate}
+                      status={item?.status}
                     />
                   ))
                 )}
@@ -102,11 +106,11 @@ export default function AppliedShortlistPage() {
                 ) : (
                   shortlistedJobs.map((item) => (
                     <ShortlistJobCard 
-                      key={item.job._id}
-                      job={item.job}
-                      onJobClick={() => router.push(`/job/${item.job._id}`)}
-                      appliedDate={item.appliedDate}
-                      status={item.status}
+                      key={item?.job?._id}
+                      job={item?.job}
+                      onJobClick={() => router.push(`/job/${item?.job?._id}`)}
+                      appliedDate={item?.appliedDate}
+                      status={item?.status}
                     />
                   ))
                 )}
@@ -122,11 +126,11 @@ export default function AppliedShortlistPage() {
                 ) : (
                   rejectedJobs.map((item) => (
                     <RejectedJobCard 
-                      key={item.job._id}
-                      job={item.job}
-                      onJobClick={() => router.push(`/job/${item.job._id}`)}
-                      appliedDate={item.appliedDate}
-                      status={item.status}
+                      key={item?.job?._id}
+                      job={item?.job}
+                      onJobClick={() => router.push(`/job/${item?.job?._id}`)}
+                      appliedDate={item?.appliedDate}
+                      status={item?.status}
                     />
                   ))
                 )}
