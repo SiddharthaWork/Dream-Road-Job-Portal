@@ -54,7 +54,7 @@ export default function AppliedShortlistPage() {
 
   return (
     <div className="bg-[#f8f9fa]">
-      <div className="min-h-screen w-full max-w-7xl mx-auto">
+      <div className="min-h-screen w-full max-w-7xl mx-auto px-42">
         <main className="container mx-auto py-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">My Jobs</h1>

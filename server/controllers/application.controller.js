@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import mongoose from "mongoose";
+import { calculateApplicantScore, generateApplicantSummary } from "../services/applicantRanking.service.js";
 
 export const applyJob = async (req, res) => {
     try {
@@ -387,5 +388,173 @@ export const deleteApplicationByJobId = async (req,res) => {
     } catch (error) {
         return res.status(500).json({message:"Internal server error",success:false});   
    }
+}
+
+// Get ranked applicants for a job using weighted scoring algorithm
+export const getRankedApplicants = async (req, res) => {
+    try {
+        const jobId = req.params.id;
+        const { 
+            minScore = 0.3, 
+            sortBy = 'score', 
+            showBreakdown = false,
+            limit = 50
+        } = req.query;
+        
+        // Validate job ID format
+        if (!mongoose.Types.ObjectId.isValid(jobId)) {
+            return res.status(400).json({
+                message: "Invalid job ID format",
+                success: false
+            });
+        }
+        
+        // Get job with populated applications and user data
+        const job = await Job.findById(jobId).populate({
+            path: 'applications',
+            options: { sort: { createdAt: -1 } },
+            populate: {
+                path: 'user',
+                select: '-password' // Exclude sensitive data
+            }
+        });
+        
+        if (!job) {
+            return res.status(404).json({
+                message: 'Job not found.',
+                success: false
+            });
+        }
+        
+        // Calculate scores for each applicant
+        const rankedApplicants = job.applications
+            .filter(app => app.user) // Ensure user data exists
+            .map(application => {
+                const scoring = calculateApplicantScore(application, job);
+                
+                return {
+                    ...application.toObject(),
+                    applicantScore: scoring.totalScore,
+                    scoreBreakdown: showBreakdown === 'true' ? scoring.breakdown : undefined,
+                    weights: showBreakdown === 'true' ? scoring.weights : undefined,
+                    // Add helpful summary
+                    summary: generateApplicantSummary(application.user, scoring)
+                };
+            })
+            .filter(app => app.applicantScore >= parseFloat(minScore))
+            .sort((a, b) => {
+                if (sortBy === 'score') {
+                    return b.applicantScore - a.applicantScore;
+                }
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            })
+            .slice(0, parseInt(limit));
+        
+        // Add ranking statistics
+        const stats = {
+            totalApplicants: job.applications.length,
+            qualifiedApplicants: rankedApplicants.length,
+            averageScore: rankedApplicants.length > 0 ? 
+                Math.round((rankedApplicants.reduce((sum, app) => 
+                    sum + app.applicantScore, 0) / rankedApplicants.length) * 100) / 100 : 0,
+            topScore: rankedApplicants[0]?.applicantScore || 0,
+            minScoreFilter: parseFloat(minScore)
+        };
+        
+        return res.status(200).json({
+            job: {
+                _id: job._id,
+                title: job.title,
+                department: job.department,
+                location: job.location,
+                type: job.type,
+                experience: job.experience,
+                skills: job.skills,
+                applications: rankedApplicants
+            },
+            stats,
+            success: true
+        });
+    } catch (error) {
+        console.log('Error in getRankedApplicants:', error);
+        return res.status(500).json({
+            message: 'Error ranking applicants',
+            success: false
+        });
+    }
+};
+
+// Auto-shortlist top applicants based on score
+export const autoShortlistApplicants = async (req, res) => {
+    try {
+        const { jobId, minScore = 0.7, maxShortlist = 10 } = req.body;
+        
+        if (!jobId) {
+            return res.status(400).json({
+                message: "Job ID is required",
+                success: false
+            });
+        }
+        
+        // Validate job ID format
+        if (!mongoose.Types.ObjectId.isValid(jobId)) {
+            return res.status(400).json({
+                message: "Invalid job ID format",
+                success: false
+            });
+        }
+        
+        // Get job with applications
+        const job = await Job.findById(jobId).populate({
+            path: 'applications',
+            populate: {
+                path: 'user',
+                select: '-password'
+            }
+        });
+        
+        if (!job) {
+            return res.status(404).json({
+                message: 'Job not found.',
+                success: false
+            });
+        }
+        
+        // Calculate scores and get top candidates
+        const scoredApplicants = job.applications
+            .filter(app => app.user)
+            .map(application => {
+                const scoring = calculateApplicantScore(application, job);
+                return {
+                    _id: application._id,
+                    score: scoring.totalScore
+                };
+            })
+            .filter(app => app.score >= minScore)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, maxShortlist);
+        
+        const shortlistedIds = scoredApplicants.map(app => app._id);
+        
+        // Update application status to shortlisted
+        const updateResult = await Application.updateMany(
+            { _id: { $in: shortlistedIds } },
+            { status: 'shortlisted' }
+        );
+        
+        return res.status(200).json({
+            message: `${shortlistedIds.length} applicants shortlisted automatically`,
+            shortlistedCount: shortlistedIds.length,
+            averageScore: scoredApplicants.length > 0 ? 
+                Math.round((scoredApplicants.reduce((sum, app) => sum + app.score, 0) / scoredApplicants.length) * 100) / 100 : 0,
+            success: true
+        });
+    } catch (error) {
+        console.log('Error in autoShortlistApplicants:', error);
+        return res.status(500).json({
+            message: 'Error auto-shortlisting applicants',
+            success: false
+        });
+    }
 }
     

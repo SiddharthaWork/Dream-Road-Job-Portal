@@ -70,7 +70,7 @@ export default function RecommendedJobs({
   }, [profileStatus]);
 
   // Filter jobs with similarity > 0
-  const filteredJobs = jobsState.filter(job => job.similarity > 0.3);
+  const filteredJobs = Array.isArray(jobsState) ? jobsState.filter(job => job.similarity > 0) : [];
 
   console.log(filteredJobs,"filteredJobs");
 

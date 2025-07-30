@@ -28,6 +28,8 @@ import { Job } from '@/types/job';
 import Loading from "@/components/shared/loading"
 import Link from "next/link"
 import { div } from "motion/react-client"
+import { BookmarkCheck } from "lucide-react"  
+import toast from "react-hot-toast"
 
 export default function JobOverviewPage() {
   const { id } = useParams() as { id: string };
@@ -41,6 +43,8 @@ export default function JobOverviewPage() {
   const [appliedUsers, setAppliedUsers] = useState<any>(null)
   const [profileCompleted, setProfileCompleted] = useState<boolean>(false)
   const [showProfileCompletionModal, setShowProfileCompletionModal] = useState(false)
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   // so the appliedUsersContain bollean
   
@@ -49,8 +53,26 @@ export default function JobOverviewPage() {
     // Properly handle 'false' string from localStorage
     setProfileCompleted(profile === 'true');
   }, [])
+  const userId = localStorage.getItem('userId');
   
   console.log(profileCompleted,"profileCompleted");
+
+  useEffect(() => {
+    const checkIfJobIsSaved = async () => {
+      if (!job || !userId) return;
+      
+      try {
+        const response = await axios.get(`http://localhost:4000/api/job/checksavedjob/${userId}/${job._id}`);
+        if (response.data.success) {
+          setIsSaved(response.data.data);
+        }
+      } catch (error) {
+        console.error('Error checking saved job:', error);
+      }
+    };
+
+    checkIfJobIsSaved();
+  }, [job]);
 
   const fetchJob = async () => {
     try {
@@ -92,6 +114,29 @@ export default function JobOverviewPage() {
     fetchJob();
   };
 
+  const handleSaveJob = async () => {
+    if (!userId || !job) return;
+    
+    setIsSaving(true);
+    try {
+      const response = await axios.post('http://localhost:4000/api/job/savejob', {
+        jobId: job._id,
+        userId: userId,
+      });
+
+      if (response.data.success) {
+        toast.success('Job saved successfully');
+        setIsSaved(true);
+      } else {
+        console.error('Failed to save job');
+      }
+    } catch (error) {
+      console.error('Error saving job:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (loading) {
     return <div>
       <div className="flex justify-center items-center h-screen">
@@ -124,7 +169,7 @@ export default function JobOverviewPage() {
         <div className=" bg-black/10">
         <JobApplicationModal
           jobId={job._id}
-          userId={localStorage.getItem('userId') || ''}
+          userId={userId || ''}
           onClose={() => setApplying(false)}
           onApplied={handleApplied}
           onSuccess={refreshJobData}
@@ -230,9 +275,20 @@ export default function JobOverviewPage() {
                     </div>
 
                     <div className="flex items-center gap-2 ml-4">
-                      <Button variant="outline" size="sm">
-                        <Bookmark className="w-4 h-4 mr-1" />
-                        Save
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleSaveJob}
+                        disabled={isSaving || isSaved}
+                      >
+                        {isSaving ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-500"></div>
+                        ) : isSaved ? (
+                          <BookmarkCheck className="w-4 h-4 mr-1" />
+                        ) : (
+                          <Bookmark className="w-4 h-4 mr-1" />
+                        )}
+                        {isSaved ? 'Saved' : 'Save'}
                       </Button>
                       <Button onClick={handleApplyClick} size="sm" disabled={appliedUsers}>
                         {appliedUsers ? 'Applied' : 'Apply'}

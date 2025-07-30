@@ -19,7 +19,7 @@ export const ModernTemplate = ({ data }: ModernTemplateProps) => {
   return (
     <div style={{ backgroundColor: '#ffffff', color: '#000000' }} className="font-sans leading-relaxed">
       {/* Header */}
-      <div style={{ backgroundColor: '#2563eb', color: '#ffffff' }} className="p-6 mb-4">
+      <div style={{ backgroundColor: '#ffffff', color: '#2563eb' }} className=" mb-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-1">{personalInfo.fullName}</h1>

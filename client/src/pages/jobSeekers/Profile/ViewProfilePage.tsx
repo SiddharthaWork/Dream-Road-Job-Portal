@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 interface ProfileFormData {
   firstName: string;
@@ -66,8 +68,11 @@ export default function ViewProfilePage() {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [profilePictureUrl, setProfilePictureUrl] = useState<string>('');
   const [resumeUrl, setResumeUrl] = useState<string>('');
-  const [username,setUsername] = useState<any>(null);
+  const [username, setUsername] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const router = useRouter();
+  const [isProfileComplete, setIsProfileComplete] = useState<boolean>(false);
+
 
   const { register, handleSubmit, formState: { errors }, control, reset } = useForm<ProfileFormData>();
 
@@ -100,6 +105,7 @@ export default function ViewProfilePage() {
   useEffect(() => {
     const userId = localStorage.getItem('userId');
     const fullname = localStorage.getItem('fullname');
+    const isProfileComplete = localStorage.getItem('profile');
     if (!userId) {
       console.error("User ID not found in localStorage");
       setLoading(false);
@@ -107,6 +113,7 @@ export default function ViewProfilePage() {
     }
     setUserId(userId);
     setUsername(fullname);
+    setIsProfileComplete(isProfileComplete === 'true');
   }, []);
   console.log(username);
 
@@ -156,7 +163,7 @@ export default function ViewProfilePage() {
     const formDataToSend = new FormData();
     formDataToSend.append('userId', userId);
     formDataToSend.append('data', JSON.stringify(dataToSend));
-    
+
     if (profilePictureFile) {
       formDataToSend.append('profilePicture', profilePictureFile);
     }
@@ -185,14 +192,43 @@ export default function ViewProfilePage() {
 
   if (loading) {
     return <div>Loading...</div>;
-}
+  }
 
   if (!profile) {
     return <div>Profile not found</div>;
   }
 
+  // Show profile completion prompt if profile is not complete
+  if (!isProfileComplete) {
+    return (
+      <div className="container mx-auto p-8 text-center">
+        <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
+          <div className="mb-6">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Complete Your Profile</h2>
+            <p className="text-gray-600 mb-6">
+              Please complete your profile to access all features and get personalized job recommendations.
+            </p>
+          </div>
+          <Button
+            onClick={() => router.push('/profile')}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Complete Profile Now
+          </Button>
+        </div>
+      </div>
+      );
+  }
+
+
   return (
     <div className="container mx-auto p-4 max-w-7xl">
+
       <h1 className="text-2xl font-bold mb-4">Edit Profile</h1>
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* About Yourself Section */}
@@ -466,14 +502,14 @@ export default function ViewProfilePage() {
                   <img src={profilePictureUrl} alt="Profile" className="w-24 h-24 object-cover rounded" />
                 </div>
               )}
-              <input 
-                type="file" 
-                accept="image/*" 
+              <input
+                type="file"
+                accept="image/*"
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
                     setProfilePictureFile(e.target.files[0]);
                   }
-                }} 
+                }}
                 className="w-full p-2 border rounded"
               />
             </div>
@@ -484,14 +520,14 @@ export default function ViewProfilePage() {
                   <a href={resumeUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">View Current Resume</a>
                 </div>
               )}
-              <input 
-                type="file" 
-                accept="application/pdf" 
+              <input
+                type="file"
+                accept="application/pdf"
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
                     setResumeFile(e.target.files[0]);
                   }
-                }} 
+                }}
                 className="w-full p-2 border rounded"
               />
             </div>

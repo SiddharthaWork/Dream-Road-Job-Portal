@@ -27,7 +27,7 @@ export default function ResumePreview({ resumeData, theme }: ResumePreviewProps)
       id="resume-preview" 
       className="w-full bg-white text-black print:shadow-none"
       style={{ 
-        minHeight: '11in', 
+        minHeight: '8in', 
         maxWidth: '8.5in',
         margin: '0 auto',
         padding: '0.25in',

@@ -1,5 +1,6 @@
 import { Job } from "../models/job.model.js";
 import { Application } from "../models/application.model.js";
+import { User } from "../models/user.model.js";
 
 // export const postJob = async (req,res) => {
 //     try {
@@ -330,3 +331,63 @@ export const getJobCountByDepartment = async (req, res) => {
         });   
     }
 }
+
+
+// saved job api to post saved job in user model  
+export const saveJob = async (req,res) => {
+    try {
+        const {jobId} = req.body;
+        const {userId} = req.body;
+        // check if job exists
+        const job = await Job.findById(jobId);
+        if(!job){
+            return res.status(404).json({message:"Job not found",success:false});
+        } 
+        // check if user exists 
+        const user = await User.findById(userId);
+        if(!user){
+            return res.status(404).json({message:"User not found",success:false});
+        }
+        user.savedJobs.push(jobId);
+        await user.save();
+        return res.status(200).json({message:"Job saved successfully",success:true});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false, error: error.message});   
+    }
+}
+
+// get saved job api to get saved job from user model  
+export const getSavedJob = async (req,res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if(!user){
+            return res.status(404).json({message:"User not found",success:false});
+        }
+        // populate the job model
+        const jobs = await Job.find({ _id: { $in: user.savedJobs } }).populate({
+            path: "createdBy",
+            model: "Company"
+        }).sort({createdAt:-1});
+
+        return res.status(200).json({message:"Job saved successfully",success:true,data:jobs});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false, error: error.message});   
+    }
+} 
+
+// check if job is saved for specific user or not return boolean
+export const checkSavedJob = async (req,res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if(!user){
+            return res.status(404).json({message:"User not found",success:false});
+        }
+        const job = await Job.findById(req.params.jobId);
+        if(!job){
+            return res.status(404).json({message:"Job not found",success:false});
+        }
+        return res.status(200).json({message:"Job saved successfully",success:true,data:user.savedJobs.includes(job._id)});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false, error: error.message});   
+    }
+} 

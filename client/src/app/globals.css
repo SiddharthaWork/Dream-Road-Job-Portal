@@ -148,3 +148,20 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
 }
+
+@media print {
+  .location-scrollbar {
+    display: none;
+  }
+  body{
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    background-color: transparent;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 0mm;
+}
