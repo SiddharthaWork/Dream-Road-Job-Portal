@@ -45,7 +45,7 @@ export function transformUserData(userData: UserApiResponse): ResumeData {
       id: `skill-${index}`,
       name: skill,
       level: 'Intermediate', // Default value
-      category: 'Technical Skills', // Default value
+      category: 'Skills', // Default value
     })) || [],
     certifications: data.profile?.certificates?.map((cert: CertificateItem) => ({
       id: cert._id || cert.id,

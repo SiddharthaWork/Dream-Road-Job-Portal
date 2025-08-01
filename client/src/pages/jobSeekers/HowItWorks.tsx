@@ -5,45 +5,46 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react";
 import { profile } from "console"
+import { div } from "motion/react-client"
 
 export default function HowItWorks() {
 
-    interface ProfileStep {
-        id: string
-        name: string
-        description: string
-        isCompleted: boolean
-        icon: React.ReactNode
-        estimatedTime: string
-      }
-      
-      const steps = [
-        {
-          id: 1,
-          icon: "✓",
-          title: "Build Your Profile",
-          description: "Showcase your skills and experience",
-          bgColor: "bg-blue-100",
-          textColor: "text-blue-600",
-        },
-        {
-          id: 2,
-          icon: <Award className="w-4 h-4" />,
-          title: "Explore & Apply to Jobs",
-          description: "Find opportunities that match your goals",
-          bgColor: "bg-purple-100",
-          textColor: "text-purple-600",
-        },
-        {
-          id: 3,
-          icon: "Rs",
-          title: "Get Shortlisted & Hired",
-          description: "Get hired and grow professionally",
-          bgColor: "bg-green-100",
-          textColor: "text-green-600",
-        },
-      ];
-      
+  interface ProfileStep {
+    id: string
+    name: string
+    description: string
+    isCompleted: boolean
+    icon: React.ReactNode
+    estimatedTime: string
+  }
+
+  const steps = [
+    {
+      id: 1,
+      icon: "✓",
+      title: "Build Your Profile",
+      description: "Showcase your skills and experience",
+      bgColor: "bg-blue-100",
+      textColor: "text-blue-600",
+    },
+    {
+      id: 2,
+      icon: <Award className="w-4 h-4" />,
+      title: "Explore & Apply to Jobs",
+      description: "Find opportunities that match your goals",
+      bgColor: "bg-purple-100",
+      textColor: "text-purple-600",
+    },
+    {
+      id: 3,
+      icon: "Rs",
+      title: "Get Shortlisted & Hired",
+      description: "Get hired and grow professionally",
+      bgColor: "bg-green-100",
+      textColor: "text-green-600",
+    },
+  ];
+
 
   const profileSteps: ProfileStep[] = [
     {
@@ -102,12 +103,12 @@ export default function HowItWorks() {
   const completionPercentage = Math.round((completedSteps / totalSteps) * 100)
   const router = useRouter();
   // wrap inside the useEffect
- 
+
 
   // Get next incomplete step
   const nextStep = profileSteps.find((step) => !step.isCompleted)
 
-  
+
 
   const getProgressTextColor = (percentage: number) => {
     if (percentage >= 80) return "text-green-600"
@@ -118,8 +119,8 @@ export default function HowItWorks() {
 
 
   const [profile, setProfile] = useState(false);
-  const [userId, setUserId] = useState( '');
-  
+  const [userId, setUserId] = useState('');
+
 
   useEffect(() => {
     const profileInfo = localStorage.getItem('profile') || 'false'
@@ -136,44 +137,54 @@ export default function HowItWorks() {
         {profile}
 
         {/* Progress Bar */}
-      <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">
-                {completedSteps} of {totalSteps} steps completed
-              </span>
-              <span className={`font-semibold text-[#255cf4]`}>
-                {completionPercentage}%
-              </span>
-            </div>
-            <div className="relative flex flex-col gap-2">
-              <Progress value={profile? 100 : 0} className="h-3 bg-gray-200" />
-              {/* <div
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">
+              {completedSteps} of {totalSteps} steps completed
+            </span>
+            <span className={`font-semibold text-[#255cf4]`}>
+              {completionPercentage}%
+            </span>
+          </div>
+          <div className="relative flex flex-col gap-2">
+            <Progress value={profile ? 100 : 0} className="h-3 bg-gray-200" />
+            {/* <div
                 className={`absolute top-0 left-0 h-3 rounded-full transition-all duration-500 ${getProgressColor(completionPercentage)}`}
                 style={{ width: `${completionPercentage}%` }}
               /> */}
-              {profile ? (
-                  <Button 
-                    onClick={() => router.push(`/profile/${userId}`)}
-                    variant={'default'}
-                    size={'custom'}
-                    className='bg-[#255cf4] cursor-pointer'
-                  >
-                    View Profile
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={() => router.push('/profile')}
-                    variant={'default'}
-                    size={'custom'}
-                    className='bg-[#255cf4] cursor-pointer'
-                  >
-                    Complete Profile
-                  </Button>
-                )}
-            </div>
+            {profile ? (
+              <div className="flex items-center gap-2 w-full">
+                <Button
+                  onClick={() => router.push('/savedjob')}
+                  variant={'default'}
+                  size={'custom'}
+                  className='text-black bg-gray-200 hover:bg-gray-300 cursor-pointer w-1/2'
+                >
+                  Saved Jobs
+                </Button>
+                <Button
+                  onClick={() => router.push(`/profile/${userId}`)}
+                  variant={'default'}
+                  size={'custom'}
+                  className='bg-[#255cf4] cursor-pointer w-1/2'
+                >
+                  View Profile
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={() => router.push('/profile')}
+                variant={'default'}
+                size={'custom'}
+                className='bg-[#255cf4] cursor-pointer'
+              >
+                Complete Profile
+              </Button>
+            )}
           </div>
+        </div>
 
-          
+
         <h3 className="font-bold text-gray-900 mb-4 mt-4">HOW IT WORKS</h3>
         <div className="space-y-4">
           {steps.map((step) => (

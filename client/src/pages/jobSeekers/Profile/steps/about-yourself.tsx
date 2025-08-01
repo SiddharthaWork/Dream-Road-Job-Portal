@@ -42,6 +42,27 @@ const AboutYourselfStep = forwardRef((props, ref: ForwardedRef<{ validate: () =>
       
       if (!value) {
         error = `${field.replace(/([A-Z])/g, ' $1').toLowerCase()} is required`
+      } else {
+        // Add phone number validation
+        if (field === 'phoneNumber' && value.length !== 10) {
+          error = 'Phone number must be exactly 10 digits'
+        }
+        
+        // Add city validation
+        if (field === 'city') {
+          const wordCount = value.trim().split(/\s+/).filter(Boolean).length
+          if (wordCount > 20) {
+            error = 'City must be maximum 30 words'
+          }
+        }
+        
+        // Add aboutMe validation
+        if (field === 'aboutMe') {
+          const wordCount = value.trim().split(/\s+/).filter(Boolean).length
+          if (wordCount > 100) {
+            error = 'About me must be maximum 100 words'
+          }
+        }
       }
       
       setErrors(prev => ({ ...prev, [field]: error }))
@@ -145,7 +166,7 @@ const AboutYourselfStep = forwardRef((props, ref: ForwardedRef<{ validate: () =>
       <ScrollArea className="h-full w-full ">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 ">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">About yourself</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">About yourself <span className="text-red-500">*</span></h2>
           <p className="text-gray-600">Fill out your primary information.</p>
         </div>
 
@@ -270,7 +291,7 @@ const AboutYourselfStep = forwardRef((props, ref: ForwardedRef<{ validate: () =>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
           <div className="space-y-2">
             <Label htmlFor="city">
-              City <span className="text-red-500">*</span>
+              Address <span className="text-red-500">*</span>
             </Label>
             <Input
               id="city"

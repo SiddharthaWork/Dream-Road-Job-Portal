@@ -198,7 +198,7 @@ const MainViewProfile = () => {
             onClick={() => router.push(`/profile/edit/${profileId}`)}
             variant={'default'}
             size={'custom'}
-            className='bg-white text-blue-600 cursor-pointer'
+            className='bg-white text-blue-600 cursor-pointer hover:bg-blue-600 hover:text-white'
           >     
             Edit Profile
           </Button>
@@ -215,7 +215,6 @@ const MainViewProfile = () => {
                 <div>
                   <h3 className="font-medium text-gray-900">Contact Information</h3>
                   <p className="text-gray-600">{profile.phoneNumber || 'Not provided'}</p>
-                  <p className="text-gray-600">{profile.currentAddress || 'Address not provided'}</p>
                   <p className="text-gray-600">{profile.city}, {profile.postalCode}</p>
                 </div>
                 

@@ -27,7 +27,6 @@ export default function RegisterForm() {
   const [errors, setErrors] = useState<FormErrors>({})
   const [formData, setFormData] = useState({
     email: "",
-    number: "",
     password: "",
     confirmPassword: "",
     firstName: "",
@@ -48,9 +47,9 @@ export default function RegisterForm() {
     } else if (!validateEmail(formData.email)) {
       newErrors.email = "Please enter a valid email address"
     }
-    if (!formData.number) {
-      newErrors.number = "Number is required"
-    }
+    // if (!formData.number) {
+    //   newErrors.number = "Number is required"
+    // }
     if (!formData.password) {
       newErrors.password = "Password is required"
     } else if (!validatePassword(formData.password)) {
@@ -58,9 +57,13 @@ export default function RegisterForm() {
     }
     if (!formData.firstName) {
       newErrors.firstName = "First name is required"
+    } else if (formData.firstName.length > 20) {
+      newErrors.firstName = "First name must be at most 20 characters"
     }
     if (!formData.lastName) {
       newErrors.lastName = "Last name is required"
+    } else if (formData.lastName.length > 20) {
+      newErrors.lastName = "Last name must be at most 20 characters"
     }
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = "Please confirm your password"
@@ -94,7 +97,6 @@ export default function RegisterForm() {
           fullname: `${formData.firstName} ${formData.lastName}`,
           email: formData.email,
           password: formData.password,
-          phoneNumber: formData.number,
           role: "user"
         }),
       });
@@ -149,6 +151,7 @@ export default function RegisterForm() {
                     type="text"
                     value={formData.firstName}
                     onChange={(e) => handleInputChange("firstName", e.target.value)}
+                    maxLength={30}
                     className={cn(
                       "pl-10 h-12 border-gray-300 focus:border-[#255cf4] focus:ring-[#255cf4] transition-all duration-200",
                       errors.firstName && "border-red-500 focus:border-red-500 focus:ring-red-500",
@@ -176,6 +179,7 @@ export default function RegisterForm() {
                     type="text"
                     value={formData.lastName}
                     onChange={(e) => handleInputChange("lastName", e.target.value)}
+                    maxLength={30}
                     className={cn(
                       "pl-10 h-12 border-gray-300 focus:border-[#255cf4] focus:ring-[#255cf4] transition-all duration-200",
                       errors.lastName && "border-red-500 focus:border-red-500 focus:ring-red-500",
@@ -227,7 +231,7 @@ export default function RegisterForm() {
                 </p>
               )}
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="number" className="text-sm font-medium text-gray-700">Number</Label>
               <div className="relative">
                 <Phone className="absolute left-3 top-4 h-4 w-4 text-gray-400" />
@@ -268,7 +272,7 @@ export default function RegisterForm() {
                   {errors.number}
                 </p>
               )}
-            </div>
+            </div> */}
             <div className="space-y-2">
               <Label htmlFor="password" className="text-sm font-medium text-gray-700">Password</Label>
               <div className="relative">

@@ -45,13 +45,16 @@ const JobDescriptionForm = ({ register, errors }: JobDescriptionFormProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="benefits">Benefits & Perks</Label>
+          <Label htmlFor="benefits">Benefits & Perks *</Label>
           <Textarea
             id="benefits"
             placeholder="Describe the benefits, perks, and what makes your company great..."
             rows={4}
-            {...register('benefits')}
+            {...register('benefits', { required: 'Benefits are required' })}
           />
+          {errors.benefits && (
+            <p className="text-sm text-red-600">{errors.benefits.message}</p>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -35,13 +35,11 @@ interface CompanyListingsProps {
 
 export default function CompanyListings({ onCompanyClick }: CompanyListingsProps) {
   const [companies, setCompanies] = useState<Company[]>([])
-  const [companyTypes, setCompanyTypes] = useState<FilterOption[]>([])
   const [locations, setLocations] = useState<FilterOption[]>([])
   const [totalCount, setTotalCount] = useState(0)
-  const [selectedCompanyTypes, setSelectedCompanyTypes] = useState<string[]>([])
   const [selectedLocations, setSelectedLocations] = useState<string[]>([])
   const [companyNameSearch, setCompanyNameSearch] = useState('')
-  const [isCompanyTypeOpen, setIsCompanyTypeOpen] = useState(true)
+  const [locationSearchTerm, setLocationSearchTerm] = useState('')
   const [isLocationOpen, setIsLocationOpen] = useState(true)
   const [isIndustryOpen, setIsIndustryOpen] = useState(true)
   const [loading, setLoading] = useState(true)
@@ -60,10 +58,9 @@ export default function CompanyListings({ onCompanyClick }: CompanyListingsProps
 
   const filteredCompanies = companies.filter(company => {
     const matchesName = companyNameSearch === '' || company.name.toLowerCase().includes(companyNameSearch.toLowerCase())
-    const matchesCompanyType = selectedCompanyTypes.length === 0 || selectedCompanyTypes.includes(company.industry)
     const matchesLocation = selectedLocations.length === 0 || selectedLocations.includes(company.location)
     const hasJobs = company.jobCount > 0
-    return matchesName && matchesCompanyType && matchesLocation && hasJobs
+    return matchesName && matchesLocation && hasJobs
   })
 
   const renderStars = (rating: number) => {
@@ -76,13 +73,12 @@ export default function CompanyListings({ onCompanyClick }: CompanyListingsProps
   }
 
   const clearAllFilters = () => {
-    setSelectedCompanyTypes([])
     setSelectedLocations([])
     setSelectedIndustries([])
     setCompanyNameSearch("")
   }
 
-  const hasActiveFilters = selectedCompanyTypes.length > 0 || selectedLocations.length > 0 || selectedIndustries.length > 0
+  const hasActiveFilters = selectedLocations.length > 0 || selectedIndustries.length > 0
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -128,55 +124,55 @@ export default function CompanyListings({ onCompanyClick }: CompanyListingsProps
                 )}
               </div>
 
-              {/* Company Type Filter */}
-              <Collapsible open={isCompanyTypeOpen} onOpenChange={setIsCompanyTypeOpen}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full py-2 hover:bg-gray-50 rounded px-2 -mx-2">
-                  <span className="font-medium text-gray-900">Company type</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${isCompanyTypeOpen ? "rotate-180" : ""}`} />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-3 mt-3">
-                  {companyTypes.map((type) => (
-                    <div key={type.name} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`company-type-${type.name}`}
-                        checked={selectedCompanyTypes.includes(type.name)}
-                        onCheckedChange={(checked) => setSelectedCompanyTypes(checked ? [...selectedCompanyTypes, type.name] : selectedCompanyTypes.filter(item => item !== type.name))}
-                      />
-                      <label
-                        htmlFor={`company-type-${type.name}`}
-                        className="text-sm text-gray-700 cursor-pointer flex-1"
-                      >
-                        {type.name}
-                      </label>
-                    </div>
-                  ))}
-                </CollapsibleContent>
-              </Collapsible>
+              {/* Search Company */}
+              <div className="mt-6">
+                <label htmlFor="company-search" className="block text-sm font-medium text-gray-700 mb-1">
+                  Search Company
+                </label>
+                <input
+                  type="text"
+                  id="company-search"
+                  placeholder="Search companies..."
+                  value={companyNameSearch}
+                  onChange={(e) => setCompanyNameSearch(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
 
               {/* Location Filter */}
-              <Collapsible open={isLocationOpen} onOpenChange={setIsLocationOpen} className="mt-6">
+              {/* <Collapsible open={isLocationOpen} onOpenChange={setIsLocationOpen} className="mt-6">
                 <CollapsibleTrigger className="flex items-center justify-between w-full py-2 hover:bg-gray-50 rounded px-2 -mx-2">
                   <span className="font-medium text-gray-900">Location</span>
                   <ChevronDown className={`w-4 h-4 transition-transform ${isLocationOpen ? "rotate-180" : ""}`} />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="mt-3 space-y-3">
-                  {locations.map((location) => (
-                    <div key={location.name} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`location-${location.name}`}
-                        checked={selectedLocations.includes(location.name)}
-                        onCheckedChange={(checked) => setSelectedLocations(checked ? [...selectedLocations, location.name] : selectedLocations.filter(item => item !== location.name))}
-                      />
-                      <label
-                        htmlFor={`location-${location.name}`}
-                        className="text-sm text-gray-700 cursor-pointer flex-1"
-                      >
-                        {location.name}
-                      </label>
-                    </div>
-                  ))}
+                  <input
+                    type="text"
+                    placeholder="Search locations..."
+                    value={locationSearchTerm}
+                    onChange={(e) => setLocationSearchTerm(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                  {locations
+                    .filter(location => location.name.toLowerCase().includes(locationSearchTerm.toLowerCase()))
+                    .map((location) => (
+                      <div key={location.name} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`location-${location.name}`}
+                          checked={selectedLocations.includes(location.name)}
+                          onCheckedChange={(checked) => setSelectedLocations(checked ? [...selectedLocations, location.name] : selectedLocations.filter(item => item !== location.name))}
+                        />
+                        <label
+                          htmlFor={`location-${location.name}`}
+                          className="text-sm text-gray-700 cursor-pointer flex-1"
+                        >
+                          {location.name}
+                        </label>
+                      </div>
+                    ))
+                  }
                 </CollapsibleContent>
-              </Collapsible>
+              </Collapsible> */}
 
               {/* Industry Filter */}
               <Collapsible open={isIndustryOpen} onOpenChange={setIsIndustryOpen} className="mt-6">
@@ -217,7 +213,7 @@ export default function CompanyListings({ onCompanyClick }: CompanyListingsProps
                 <div className="flex items-center space-x-2 text-sm text-gray-500">
                   <span>Filters applied:</span>
                   <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-                    {selectedCompanyTypes.length + selectedLocations.length + selectedIndustries.length}
+                    {selectedLocations.length + selectedIndustries.length}
                   </span>
                 </div>
               )}

@@ -73,8 +73,53 @@ export default function ViewProfilePage() {
   const router = useRouter();
   const [isProfileComplete, setIsProfileComplete] = useState<boolean>(false);
 
+  const { register, handleSubmit, formState: { errors }, control, reset } = useForm<ProfileFormData>({
+    defaultValues: {
+      // ... any default values ...
+    },
+    mode: 'onChange',
+  });
 
-  const { register, handleSubmit, formState: { errors }, control, reset } = useForm<ProfileFormData>();
+  const onSubmit = async (formData: ProfileFormData) => {
+    if (!userId) return;
+    setIsSaving(true);
+
+    const skillsArray = formData.skills ? formData.skills.split(',').map(skill => skill.trim()) : [];
+
+    const dataToSend = {
+      ...formData,
+      skills: skillsArray
+    };
+
+    const formDataToSend = new FormData();
+    formDataToSend.append('userId', userId);
+    formDataToSend.append('data', JSON.stringify(dataToSend));
+
+    if (profilePictureFile) {
+      formDataToSend.append('profilePicture', profilePictureFile);
+    }
+    if (resumeFile) {
+      formDataToSend.append('resume', resumeFile);
+    }
+
+    try {
+      const response = await fetch('http://localhost:4000/api/user/save-profile', {
+        method: 'PUT',
+        body: formDataToSend,
+      });
+      const result = await response.json();
+      if (result.success) {
+        toast.success('Profile updated successfully');
+        // Optionally, refetch the profile
+      } else {
+        toast.error(result.message || 'Failed to update profile');
+      }
+    } catch (error) {
+      toast.error('An error occurred while updating the profile');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // Initialize field arrays
   const { fields: educationFields, append: appendEducation, remove: removeEducation } = useFieldArray({
@@ -149,47 +194,6 @@ export default function ViewProfilePage() {
     fetchProfile();
   }, [userId, reset]);
 
-  const onSubmit = async (formData: ProfileFormData) => {
-    if (!userId) return;
-    setIsSaving(true);
-
-    const skillsArray = formData.skills ? formData.skills.split(',').map(skill => skill.trim()) : [];
-
-    const dataToSend = {
-      ...formData,
-      skills: skillsArray
-    };
-
-    const formDataToSend = new FormData();
-    formDataToSend.append('userId', userId);
-    formDataToSend.append('data', JSON.stringify(dataToSend));
-
-    if (profilePictureFile) {
-      formDataToSend.append('profilePicture', profilePictureFile);
-    }
-    if (resumeFile) {
-      formDataToSend.append('resume', resumeFile);
-    }
-
-    try {
-      const response = await fetch('http://localhost:4000/api/user/save-profile', {
-        method: 'PUT',
-        body: formDataToSend,
-      });
-      const result = await response.json();
-      if (result.success) {
-        toast.success('Profile updated successfully');
-        // Optionally, refetch the profile
-      } else {
-        toast.error(result.message || 'Failed to update profile');
-      }
-    } catch (error) {
-      toast.error('An error occurred while updating the profile');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -237,8 +241,9 @@ export default function ViewProfilePage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block mb-1">Full Name</label>
-              <h1 className="w-full p-2 border rounded" >{username}</h1>
+              <input className="w-full p-2 border rounded" value={username} readOnly />
             </div>
+
             <div>
               <label className="block mb-1">Gender</label>
               <select className="w-full p-2 border rounded" {...register('gender')}>
@@ -250,23 +255,18 @@ export default function ViewProfilePage() {
             </div>
             <div>
               <label className="block mb-1">Phone Number</label>
-              <input className="w-full p-2 border rounded" {...register('phoneNumber')} />
+              <input className="w-full p-2 border rounded" {...register('phoneNumber', { required: true, pattern: /^\d{10}$/ })} />
+              {errors.phoneNumber && <p className="text-red-500">Phone number must be exactly 10 digits</p>}
             </div>
             <div>
               <label className="block mb-1">Date of Birth</label>
-              <input type="date" className="w-full p-2 border rounded" {...register('dateOfBirth')} />
-            </div>
-            <div>
-              <label className="block mb-1">Designation</label>
-              <input className="w-full p-2 border rounded" {...register('designation')} />
-            </div>
-            <div className="col-span-2">
-              <label className="block mb-1">Sectors</label>
-              <input className="w-full p-2 border rounded" {...register('sectors')} placeholder="Comma separated sectors" />
+              <input type="date" className="w-full p-2 border rounded" {...register('dateOfBirth', { required: true })} />
+              {errors.dateOfBirth && <p className="text-red-500">Date of birth is required</p>}
             </div>
             <div className="col-span-2">
               <label className="block mb-1">About Me</label>
-              <textarea className="w-full p-2 border rounded" {...register('aboutMe')} rows={3} />
+              <textarea className="w-full p-2 border rounded" {...register('aboutMe', { required: true })} rows={3} />
+              {errors.aboutMe && <p className="text-red-500">About me is required</p>}
             </div>
           </div>
         </div>

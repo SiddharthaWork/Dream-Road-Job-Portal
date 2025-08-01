@@ -134,7 +134,7 @@ export const ClassicTemplate = ({ data }: ClassicTemplateProps) => {
       {skills.length > 0 && (
         <section className="mb-6">
           <h3 style={{ color: '#1a202c' }} className="text-lg font-bold mb-3 uppercase tracking-wide">
-            Technical Skills
+            Skills
           </h3>
           <div className="space-y-2">
             {Object.entries(skillsByCategory).map(([category, categorySkills]) => (

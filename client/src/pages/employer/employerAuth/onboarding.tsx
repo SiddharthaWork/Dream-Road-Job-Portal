@@ -120,14 +120,29 @@ const Onboarding = () => {
       isValid = false;
     }
 
-    // Validate confirmPassword
+    // Validate website
+    if (!companyData.website) {
+      newErrors.website = 'Website is required';
+      isValid = false;
+    } else {
+      const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z]{2,6})([\/\w \.-]*)*\/?$/;
+      if (!urlPattern.test(companyData.website)) {
+        newErrors.website = 'Please enter a valid website URL';
+        isValid = false;
+      }
+    }
 
-    // Validate logo (optional)
-    // If you want to make the logo required, uncomment:
-    // if (!companyData.logo) {
-    //   newErrors.logo = 'Company logo is required';
-    //   isValid = false;
-    // }
+    // Validate logo
+    if (!companyData.logo) {
+      newErrors.logo = 'Company logo is required';
+      isValid = false;
+    }
+
+    // Validate description
+    if (!companyData.description) {
+      newErrors.description = 'Description is required';
+      isValid = false;
+    }
 
     setErrors(newErrors);
     return isValid;
@@ -237,12 +252,12 @@ const Onboarding = () => {
                   placeholder="Acme Corporation"
                   value={companyData.name}
                   onChange={handleInputChange}
-                  required
+                  
                 />
                 {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
+                <Label htmlFor="website">Website *</Label>
                 <Input
                   id="website"
                   name="website"
@@ -250,6 +265,7 @@ const Onboarding = () => {
                   value={companyData.website}
                   onChange={handleInputChange}
                 />
+                {errors.website && <p className="text-red-500 text-sm">{errors.website}</p>}
               </div>
             </div>
 
@@ -300,13 +316,12 @@ const Onboarding = () => {
                 rows={4}
                 value={companyData.description}
                 onChange={handleInputChange}
-                required
               />
               {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="logo">Company Logo</Label>
+              <Label htmlFor="logo">Company Logo *</Label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                 <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
                 <p className="text-sm text-gray-600 mb-2">
@@ -337,7 +352,7 @@ const Onboarding = () => {
                   placeholder="example@example.com"
                   value={companyData.email}
                   onChange={handleInputChange}
-                  required
+                
                 />
                 {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
               </div>
@@ -359,7 +374,7 @@ const Onboarding = () => {
                     }
                   }}
                   maxLength={10}
-                  required
+                  
                 />
                 {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber}</p>}
               </div>
@@ -372,7 +387,7 @@ const Onboarding = () => {
                   placeholder="******"
                   value={companyData.password}
                   onChange={handleInputChange}
-                  required
+                  
                 />
                 {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
               </div>

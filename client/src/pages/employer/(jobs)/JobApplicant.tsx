@@ -388,10 +388,10 @@ const JobApplicants = () => {
       </Card>
 
       {/* Applicants Tabs */}
-      <Tabs defaultValue="bestmatches" className="space-y-4">
+      <Tabs defaultValue="all" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="bestmatches">Best Matches ({bestMatches.length})</TabsTrigger>
           <TabsTrigger value="all">All Applicants ({filteredApplicants.length})</TabsTrigger>
+          <TabsTrigger value="bestmatches">Best Matches ({bestMatches.length})</TabsTrigger>
           <TabsTrigger value="shortlisted">Shortlisted ({shortlistedApplicants.length})</TabsTrigger>
         </TabsList>
 
