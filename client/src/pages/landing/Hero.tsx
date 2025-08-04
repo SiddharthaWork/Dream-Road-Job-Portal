@@ -23,7 +23,7 @@ const Hero = () => {
     </div>
         <TopCompaniesMarquee />
         <h1 className='absolute bottom-10 text-4xl font-bold opacity-80 tracking-tighter'> 
-          Start Your Search
+          Start Your Journey
         <div className='w-full h-1.5 bg-gradient-to-r from-transparent  via-[#4775f3]   to-transparent rounded-full'/>
         
         </h1>

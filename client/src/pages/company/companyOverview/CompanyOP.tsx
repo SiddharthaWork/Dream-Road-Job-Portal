@@ -9,22 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { 
   MapPin, 
-  Star, 
   Users, 
   Building2, 
-  Globe, 
-  Award, 
-  TrendingUp, 
-  Calendar,
-  DollarSign,
-  GraduationCap,
-  Coffee,
-  Car,
-  Shield,
-  Target,
-  Lightbulb,
-  Handshake,
-  Bookmark,
   AlertCircle
 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -122,7 +108,7 @@ interface JobOpening {
 }
 
 
-export default function CompanyOverview() {
+export default function CompanyOp() {
   const params = useParams()
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
@@ -380,7 +366,7 @@ export default function CompanyOverview() {
                         <span className="text-sm text-gray-500">
                           Posted: {new Date(job.createdAt).toLocaleDateString()}
                         </span>
-                        <Button onClick={() => router.push(`/job/${job._id}`)}>Apply Now</Button>
+                        <Button onClick={() => router.push(`/job/${job._id}`)} disabled>Login to Apply</Button>
                       </div>
                     </CardContent>
                   </Card>

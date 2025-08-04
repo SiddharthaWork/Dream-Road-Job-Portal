@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ArrowLeft, Mail, Star, ExternalLink, Users, Eye } from 'lucide-react';
 import { AppProvider, useApp } from '@/contexts/AppContext';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -52,6 +52,8 @@ const JobApplicants = () => {
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
+  const [bestMatches, setBestMatches] = useState<any[]>([]);
+  const [loadingBestMatches, setLoadingBestMatches] = useState(true);
   const { getJob, getApplicantsForJob, toggleShortlist, updateApplicant } = useApp();
 
   useEffect(() => { 
@@ -65,6 +67,7 @@ const JobApplicants = () => {
         if (response.data.success) {
           // Map API response to component structure
           const jobData = response.data.job;
+          console.log("jobData", jobData)
           setJob({
             id: jobData._id,
             title: jobData.title,
@@ -93,6 +96,7 @@ const JobApplicants = () => {
             coverLetter: app.coverLetter,
             createdAt: app.createdAt,
             userId: app.user._id,
+            profilePicture: app.user.profile?.profilePicture,  
           }));
           
           setApplicants(applicantsData);
@@ -104,8 +108,24 @@ const JobApplicants = () => {
       }
     };
 
+    const fetchBestMatches = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/api/application/getRankedApplicants/${jobId}`
+        );
+        if (response.data.job && response.data.job.applications) {
+          setBestMatches(response.data.job.applications);
+        }
+      } catch (error) {
+        console.error('Failed to fetch best matches:', error);
+      } finally {
+        setLoadingBestMatches(false);
+      }
+    };
+
     fetchData();
-  }, [jobId]);
+    fetchBestMatches();
+  }, []);
 
   if (loading) {
     return (
@@ -146,6 +166,7 @@ const JobApplicants = () => {
     const matchesStatus = statusFilter === 'all' || applicant.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+  console.log(filteredApplicants);
 
   const shortlistedApplicants = applicants.filter(applicant => applicant.status === 'shortlisted');
 
@@ -168,17 +189,74 @@ const JobApplicants = () => {
     }
   };
 
-  const handleStatusChange = (applicantId: string, newStatus: string) => {
-    updateApplicant(applicantId, { status: newStatus as any });
-  };
+  const renderBestMatchRow = (application: any) => (
+    <TableRow key={application._id}>
+      <TableCell>
+        <div className="flex items-center gap-3">
+          <Avatar>
+            <AvatarImage 
+              src={application?.user?.profile?.profilePicture || '/placeholder-user.jpg'} 
+              alt={application?.user?.fullname}
+            />
+            <AvatarFallback>
+              {application?.user?.fullname?.split(' ').map((n: string) => n[0]).join('')}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="font-medium">{application.user?.fullname}</div>
+            <div className="text-sm text-gray-500 flex items-center gap-1">
+            <Mail className="h-3 w-3" />
+              {application.user?.email}
+            </div>
+          </div>
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="font-medium">
+          {(application.applicantScore * 100).toFixed(0)}%
+        </div>
+      </TableCell>
+      <TableCell>
+        {application.summary?.strengths?.join(', ') || 'N/A'}
+      </TableCell>
+      <TableCell>
+        {new Date(application.createdAt).toLocaleDateString()}
+      </TableCell>
+      <TableCell>
+        <Badge className={getStatusColor(application.status)}>{application.status}</Badge>
+      </TableCell>
+      <TableCell>
+      <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => router.push(`/employer/dashboard/applicants/profile/${application?.user?._id}?jobid=${jobId}`)}
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => router.push(`/employer/dashboard/applicants/profile/${application?.user?._id}?jobid=${jobId}`)}
+          >
+            <ExternalLink className="h-4 w-4" />
+          </Button>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
 
   const renderApplicantRow = (applicant: any) => (
     <TableRow key={applicant.id}>
       <TableCell>
         <div className="flex items-center gap-3">
-          <Avatar>
+        <Avatar>
+            <AvatarImage 
+              src={applicant?.profilePicture || '/placeholder-user.jpg'} 
+              alt={applicant?.name}
+            />  
             <AvatarFallback>
-              {applicant.name.split(' ').map((n: string) => n[0]).join('')}
+              {applicant?.name?.split(' ').map((n: string) => n[0]).join('')}
             </AvatarFallback>
           </Avatar>
           <div>
@@ -214,47 +292,17 @@ const JobApplicants = () => {
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => router.push(`/employer/dashboard/applicants/profile/${applicant.userId}?jobid=${jobId}`)}
+            onClick={() => router.push(`/employer/dashboard/applicants/profile/${applicant?.userId}?jobid=${jobId}`)}
           >
             <Eye className="h-4 w-4" />
           </Button>
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => router.push(`/employer/dashboard/applicants/profile/${applicant.userId}?jobid=${jobId}`)}
+            onClick={() => router.push(`/employer/dashboard/applicants/profile/${applicant?.userId}?jobid=${jobId}`)}
           >
             <ExternalLink className="h-4 w-4" />
           </Button>
-      
-
-          {/* <div>
-          {applicant.status !== 'shortlisted' && (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => handleStatusChange(applicant.id, 'shortlisted')}
-            >
-              <Star className="h-4 w-4 mr-1" />
-              Shortlisted
-            </Button>
-          )}
-        </div> */}
-          {/* <Select
-            value={applicant.status}
-            onValueChange={(value) => handleStatusChange(applicant.id, value)}
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="new">New</SelectItem>
-              <SelectItem value="reviewed">Reviewed</SelectItem>
-              <SelectItem value="shortlisted">Shortlisted</SelectItem>
-              <SelectItem value="interviewed">Interviewed</SelectItem>
-              <SelectItem value="hired">Hired</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select> */}
         </div>
       </TableCell>
     </TableRow>
@@ -343,8 +391,45 @@ const JobApplicants = () => {
       <Tabs defaultValue="all" className="space-y-4">
         <TabsList>
           <TabsTrigger value="all">All Applicants ({filteredApplicants.length})</TabsTrigger>
+          <TabsTrigger value="bestmatches">Best Matches ({bestMatches.length})</TabsTrigger>
           <TabsTrigger value="shortlisted">Shortlisted ({shortlistedApplicants.length})</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="bestmatches">
+          <Card>
+            <CardHeader>
+              <CardTitle>Best Matches ({bestMatches.length})</CardTitle>
+              <CardDescription>Top ranked applicants based on job requirements</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {bestMatches.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Candidate</TableHead>
+                      <TableHead>Match Score</TableHead>
+                      <TableHead>Strengths</TableHead>
+                      <TableHead>Applied Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {bestMatches.map(renderBestMatchRow)}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="text-center py-12">
+                  <Users className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No best matches found</h3>
+                  <p className="text-gray-500">
+                    Try adjusting your search or filters.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="all">
           <Card>

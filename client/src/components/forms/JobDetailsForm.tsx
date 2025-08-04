@@ -10,14 +10,31 @@ import { Button } from '@/components/ui/button';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { UseFormRegister, UseFormSetValue, FieldErrors, UseFormWatch } from 'react-hook-form';
+import { UseFormRegister, UseFormSetValue, FieldErrors, UseFormWatch, Control, Controller } from 'react-hook-form';
 import LocationInput from '../LocationInput';
 import { JobFormData } from '@/types/job';
+import { Textarea } from '@/components/ui/textarea'; 
+import { z } from 'zod'; 
+
+const jobDetailsSchema = z.object({
+  title: z.string().min(1, 'Job title is required'),
+  department: z.string().min(1, 'Department is required'),
+  location: z.string().min(1, 'Location is required'),
+  type: z.string().min(1, 'Employment type is required'),
+  experience: z.string().min(1, 'Experience level is required'),
+  salaryMin: z.number().min(0, 'Salary must be positive').refine(val => val >= 0, {
+    message: 'Salary must be positive',
+  }),
+  salaryMax: z.number().min(0, 'Salary must be positive').refine(val => val >= 0, {
+    message: 'Salary must be positive',
+  }),
+});
 
 interface JobDetailsFormProps {
   register: UseFormRegister<JobFormData>;
   setValue: UseFormSetValue<JobFormData>;
   errors: FieldErrors<JobFormData>;
+  control?: Control<JobFormData>;
   location: string;
   setLocation: (value: string) => void;
   hasDeadline: boolean;
@@ -30,13 +47,13 @@ interface JobDetailsFormProps {
   experience?: any;
   salaryMin?: any;
   salaryMax?: any;
-  
 }
 
 const JobDetailsForm = ({
   register,
   setValue,
   errors,
+  control,
   location,
   setLocation,
   hasDeadline,
@@ -58,9 +75,6 @@ const JobDetailsForm = ({
     if (min !== undefined && max !== undefined && min !== null && max !== null) {
       if (max < min) {
         setSalaryError('Maximum salary must be greater than minimum salary');
-        // prevent form submission
-        register('salaryMax', { valueAsNumber: true })
-        return; 
       } else {
         setSalaryError(null);
       }
@@ -86,7 +100,13 @@ const JobDetailsForm = ({
           <Input
             id="title"
             placeholder="e.g. Senior React Developer"
-            {...register('title', { required: 'Job title is required' })}
+            {...register('title', { 
+              required: 'Job title is required',
+              minLength: {
+                value: 5,
+                message: 'Job title must be at least 5 characters'
+              }
+            })}
           />
           {errors.title && (
             <p className="text-sm text-red-600">{errors.title.message}</p>
@@ -96,24 +116,31 @@ const JobDetailsForm = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Department *</Label>
-            <Select onValueChange={(value) => setValue('department', value)}
-              value={watch('department')}
-              required
-              >
-              <SelectTrigger>
-                <SelectValue placeholder="Select department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="engineering">Engineering</SelectItem>
-                <SelectItem value="product">Product</SelectItem>
-                <SelectItem value="design">Design</SelectItem>
-                <SelectItem value="marketing">Marketing</SelectItem>
-                <SelectItem value="sales">Sales</SelectItem>
-                <SelectItem value="hr">Human Resources</SelectItem>
-                <SelectItem value="finance">Finance</SelectItem>
-                <SelectItem value="operations">Operations</SelectItem>
-              </SelectContent>
-            </Select>
+            <Controller
+              name="department"
+              control={control}
+              rules={{ required: 'Department is required' }}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="engineering">Engineering</SelectItem>
+                    <SelectItem value="product">Product</SelectItem>
+                    <SelectItem value="design">Design</SelectItem>
+                    <SelectItem value="marketing">Marketing</SelectItem>
+                    <SelectItem value="sales">Sales</SelectItem>
+                    <SelectItem value="hr">Human Resources</SelectItem>
+                    <SelectItem value="finance">Finance</SelectItem>
+                    <SelectItem value="operations">Operations</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.department && (
+              <p className="text-sm text-red-600">{errors.department.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -133,38 +160,52 @@ const JobDetailsForm = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Employment Type *</Label>
-            <Select onValueChange={(value) => setValue('type', value)}
-              value={watch('type')}
-              required
-              >
-              <SelectTrigger>
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="full-time">Full-time</SelectItem>
-                <SelectItem value="part-time">Part-time</SelectItem>
-                <SelectItem value="contract">Contract</SelectItem>
-                <SelectItem value="internship">Internship</SelectItem>
-              </SelectContent>
-            </Select>
+            <Controller
+              name="type"
+              control={control}
+              rules={{ required: 'Employment type is required' }}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="full-time">Full-time</SelectItem>
+                    <SelectItem value="part-time">Part-time</SelectItem>
+                    <SelectItem value="contract">Contract</SelectItem>
+                    <SelectItem value="internship">Internship</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.type && (
+              <p className="text-sm text-red-600">{errors.type.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label>Experience Level *</Label>
-            <Select onValueChange={(value) => setValue('experience', value)}
-              value={watch('experience')}
-              required
-              >
-              <SelectTrigger>
-                <SelectValue placeholder="Select level" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="entry">Entry Level (0-2 years)</SelectItem>
-                <SelectItem value="mid">Mid Level (3-5 years)</SelectItem>
-                <SelectItem value="senior">Senior Level (6+ years)</SelectItem>
-                <SelectItem value="lead">Lead/Principal (8+ years)</SelectItem>
-              </SelectContent>
-            </Select>
+            <Controller
+              name="experience"
+              control={control}
+              rules={{ required: 'Experience level is required' }}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="entry">Entry Level (0-2 years)</SelectItem>
+                    <SelectItem value="mid">Mid Level (3-5 years)</SelectItem>
+                    <SelectItem value="senior">Senior Level (6+ years)</SelectItem>
+                    <SelectItem value="lead">Lead/Principal (8+ years)</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.experience && (
+              <p className="text-sm text-red-600">{errors.experience.message}</p>
+            )}
           </div>
         </div>
 
@@ -175,10 +216,11 @@ const JobDetailsForm = ({
               id="salaryMin"
               type="number"
               placeholder="Minimum"
+              min="0"
               {...register('salaryMin', { 
                 required: 'Minimum salary is required',
                 valueAsNumber: true,
-                validate: value => !isNaN(value) || 'Please enter a valid number'
+                validate: value => !isNaN(value) && value >= 0 || 'Salary must be positive'
               })}
             />
             {errors.salaryMin && (
@@ -191,11 +233,11 @@ const JobDetailsForm = ({
               id="salaryMax"
               type="number"
               placeholder="Maximum"
-              max="1000000"
+              min="0"
               {...register('salaryMax', {
                 required: 'Maximum salary is required',
                 valueAsNumber: true,
-                validate: value => !isNaN(value) || 'Please enter a valid number'
+                validate: value => !isNaN(value) && value >= 0 || 'Salary must be positive'
               })}
             />
             {errors.salaryMax && (

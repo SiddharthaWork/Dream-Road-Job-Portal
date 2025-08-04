@@ -25,7 +25,7 @@ export default function RecommendedJobs({
   const [jobsState, setJobs] = useState<RecommendedJob[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [profileStatus, setProfileStatus] = useState<any>(null);
-  const jobsPerPage = 6;
+  const jobsPerPage = 5;
 
   useEffect(() => {
     // Check if profile is completed
@@ -70,7 +70,7 @@ export default function RecommendedJobs({
   }, [profileStatus]);
 
   // Filter jobs with similarity > 0
-  const filteredJobs = jobsState.filter(job => job.similarity > 0.3);
+  const filteredJobs = Array.isArray(jobsState) ? jobsState.filter(job => job.similarity > 0.3) : [];
 
   console.log(filteredJobs,"filteredJobs");
 

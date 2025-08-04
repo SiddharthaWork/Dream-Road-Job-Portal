@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Button } from '../ui/button'
 import Link from 'next/link'
 import { NavDropdown } from './NavDropDown'
-import { User, Settings, Mail, HelpCircle, LogOut, Bell } from "lucide-react"
+import { User, Settings, LogOut, Save, Bookmark } from "lucide-react"
 import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
 import { Badge } from '../ui/badge'
@@ -46,6 +46,12 @@ const JobSeekersNavbar = () => {
       href: "/profile",
       icon: <Settings className="h-4 w-4" />,
       onClick: () => router.push("/profile/edit/" + localStorage.getItem('userId')),
+    },
+    {
+      label: "Saved Jobs",
+      href: "/savedjob",
+      icon: <Bookmark className="h-4 w-4" />,
+      onClick: () => router.push("/savedjob"),
     },
     {
       label: "Logout",

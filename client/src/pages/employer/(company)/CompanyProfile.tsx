@@ -8,12 +8,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Building2, Globe, Users, MapPin, Edit, Save, X, CheckCircle, Clock } from 'lucide-react';
+import { Building2, Globe, Users, MapPin, Edit, Save, X, CheckCircle, Clock, Mail } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface CompanyData {
   name: string;
   website: string;
+  email: string;
   industry: string;
   size: string;
   description: string;
@@ -32,6 +33,7 @@ const CompanyProfile = () => {
   const [companyData, setCompanyData] = useState<CompanyData>({
     name: '',
     website: '',
+    email: '',
     industry: '',
     size: '',
     description: '',
@@ -53,6 +55,7 @@ const CompanyProfile = () => {
         setCompanyData({
           name: data.name,
           website: data.website,
+          email: data.email,
           industry: data.industry,
           size: data.size,
           description: data.description,
@@ -65,6 +68,7 @@ const CompanyProfile = () => {
         setFormData({
           name: data.name,
           website: data.website,
+          email: data.email,
           industry: data.industry,
           size: data.size,
           description: data.description,
@@ -219,6 +223,10 @@ const CompanyProfile = () => {
                   <Globe className="h-4 w-4" />
                   {companyData.website}
                 </CardDescription>
+                <CardDescription className="flex items-center gap-2 mt-1">
+                  <Mail className="h-4 w-4" />
+                  {companyData.email}
+                </CardDescription>
               </div>
             </div>
             {/* {getVerificationBadge()} */}
@@ -266,6 +274,7 @@ const CompanyProfile = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
+                  disabled={isEditing}
                 />
               ) : (
                 <p className="text-sm p-2 bg-gray-50 rounded">{companyData.name}</p>

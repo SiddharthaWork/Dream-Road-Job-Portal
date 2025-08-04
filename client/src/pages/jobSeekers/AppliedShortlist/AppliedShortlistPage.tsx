@@ -54,7 +54,7 @@ export default function AppliedShortlistPage() {
 
   return (
     <div className="bg-[#f8f9fa]">
-      <div className="min-h-screen w-full max-w-7xl mx-auto">
+      <div className="min-h-screen w-full max-w-7xl mx-auto px-42">
         <main className="container mx-auto py-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">My Jobs</h1>
@@ -84,9 +84,9 @@ export default function AppliedShortlistPage() {
                 ) : pendingJobs.length === 0 ? (
                   <p>No applied jobs found.</p>
                 ) : (
-                  pendingJobs.map((item) => (
+                  pendingJobs.map((item, index) => (
                     <AppliedJobCard
-                      key={item?.job?._id}
+                      key={item?.job?._id || index}
                       job={item?.job}
                       onJobClick={() => router.push(`/job/${item?.job?._id}`)}
                       appliedDate={item?.appliedDate}
@@ -104,9 +104,9 @@ export default function AppliedShortlistPage() {
                 ) : shortlistedJobs.length === 0 ? (
                   <p>No shortlisted jobs found.</p>
                 ) : (
-                  shortlistedJobs.map((item) => (
+                  shortlistedJobs.map((item, index) => (
                     <ShortlistJobCard 
-                      key={item?.job?._id}
+                      key={item?.job?._id || index}
                       job={item?.job}
                       onJobClick={() => router.push(`/job/${item?.job?._id}`)}
                       appliedDate={item?.appliedDate}
@@ -124,9 +124,9 @@ export default function AppliedShortlistPage() {
                 ) : rejectedJobs.length === 0 ? (
                   <p>No rejected jobs found.</p>
                 ) : (
-                  rejectedJobs.map((item) => (
+                  rejectedJobs.map((item, index) => (
                     <RejectedJobCard 
-                      key={item?.job?._id}
+                      key={item?.job?._id || index}
                       job={item?.job}
                       onJobClick={() => router.push(`/job/${item?.job?._id}`)}
                       appliedDate={item?.appliedDate}

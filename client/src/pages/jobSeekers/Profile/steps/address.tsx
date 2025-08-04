@@ -53,6 +53,14 @@ export default function AddressStep() {
       location: '',
       description: ''
     })
+    const initialExpErrors = {
+      jobTitle: '',
+      company: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+    };
+    const [expErrors, setExpErrors] = useState(initialExpErrors);
 
     const handleInputChange = (field: string, value: string) => {
       updateFormData({ [field]: value })
@@ -68,15 +76,41 @@ export default function AddressStep() {
     }
 
     const handleExperienceChange = (field: string, value: string | boolean) => {
-      setNewExperience(prev => ({
-        ...prev,
-        [field]: value
-      }))
+      if (field === "currentlyWorking" && value === true) {
+        setNewExperience(prev => ({
+          ...prev,
+          endDate: ""
+        }));
+        setExpErrors(prev => ({
+          ...prev,
+          endDate: ""
+        }));
+      }
+      setNewExperience(prev => ({ ...prev, [field]: value }));
     }
 
+    const validateExperience = () => {
+      const errors = {
+        jobTitle: !newExperience.jobTitle ? 'Job title is required' : '',
+        company: !newExperience.company ? 'Company name is required' : '',
+        location: !newExperience.location ? 'Location is required' : '',
+        startDate: !newExperience.startDate ? 'Start date is required' : 
+          new Date(newExperience.startDate) > new Date() ? 'Start date cannot be in the future' : '',
+        endDate: !newExperience.endDate && !newExperience.currentlyWorking 
+          ? 'End date is required' : 
+          newExperience.endDate && new Date(newExperience.endDate) > new Date() 
+            ? 'End date cannot be in the future' : 
+          newExperience.startDate && newExperience.endDate && newExperience.endDate < newExperience.startDate 
+            ? 'End date must be after start date' : ''
+      };
+      
+      setExpErrors(errors);
+      return Object.values(errors).every(error => !error);
+    };
+
     const handleAddExperience = () => {
-      if (newExperience.jobTitle && newExperience.company) {
-        addExperience(newExperience)
+      if (validateExperience()) {
+        addExperience(newExperience);
         setNewExperience({
           jobTitle: '',
           company: '',
@@ -85,9 +119,12 @@ export default function AddressStep() {
           currentlyWorking: false,
           location: '',
           description: ''
-        })
+        });
+        setExpErrors(initialExpErrors);
       }
-    }
+    };
+
+    const today = new Date().toISOString().split('T')[0];
 
     return (
         <ScrollArea className="h-full w-full ">
@@ -136,6 +173,7 @@ export default function AddressStep() {
                 placeholder="Enter job title"
                 className="rounded-lg"
               />
+              {expErrors.jobTitle && <p className="text-red-500 text-sm">{expErrors.jobTitle}</p>}
             </div>
             <div className="space-y-2">
               <Label>Company</Label>
@@ -145,6 +183,7 @@ export default function AddressStep() {
                 placeholder="Enter company name"
                 className="rounded-lg"
               />
+              {expErrors.company && <p className="text-red-500 text-sm">{expErrors.company}</p>}
             </div>
           </div>
 
@@ -157,6 +196,7 @@ export default function AddressStep() {
                 placeholder="Enter location"
                 className="rounded-lg"
               />
+              {expErrors.location && <p className="text-red-500 text-sm">{expErrors.location}</p>}
             </div>
             <div className="space-y-2">
               <Label>Start Date</Label>
@@ -164,8 +204,10 @@ export default function AddressStep() {
                 type="date"
                 value={newExperience.startDate}
                 onChange={(e) => handleExperienceChange('startDate', e.target.value)}
+                max={today}
                 className="rounded-lg"
               />
+              {expErrors.startDate && <p className="text-red-500 text-sm">{expErrors.startDate}</p>}
             </div>
             <div className="space-y-2">
               <Label>End Date</Label>
@@ -174,8 +216,10 @@ export default function AddressStep() {
                 value={newExperience.endDate}
                 onChange={(e) => handleExperienceChange('endDate', e.target.value)}
                 disabled={newExperience.currentlyWorking}
+                max={today}
                 className="rounded-lg"
               />
+              {expErrors.endDate && <p className="text-red-500 text-sm">{expErrors.endDate}</p>}
             </div>
           </div>
 

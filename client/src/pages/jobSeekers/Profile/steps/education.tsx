@@ -25,9 +25,17 @@ export default function EducationStep() {
       graduationDate: "",
       currentlyStudying: false,
     })
+    const initialErrors = {
+      collegeType: '',
+      degree: '',
+      city: '',
+      startDate: '',
+      graduationDate: '',
+    }
+    const [errors, setErrors] = useState(initialErrors)
 
     const handleAddEducation = () => {
-      if (newEducation.collegeType && newEducation.degree && newEducation.city) {
+      if (validateEducation()) {
         addEducation(newEducation)
         setNewEducation({
           collegeType: "",
@@ -37,12 +45,44 @@ export default function EducationStep() {
           graduationDate: "",
           currentlyStudying: false,
         })
+        setErrors(initialErrors)
       }
     }
 
     const handleInputChange = (field: string, value: string | boolean) => {
-      setNewEducation((prev) => ({ ...prev, [field]: value }))
+      if (field === "currentlyStudying" && value === true) {
+        setNewEducation(prev => ({
+          ...prev,
+          graduationDate: ""
+        }));
+        setErrors(prev => ({
+          ...prev,
+          graduationDate: ""
+        }));
+      }
+      setNewEducation(prev => ({ ...prev, [field]: value }));
     }
+
+    const validateEducation = () => {
+      const errors = {
+        collegeType: !newEducation.collegeType ? 'College type is required' : '',
+        degree: !newEducation.degree ? 'Degree is required' : '',
+        city: !newEducation.city ? 'College name is required' : '',
+        startDate: !newEducation.startDate ? 'Start date is required' : 
+          new Date(newEducation.startDate) > new Date() ? 'Start date cannot be in the future' : '',
+        graduationDate: !newEducation.graduationDate && !newEducation.currentlyStudying 
+          ? 'Graduation date is required' : 
+          new Date(newEducation.graduationDate) > new Date() 
+            ? 'Graduation date cannot be in the future' : 
+          newEducation.startDate && newEducation.graduationDate && newEducation.graduationDate < newEducation.startDate 
+            ? 'Graduation date must be after start date' : ''
+      };
+      
+      setErrors(errors);
+      return Object.values(errors).every(error => !error);
+    };
+
+    const today = new Date().toISOString().split('T')[0];
 
     return (
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -95,6 +135,7 @@ export default function EducationStep() {
                   ))}
                 </SelectContent>
               </Select>
+              {errors.collegeType && <p className="text-red-500">{errors.collegeType}</p>}
             </div>
             <div className="space-y-2">
               <Label>Degree</Label>
@@ -104,6 +145,7 @@ export default function EducationStep() {
                 placeholder="Enter degree"
                 className="rounded-lg"
               />
+              {errors.degree && <p className="text-red-500">{errors.degree}</p>}
             </div>
           </div>
 
@@ -113,9 +155,10 @@ export default function EducationStep() {
               <Input
                 value={newEducation.city}
                 onChange={(e) => handleInputChange("city", e.target.value)}
-                placeholder="Enter city"
+                placeholder="Enter college name"
                 className="rounded-lg"
               />
+              {errors.city && <p className="text-red-500">{errors.city}</p>}
             </div>
             <div className="space-y-2">
               <Label>Start Date</Label>
@@ -123,8 +166,10 @@ export default function EducationStep() {
                 type="date"
                 value={newEducation.startDate}
                 onChange={(e) => handleInputChange("startDate", e.target.value)}
+                max={today}
                 className="rounded-lg"
               />
+              {errors.startDate && <p className="text-red-500">{errors.startDate}</p>}
             </div>
             <div className="space-y-2">
               <Label>Graduation Date</Label>
@@ -133,8 +178,10 @@ export default function EducationStep() {
                 value={newEducation.graduationDate}
                 onChange={(e) => handleInputChange("graduationDate", e.target.value)}
                 disabled={newEducation.currentlyStudying}
+                max={today}
                 className="rounded-lg"
               />
+              {errors.graduationDate && <p className="text-red-500">{errors.graduationDate}</p>}
             </div>
           </div>
 

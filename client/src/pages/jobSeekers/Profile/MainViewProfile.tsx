@@ -59,14 +59,20 @@ const MainViewProfile = () => {
   const [profileId, setProfileId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState('');
+  const [isProfileComplete, setIsProfileComplete] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
     const fullname = localStorage.getItem('fullname');
+    const profileComplete = localStorage.getItem('profile');
+    
     if(userId){
       setProfileId(userId);
     }
+    
+    // Check if profile is complete
+    setIsProfileComplete(profileComplete === 'true');
     
     if (!userId) {
       console.error("User ID not found in localStorage");
@@ -76,28 +82,60 @@ const MainViewProfile = () => {
     
     setUsername(fullname || '');
     
-    const fetchProfile = async () => {
-      try {
-        const response = await fetch(`http://localhost:4000/api/user/getuser/${userId}`);
-        const data = await response.json();
-        
-        if (data.success && data.data?.profile) {
-          setProfile(data.data.profile);
+    // Only fetch profile if it's complete
+    if (profileComplete === 'true') {
+      const fetchProfile = async () => {
+        try {
+          const response = await fetch(`http://localhost:4000/api/user/getuser/${userId}`);
+          const data = await response.json();
+          
+          if (data.success && data.data?.profile) {
+            setProfile(data.data.profile);
+          }
+        } catch (error) {
+          console.error('Failed to fetch profile:', error);
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error('Failed to fetch profile:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
 
-    fetchProfile();
+      fetchProfile();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  // Show profile completion prompt if profile is not complete
+  if (!isProfileComplete) {
+    return (
+      <div className="container mx-auto p-8 text-center">
+        <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
+          <div className="mb-6">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Complete Your Profile</h2>
+            <p className="text-gray-600 mb-6">
+              Please complete your profile to access all features and get personalized job recommendations.
+            </p>
+          </div>
+          <Button 
+            onClick={() => router.push('/profile')}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Complete Profile Now
+          </Button>
+        </div>
       </div>
     );
   }
@@ -160,7 +198,7 @@ const MainViewProfile = () => {
             onClick={() => router.push(`/profile/edit/${profileId}`)}
             variant={'default'}
             size={'custom'}
-            className='bg-white text-blue-600 cursor-pointer'
+            className='bg-white text-blue-600 cursor-pointer hover:bg-blue-600 hover:text-white'
           >     
             Edit Profile
           </Button>
@@ -177,7 +215,6 @@ const MainViewProfile = () => {
                 <div>
                   <h3 className="font-medium text-gray-900">Contact Information</h3>
                   <p className="text-gray-600">{profile.phoneNumber || 'Not provided'}</p>
-                  <p className="text-gray-600">{profile.currentAddress || 'Address not provided'}</p>
                   <p className="text-gray-600">{profile.city}, {profile.postalCode}</p>
                 </div>
                 

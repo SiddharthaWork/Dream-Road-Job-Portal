@@ -1,5 +1,5 @@
 import express from "express";
-import { applyJob, getApplicants, getAppliedJobs, getAppliedJobUsers, getAppliedJobCount, updateStatus, getAllApplicant, getShortlistedJobByUserId, getApplicantsByCompanyId, getShortlistedJobCount, deleteApplication, deleteApplicationByJobId } from "../controllers/application.controller.js";
+import { applyJob, getApplicants, getAppliedJobs, getAppliedJobUsers, getAppliedJobCount, updateStatus, getAllApplicant, getShortlistedJobByUserId, getApplicantsByCompanyId, getShortlistedJobCount, deleteApplication, deleteApplicationByJobId, getRankedApplicants, autoShortlistApplicants } from "../controllers/application.controller.js";
 import { singleUpload }from "../middlewares/multer.js";
 
 const router = express.Router();
@@ -17,6 +17,10 @@ router.route("/getShortlistedJobCount/:id").get(getShortlistedJobCount);
 router.route("/deleteApplication/:id").delete(deleteApplication);
 router.route("/deleteApplicationByJobId/:id").delete(deleteApplicationByJobId);
 
+// New weighted scoring routes
+router.route("/getRankedApplicants/:id").get(getRankedApplicants);
+router.route("/autoShortlist").post(autoShortlistApplicants);
+
 // to test use
 // localhost:4000/api/application/applyJob/:id
 // localhost:4000/api/application/getApplications   
@@ -30,5 +34,8 @@ router.route("/deleteApplicationByJobId/:id").delete(deleteApplicationByJobId);
 // localhost:4000/api/application/getShortlistedJobCount/:id
 // localhost:4000/api/application/deleteApplication/:id
 // localhost:4000/api/application/deleteApplicationByJobId/:id
+// localhost:4000/api/application/getRankedApplicants/:id
+// localhost:4000/api/application/autoShortlist 
+
 
 export default router;

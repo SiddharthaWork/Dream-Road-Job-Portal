@@ -33,6 +33,7 @@ const UpdateJob = () => {
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { errors },
     watch,
   } = useForm<JobFormData>();
@@ -152,6 +153,7 @@ const UpdateJob = () => {
           errors={errors} 
           setValue={setValue}
           watch={watch}
+          control={control}
           location={location}
           setLocation={setLocation}
           hasDeadline={hasDeadline}

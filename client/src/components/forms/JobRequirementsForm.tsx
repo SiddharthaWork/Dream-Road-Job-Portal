@@ -38,6 +38,12 @@ const JobRequirementsForm = ({ register, errors, setValue, watch }: JobRequireme
 
   return (
     <div className="space-y-6">
+      <input 
+        type="hidden" 
+        {...register('skills', { 
+          validate: value => (value && value.length > 0) || 'At least one skill is required' 
+        })}
+      />
       <div>
         <h2 className="text-xl font-semibold">Job Requirements</h2>
         <p className="text-gray-600">Specify the skills, qualifications, and benefits for this job</p>
@@ -64,6 +70,9 @@ const JobRequirementsForm = ({ register, errors, setValue, watch }: JobRequireme
                 +
               </Button>
             </div>
+            {errors.skills && (
+              <p className="text-sm text-red-600">{errors.skills.message}</p>
+            )}
             <div className="flex flex-wrap gap-2 p-2 border rounded-lg min-h-[40px] bg-muted mt-2">
               {(watch('skills') || []).length === 0 ? (
                 <p className="text-muted-foreground text-sm">
@@ -91,23 +100,23 @@ const JobRequirementsForm = ({ register, errors, setValue, watch }: JobRequireme
         </div>
         
         <div className="flex flex-col gap-2">
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description">Description *</Label>
           <Textarea
             id="description"
             placeholder="Describe the qualifications, experience, and other requirements"
-            {...register('description')}
+            {...register('description', { required: 'Description is required' })}
           />
           {errors.description && (
             <p className="text-red-500">{errors.description.message}</p>
           )}
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="requirements">Requirements</Label>
+        <div className="space-y-2">
+          <Label htmlFor="requirements">Requirements *</Label>
           <Textarea
             id="requirements"
             placeholder="Describe the qualifications, experience, and other requirements"
-            {...register('requirements')}
+            {...register('requirements', { required: 'Requirements are required' })}
             className="min-h-[120px]"
           />
           {errors.requirements && (
@@ -115,16 +124,15 @@ const JobRequirementsForm = ({ register, errors, setValue, watch }: JobRequireme
           )}
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="benefits">Benefits & Perks</Label>
+        <div className="space-y-2">
+          <Label htmlFor="benefits">Benefits & Perks *</Label>
           <Textarea
             id="benefits"
-            placeholder="List the benefits and perks offered (e.g. Health insurance, Remote work)"
-            {...register('benefits')}
-            className="min-h-[100px]"
+            placeholder="Describe the benefits, perks, and what makes your company great..."
+            {...register('benefits', { required: 'Benefits are required' })}
           />
           {errors.benefits && (
-            <p className="text-red-500">{errors.benefits.message}</p>
+            <p className="text-sm text-red-600">{errors.benefits.message}</p>
           )}
         </div>
       </div>

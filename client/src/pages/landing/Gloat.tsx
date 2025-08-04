@@ -17,7 +17,7 @@ const router = useRouter();
             </div>
             </div>
             <div className='absolute top-10 -right-[25rem] w-full h-full'>
-            <AnimatedJobList/>
+            {/* <AnimatedJobList/> */}
             </div>
         </div>
     </div>

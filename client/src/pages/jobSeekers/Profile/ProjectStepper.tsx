@@ -12,10 +12,9 @@ interface Step {
 interface ProgressStepperProps {
   steps: Step[]
   currentStep: number
-  onStepClick: (step: number) => void
 }
 
-export default function ProgressStepper({ steps, currentStep, onStepClick }: ProgressStepperProps) {
+export default function ProgressStepper({ steps, currentStep }: ProgressStepperProps) {
   return (
     <FormProvider>
       <div className="flex items-center justify-center space-x-4 mb-8">
@@ -26,7 +25,6 @@ export default function ProgressStepper({ steps, currentStep, onStepClick }: Pro
         return (
           <div key={step.id} className="flex items-center">
             <motion.button
-              onClick={() => onStepClick(step.id)}
               className={`
                 relative w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium
                 transition-all duration-200 cursor-pointer

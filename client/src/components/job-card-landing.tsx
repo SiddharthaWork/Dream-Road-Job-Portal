@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { MapPin, Building2, Clock, DollarSign, Bookmark } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 
 export interface JobListing {
   id: string
@@ -15,6 +16,10 @@ export interface JobListing {
   postedDate: string
   isUrgent?: boolean
   companyLogo?: string
+  createdBy?: {
+    name: string
+    logo: string
+  } 
 }
 
 interface JobCardProps {
@@ -25,6 +30,7 @@ interface JobCardProps {
 }
 
 export default function JobCard({ job, onApply, onSave, className = "" }: JobCardProps) {
+  const router = useRouter();
   const formatSalary = (salary: JobListing["salary"]) => {
     if (!salary) return null
     return `${salary}`
@@ -77,22 +83,17 @@ export default function JobCard({ job, onApply, onSave, className = "" }: JobCar
               )}
             </div>
             <div className="flex items-center gap-2 text-gray-600 mb-2">
-              <Building2 className="h-4 w-4 flex-shrink-0" />
+              <div className="flex items-center gap-2">
+              <img src={job?.companyLogo} alt="" className="w-8 h-8 rounded-full"/>
               <span className="font-medium truncate">{job.company}</span>
+              </div>
             </div>
             <div className="flex items-center gap-2 text-gray-500 text-sm">
               <MapPin className="h-4 w-4 flex-shrink-0" />
               <span className="truncate">{job.location}</span>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onSave?.(job.id)}
-            className="flex-shrink-0 ml-2 hover:bg-gray-100"
-          >
-            <Bookmark className="h-4 w-4" />
-          </Button>
+      
         </div>
       </CardHeader>
 
@@ -114,7 +115,7 @@ export default function JobCard({ job, onApply, onSave, className = "" }: JobCar
           <span className="text-sm text-gray-500">Posted {formatPostedDate(job.postedDate)}</span>
 
           <Button
-            onClick={() => onApply?.(job.id)}
+            onClick={() => router.push(`/login`)}
             className="bg-[#255cf4] hover:bg-[#1e4bd1] text-white px-6 py-2 text-sm font-medium transition-colors duration-200"
           >
             Apply Now

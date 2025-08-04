@@ -53,7 +53,7 @@ const JobPortal = () => {
           <HowItWorks />
 
           {/* Recent Earners */}
-          <RecentJobPosts jobPosts={sampleJobPosts} />
+          <RecentJobPosts />
 
           {/* Recent Activity */}
           {/* <RecentActivity activities={recentActivityData} /> */}

@@ -15,7 +15,7 @@ import { Card } from '@/components/ui/card';
 import { set } from 'date-fns';
 
 const PostJob = () => {
-  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<JobFormData>();
+  const { register, handleSubmit, formState: { errors }, control, setValue, watch } = useForm<JobFormData>();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,6 +25,7 @@ const PostJob = () => {
   const [newSkill, setNewSkill] = useState('');
   const [skills, setSkills] = useState<string[]>([]);
   const [error, setError] = useState<any>(null);
+  const [skillsError, setSkillsError] = useState<string | null>(null);
 
   const handleAddSkill = () => {
     if (newSkill.trim() && !skills.includes(newSkill.trim())) {
@@ -32,6 +33,7 @@ const PostJob = () => {
       setSkills(updatedSkills);
       setValue('skills', updatedSkills);
       setNewSkill('');
+      setSkillsError(null);
     }
   };
 
@@ -39,6 +41,7 @@ const PostJob = () => {
     const updatedSkills = skills.filter(skill => skill !== skillToRemove);
     setSkills(updatedSkills);
     setValue('skills', updatedSkills);
+    setSkillsError(null);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -51,6 +54,11 @@ const PostJob = () => {
   const onSubmit = async (data: JobFormData) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
+    if (skills.length === 0) {
+      setSkillsError('At least one skill is required');
+      setIsSubmitting(false);
+      return;
+    }
     try {
       const companyId = localStorage.getItem('companyId');
       
@@ -87,6 +95,7 @@ const PostJob = () => {
             register={register}
             setValue={setValue}
             errors={errors}
+            control={control}
             location={location}
             setLocation={setLocation}
             hasDeadline={hasDeadline}
@@ -117,6 +126,9 @@ const PostJob = () => {
                   +
                 </Button>
               </div>
+              {skillsError && (
+                <p className="text-sm text-red-600">{skillsError}</p>
+              )}
               <div className="flex flex-wrap gap-2 p-2 border rounded-lg min-h-[40px] bg-muted mt-2">
                 {skills.length === 0 ? (
                   <p className="text-muted-foreground text-sm">

@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card"
 import { Plus, Trash2, ExternalLink } from "lucide-react"
 import { useFormContext } from "@/contexts/form-context"
 import { FormProvider } from "@/contexts/form-context"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 // NOTE: This component must be rendered inside a <FormProvider> from '@/contexts/form-context'.
 export default function ProjectsStep() {
@@ -23,8 +24,35 @@ export default function ProjectsStep() {
       projectLink: "",
     })
 
+    const initialErrors = {
+      title: '',
+      description: '',
+      startDate: '',
+      endDate: '',
+    };
+
+    const [errors, setErrors] = useState(initialErrors);
+
+    const validateProject = () => {
+      const errors = {
+        title: !newProject.title ? 'Project title is required' : '',
+        description: !newProject.description ? 'Description is required' : '',
+        startDate: !newProject.startDate ? 'Start date is required' : 
+          new Date(newProject.startDate) > new Date() ? 'Start date cannot be in the future' : '',
+        endDate: !newProject.endDate 
+          ? 'End date is required' : 
+          newProject.endDate && new Date(newProject.endDate) > new Date() 
+            ? 'End date cannot be in the future' : 
+          newProject.startDate && newProject.endDate && newProject.endDate < newProject.startDate 
+            ? 'End date must be after start date' : ''
+      };
+      
+      setErrors(errors);
+      return Object.values(errors).every(error => !error);
+    };
+
     const handleAddProject = () => {
-      if (newProject.title && newProject.description) {
+      if (validateProject()) {
         addProject(newProject)
         setNewProject({
           title: "",
@@ -33,6 +61,7 @@ export default function ProjectsStep() {
           endDate: "",
           projectLink: "",
         })
+        setErrors(initialErrors)
       }
     }
 
@@ -40,7 +69,10 @@ export default function ProjectsStep() {
       setNewProject((prev) => ({ ...prev, [field]: value }))
     }
 
+    const today = new Date().toISOString().split('T')[0]
+
     return (
+        <ScrollArea className="h-full w-full ">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Projects</h2>
@@ -95,6 +127,7 @@ export default function ProjectsStep() {
                 placeholder="Enter project title"
                 className="rounded-lg"
               />
+              {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
             </div>
 
             <div className="space-y-2">
@@ -105,6 +138,7 @@ export default function ProjectsStep() {
                 placeholder="Describe your project"
                 className="rounded-lg min-h-[100px]"
               />
+              {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -114,8 +148,10 @@ export default function ProjectsStep() {
                   type="date"
                   value={newProject.startDate}
                   onChange={(e) => handleInputChange("startDate", e.target.value)}
+                  max={today}
                   className="rounded-lg"
                 />
+                {errors.startDate && <p className="text-red-500 text-sm">{errors.startDate}</p>}
               </div>
               <div className="space-y-2">
                 <Label>End Date</Label>
@@ -123,8 +159,10 @@ export default function ProjectsStep() {
                   type="date"
                   value={newProject.endDate}
                   onChange={(e) => handleInputChange("endDate", e.target.value)}
+                  max={today}
                   className="rounded-lg"
                 />
+                {errors.endDate && <p className="text-red-500 text-sm">{errors.endDate}</p>}
               </div>
             </div>
 
@@ -146,6 +184,7 @@ export default function ProjectsStep() {
           </div>
         </Card>
       </motion.div>
+        </ScrollArea>
     )
   } catch (e) {
     return <div>Error: ProjectsStep must be used within a FormProvider.</div>;
