@@ -1,25 +1,36 @@
 "use client"
-import React from 'react'
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { useEffect } from 'react';  
+
 import JobCard from './JobCard';
 
 const SavedJobPage = () => {
     const [savedJobs, setSavedJobs] = useState<any>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [userId, setUserId] = useState<string | null>(null);
     const router = useRouter();
-    const userId = localStorage.getItem('userId');
+
     const onJobClick = (jobId: string) => {
         router.push(`/job/${jobId}`);
     };
+
     useEffect(() => {
+        // Client-side only
+        const storedUserId = localStorage.getItem('userId');
+        setUserId(storedUserId);
+
         const fetchSavedJobs = async () => {
+            if (!storedUserId) {
+                setError('User ID not found');
+                setLoading(false);
+                return;
+            }
+
             try {
                 setLoading(true);
-                const response = await axios.get(`http://localhost:4000/api/job/getsavedjob/${userId}`);
+                const response = await axios.get(`http://localhost:4000/api/job/getsavedjob/${storedUserId}`);
                 if (response.data.success) {
                     setSavedJobs(response.data.data);
                 } else {
@@ -33,6 +44,7 @@ const SavedJobPage = () => {
         };
         fetchSavedJobs();
     }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto px-42">

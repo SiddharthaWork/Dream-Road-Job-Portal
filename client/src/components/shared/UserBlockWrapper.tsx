@@ -21,9 +21,6 @@ export default function UserBlockWrapper({ children }: { children: React.ReactNo
       }
       try {
         const response = await fetch(`http://localhost:4000/api/admin/checkBlockUser/${userId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch block status');
-        }
         const data = await response.json();
         if (data.success) {
           setIsBlocked(data.data);

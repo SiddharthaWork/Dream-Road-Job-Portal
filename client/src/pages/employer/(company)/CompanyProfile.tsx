@@ -111,14 +111,29 @@ const CompanyProfile = () => {
   const handleSave = async () => {
     setIsLoading(true);
 
+    // Validate required fields
+    const requiredFields: (keyof CompanyData)[] = ['website', 'industry', 'size'];
+    const missingFields = requiredFields.filter(field => !formData[field]);
+
+    if (missingFields.length > 0) {
+      toast.error(`Missing required fields: ${missingFields.join(', ')}`);
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate description length
+    if (formData.description.length > 200) {
+      toast.error('Description must be 200 characters or less');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const formDataToSend = new FormData();
 
-      // Append updated fields
+      // Append all fields to the form data
       Object.entries(formData).forEach(([key, value]) => {
-        if (value !== companyData[key as keyof CompanyData]) {
-          formDataToSend.append(key, value as string);
-        }
+        formDataToSend.append(key, value as string);
       });
 
       // Append logo file if changed

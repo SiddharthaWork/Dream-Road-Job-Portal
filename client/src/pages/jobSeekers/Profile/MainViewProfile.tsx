@@ -59,6 +59,7 @@ const MainViewProfile = () => {
   const [profileId, setProfileId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [isProfileComplete, setIsProfileComplete] = useState<boolean>(false);
   const router = useRouter();
 
@@ -91,6 +92,7 @@ const MainViewProfile = () => {
           
           if (data.success && data.data?.profile) {
             setProfile(data.data.profile);
+            setEmail(data.data.email);
           }
         } catch (error) {
           console.error('Failed to fetch profile:', error);
@@ -176,7 +178,7 @@ const MainViewProfile = () => {
                 src={profile.profilePicture} 
                 alt="Profile" 
                 className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
-              />
+              /> 
             ) : (
               <div className="bg-gray-200 border-2 border-dashed rounded-full w-24 h-24 flex items-center justify-center">
                 <span className="text-gray-500 text-2xl">👤</span>
@@ -184,6 +186,7 @@ const MainViewProfile = () => {
             )}
             <div className="ml-6">
               <h1 className="text-3xl font-bold">{username}</h1>
+              <h1 className="text-lg ">{email}</h1>
               <p className="text-blue-100 mt-1">{profile.designation || 'Professional'}</p>
               <div className="flex flex-wrap mt-2">
                 {profile.sectors?.map((sector, index) => (
