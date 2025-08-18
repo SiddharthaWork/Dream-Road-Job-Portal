@@ -40,7 +40,20 @@ export default function JobListingsDemo() {
   }, []);
 
   if (loading) {
-    return <div>Loading jobs...</div>;
+    return <div className="min-h-screen py-16 relative max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="animate-pulse">
+              <div className="h-48 bg-gray-200 rounded-lg"></div>
+              <div className="h-4 bg-gray-200 rounded-lg mt-4"></div>
+              <div className="h-4 bg-gray-200 rounded-lg mt-4"></div>
+              <div className="h-4 bg-gray-200 rounded-lg mt-4"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   }
 
   if (error) {
