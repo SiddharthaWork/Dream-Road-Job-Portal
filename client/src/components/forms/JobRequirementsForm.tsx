@@ -15,18 +15,31 @@ interface JobRequirementsFormProps {
 
 const JobRequirementsForm = ({ register, errors, setValue, watch }: JobRequirementsFormProps) => {
   const [newSkill, setNewSkill] = useState<string>('');
+  const [skillsError, setSkillsError] = useState<string | null>(null);
 
   const handleAddSkill = useCallback(() => {
+    const currentSkills = watch('skills') || [];
+    
+    if (currentSkills.length >= 30) {
+      setSkillsError('Maximum 30 skills allowed');
+      return;
+    }
+    
     if (newSkill.trim() !== '') {
-      const currentSkills = watch('skills') || [];
-      setValue('skills', [...currentSkills, newSkill.trim()]);
-      setNewSkill('');
+      const trimmedSkill = newSkill.trim();
+      // Check if skill already exists to prevent duplicates
+      if (!currentSkills.includes(trimmedSkill)) {
+        setValue('skills', [...currentSkills, trimmedSkill]);
+        setNewSkill('');
+        setSkillsError(null);
+      }
     }
   }, [newSkill, setValue, watch]);
 
-  const handleRemoveSkill = useCallback((skillToRemove: string) => {
+  const handleRemoveSkill = useCallback((skillToRemove: string, index: number) => {
     const currentSkills = watch('skills') || [];
-    setValue('skills', currentSkills.filter(skill => skill !== skillToRemove));
+    setValue('skills', currentSkills.filter((_, i) => i !== index));
+    setSkillsError(null);
   }, [setValue, watch]);
 
   const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
@@ -51,7 +64,12 @@ const JobRequirementsForm = ({ register, errors, setValue, watch }: JobRequireme
 
       <div className="space-y-4">
         <div className="space-y-4">
-          <h3 className="text-lg font-medium">Required Skills</h3>
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium">Required Skills</h3>
+            <span className="text-sm text-muted-foreground">
+              {(watch('skills') || []).length}/30 skills
+            </span>
+          </div>
           <div className="space-y-2">
             <Label htmlFor="newSkill">Add Skills</Label>
             <div className="flex gap-2 items-end">
@@ -61,11 +79,13 @@ const JobRequirementsForm = ({ register, errors, setValue, watch }: JobRequireme
                 onChange={(e) => setNewSkill(e.target.value)}
                 onKeyDown={handleKeyPress}
                 placeholder="Enter a skill (e.g., JavaScript, Communication)"
+                disabled={(watch('skills') || []).length >= 30}
               />
               <Button 
                 type="button" 
                 onClick={handleAddSkill}
                 className="bg-primary hover:bg-primary/90 text-white"
+                disabled={(watch('skills') || []).length >= 30}
               >
                 +
               </Button>
@@ -73,21 +93,24 @@ const JobRequirementsForm = ({ register, errors, setValue, watch }: JobRequireme
             {errors.skills && (
               <p className="text-sm text-red-600">{errors.skills.message}</p>
             )}
+            {skillsError && (
+              <p className="text-sm text-red-600">{skillsError}</p>
+            )}
             <div className="flex flex-wrap gap-2 p-2 border rounded-lg min-h-[40px] bg-muted mt-2">
               {(watch('skills') || []).length === 0 ? (
                 <p className="text-muted-foreground text-sm">
                   Add skills required for the job
                 </p>
               ) : (
-                (watch('skills') || []).map((skill) => (
+                (watch('skills') || []).map((skill, index) => (
                   <span 
-                    key={skill} 
+                    key={`skill-${index}`} 
                     className="bg-primary text-primary-foreground px-3 py-1 rounded-lg flex items-center"
                   >
                     {skill}
                     <button
                       type="button"
-                      onClick={() => handleRemoveSkill(skill)}
+                      onClick={() => handleRemoveSkill(skill, index)}
                       className="ml-2 hover:text-destructive"
                     >
                       ×
@@ -102,6 +125,7 @@ const JobRequirementsForm = ({ register, errors, setValue, watch }: JobRequireme
         <div className="flex flex-col gap-2">
           <Label htmlFor="description">Description *</Label>
           <Textarea
+            maxLength={600}
             id="description"
             placeholder="Describe the qualifications, experience, and other requirements"
             {...register('description', { required: 'Description is required' })}
@@ -114,6 +138,7 @@ const JobRequirementsForm = ({ register, errors, setValue, watch }: JobRequireme
         <div className="space-y-2">
           <Label htmlFor="requirements">Requirements *</Label>
           <Textarea
+            maxLength={600}
             id="requirements"
             placeholder="Describe the qualifications, experience, and other requirements"
             {...register('requirements', { required: 'Requirements are required' })}
@@ -127,6 +152,7 @@ const JobRequirementsForm = ({ register, errors, setValue, watch }: JobRequireme
         <div className="space-y-2">
           <Label htmlFor="benefits">Benefits & Perks *</Label>
           <Textarea
+            maxLength={600}
             id="benefits"
             placeholder="Describe the benefits, perks, and what makes your company great..."
             {...register('benefits', { required: 'Benefits are required' })}

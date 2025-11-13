@@ -147,17 +147,6 @@ export default function CompaniesPage() {
                   />
                 </div>
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="verified">Verified</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="suspended">Suspended</SelectItem>
-                </SelectContent>
-              </Select>
               <Select value={industryFilter} onValueChange={setIndustryFilter}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Filter by industry" />
@@ -170,10 +159,6 @@ export default function CompaniesPage() {
                   <SelectItem value="Education">Education</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                More Filters
-              </Button>
             </div>
           </CardContent>
         </Card>

@@ -66,8 +66,10 @@ export default function EducationStep() {
     const validateEducation = () => {
       const errors = {
         collegeType: !newEducation.collegeType ? 'College type is required' : '',
-        degree: !newEducation.degree ? 'Degree is required' : '',
-        city: !newEducation.city ? 'College name is required' : '',
+        degree: !newEducation.degree ? 'Degree is required' : 
+          newEducation.degree.trim().length < 4 ? 'Degree must be at least 4 characters' : '',
+        city: !newEducation.city ? 'College name is required' : 
+          newEducation.city.trim().length < 4 ? 'College name must be at least 4 characters' : '',
         startDate: !newEducation.startDate ? 'Start date is required' : 
           new Date(newEducation.startDate) > new Date() ? 'Start date cannot be in the future' : '',
         graduationDate: !newEducation.graduationDate && !newEducation.currentlyStudying 
@@ -141,6 +143,8 @@ export default function EducationStep() {
               <Label>Degree</Label>
               <Input
                 value={newEducation.degree}
+                minLength={4}
+                maxLength={50}
                 onChange={(e) => handleInputChange("degree", e.target.value)}
                 placeholder="Enter degree"
                 className="rounded-lg"
@@ -154,6 +158,8 @@ export default function EducationStep() {
               <Label>College</Label>
               <Input
                 value={newEducation.city}
+                minLength={4}
+                maxLength={50}
                 onChange={(e) => handleInputChange("city", e.target.value)}
                 placeholder="Enter college name"
                 className="rounded-lg"

@@ -163,7 +163,7 @@ export default function MultiStepForm() {
     <FormProvider>
       <Toaster />
       <div className="max-w-4xl mx-auto">
-        <ProgressStepper steps={steps.slice(0, 6)} currentStep={currentStep} onStepClick={goToStep} />
+        <ProgressStepper steps={steps.slice(0, 6)} currentStep={currentStep}  />
 
         <Card className="mt-8 p-8 shadow-lg rounded-2xl">
           <div className="relative overflow-hidden min-h-[600px]">

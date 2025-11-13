@@ -31,7 +31,14 @@ import Link from "next/link"
 import { div } from "motion/react-client"
 
 export default function AdminJobOverview() {
-  const { id } = useParams() as { id: string };
+  const params = useParams<any>();
+  const id = params?.id;
+
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+  }, [id]);
 
   const [job, setJob] = useState<any>(null);
   const [similarJobs, setSimilarJobs] = useState<any>(null);
@@ -56,7 +63,7 @@ export default function AdminJobOverview() {
   const fetchJob = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:4000/api/job/getjobbyid/${id}?userId=${localStorage.getItem('userId')}`);
+      const response = await axios.get(`http://localhost:4000/api/job/getjobbyid/${id}`);
       if (response.data.success) {
         setJob(response.data.data);
         setSimilarJobs(response.data.similarJobs);
@@ -184,10 +191,10 @@ export default function AdminJobOverview() {
                   </div>
 
                   <div className="flex items-center justify-between text-sm text-gray-600">
-                    <div className="flex items-center gap-4">
+                    {/* <div className="flex items-center gap-4">
                       <span>Posted: {formatDistanceToNow(new Date(job?.createdAt), { addSuffix: true }).replace("about ", "")}</span>
                       <span>Applicants: {job?.applications.length}</span>
-                    </div>
+                    </div> */}
                   </div>
                 </CardContent>
               </Card>

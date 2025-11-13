@@ -325,12 +325,12 @@ export default function SearchJob() {
                 <div>
                   <h4 className="text-sm font-medium mb-3">Quick Filters</h4>
                   <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
+                    {/* <div className="flex items-center space-x-2">
                       <Checkbox id="remote" checked={showRemoteOnly} onCheckedChange={(checked) => setShowRemoteOnly(Boolean(checked))} />
                       <label htmlFor="remote" className="text-sm">
                         Remote Only
                       </label>
-                    </div>
+                    </div> */}
                     <div className="flex items-center space-x-2">
                       <Checkbox id="highSalary" checked={showHighSalaryOnly} onCheckedChange={(checked) => setShowHighSalaryOnly(Boolean(checked))} />
                       <label htmlFor="highSalary" className="text-sm">

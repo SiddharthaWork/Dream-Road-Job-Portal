@@ -31,6 +31,10 @@ const JobSeekersNavbar = () => {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('fullname');
     localStorage.removeItem('profile');
+    // remove cookies too
+    document.cookie.split(";").forEach(function (cookie) {
+      document.cookie = cookie.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
     router.push('/login');
   };
 

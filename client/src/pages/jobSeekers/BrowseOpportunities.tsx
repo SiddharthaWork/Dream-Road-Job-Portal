@@ -24,10 +24,9 @@ const BrowseOpportunities: React.FC<BrowseOpportunitiesProps> = ({
   const industries = [
     "All",
     "Engineering",
-    "Product",
     "Design",
     "Marketing",
-  
+    "Finance",
   ];
 
   const handleIndustryChange = (industry: string) => {
@@ -40,7 +39,7 @@ const BrowseOpportunities: React.FC<BrowseOpportunitiesProps> = ({
   };
 
   const filteredJobs = selectedIndustry 
-    ? jobs.filter(job => job?.department === selectedIndustry)
+    ? jobs.filter(job => job?.department?.toLowerCase() === selectedIndustry.toLowerCase())
     : jobs;
 
   const indexOfLastJob = currentPage * jobsPerPage;

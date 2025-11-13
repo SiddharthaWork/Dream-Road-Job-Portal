@@ -166,7 +166,7 @@ export default function JobApplicationModal({ jobId, userId, onApplied, onClose,
                   </CardContent>
                 </Card>
 
-                <Card className="border-[#255cf4]/20 bg-[#255cf4]/5 mt-4">
+                <Card className="border-[#255cf4]/20 bg-[#255cf4]/5 mt-4 max-w-[470px] overflow-auto">
                   <CardContent className="pt-4 ">
                     <div className="flex items-center gap-3">
                    
@@ -175,6 +175,7 @@ export default function JobApplicationModal({ jobId, userId, onApplied, onClose,
                         <div className="flex items-center gap-2">
 
                         <Textarea 
+                        maxLength={1000}
                           className="mt-2 h-[5rem]" 
                           placeholder="Cover Letter" 
                           value={coverLetter}

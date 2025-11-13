@@ -6,6 +6,7 @@ import { Header } from '@/components/admin/header';
 import { ThemeProvider } from 'next-themes';
 import { Sidebar } from '@/components/admin/adminsidebar';
 import { useRouter } from 'next/navigation';
+import { useAdminProtection } from '@/components/auth/ClientSideAuth';
 // Mock user data
 const mockUser = {
   id: '1',
@@ -19,6 +20,7 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { loading } = useAdminProtection();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -30,6 +32,17 @@ export default function AdminLayout({
     router.push('/adminlogin'); 
     // Mock logout - just log to console
   };
+
+  // Show loading spinner while checking authentication
+  if (loading) {
+    return (
+      <ThemeProvider attribute="class" defaultTheme="light">
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+        </div>
+      </ThemeProvider>
+    );
+  }
 
   // Don't show admin layout for login page
   if (pathname === '/admin/login') {

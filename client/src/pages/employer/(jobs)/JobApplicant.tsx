@@ -45,7 +45,8 @@ interface Job {
 
 const JobApplicants = () => {
   const params = useParams();
-  const jobId = params?.id as string;
+  // const jobId = params?.id as string;
+  const jobId = params?.id;
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -58,6 +59,9 @@ const JobApplicants = () => {
 
   useEffect(() => { 
     const fetchData = async () => {
+      if (!jobId) {
+        return;
+      }
       setLoading(true);
       try {
         const response = await axios.get(
@@ -216,9 +220,10 @@ const JobApplicants = () => {
           {(application.applicantScore * 100).toFixed(0)}%
         </div>
       </TableCell>
-      <TableCell>
+      {/* <TableCell>
         {application.summary?.strengths?.join(', ') || 'N/A'}
-      </TableCell>
+        N/A
+      </TableCell> */}
       <TableCell>
         {new Date(application.createdAt).toLocaleDateString()}
       </TableCell>
@@ -408,7 +413,7 @@ const JobApplicants = () => {
                     <TableRow>
                       <TableHead>Candidate</TableHead>
                       <TableHead>Match Score</TableHead>
-                      <TableHead>Strengths</TableHead>
+                      {/* <TableHead>Strengths</TableHead> */}
                       <TableHead>Applied Date</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Actions</TableHead>

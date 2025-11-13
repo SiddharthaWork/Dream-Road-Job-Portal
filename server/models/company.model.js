@@ -25,9 +25,11 @@ const companySchema = new mongoose.Schema({
         type:[String],
         default:[]
     },
-    block:{
-        type:Boolean,
-        default:false
+    resetPasswordToken: {
+        type: String
+    },
+    resetPasswordExpiry: {
+        type: Date
     }
 },{timestamps:true});
 

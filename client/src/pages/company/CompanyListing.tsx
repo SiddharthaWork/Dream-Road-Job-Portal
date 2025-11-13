@@ -59,8 +59,9 @@ export default function CompanyListings({ onCompanyClick }: CompanyListingsProps
   const filteredCompanies = companies.filter(company => {
     const matchesName = companyNameSearch === '' || company.name.toLowerCase().includes(companyNameSearch.toLowerCase())
     const matchesLocation = selectedLocations.length === 0 || selectedLocations.includes(company.location)
+    const matchesIndustry = selectedIndustries.length === 0 || selectedIndustries.includes(company.industry)
     const hasJobs = company.jobCount > 0
-    return matchesName && matchesLocation && hasJobs
+    return matchesName && matchesLocation && matchesIndustry && hasJobs
   })
 
   const renderStars = (rating: number) => {

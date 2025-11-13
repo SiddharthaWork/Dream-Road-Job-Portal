@@ -31,6 +31,12 @@ export default function LoginPage() {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('role', response.data.role);
       localStorage.setItem('isLoggedIn', "true");
+
+      // store in cookies to match middleware expectations
+      document.cookie = `token=${response.data.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
+      document.cookie = `role=admin; path=/; max-age=${7 * 24 * 60 * 60}`;
+      document.cookie = `userId=${response.data.id || 'admin'}; path=/; max-age=${7 * 24 * 60 * 60}`;
+
       toast.success("Login successful!");
       router.push('/admin/dashboard');
     })
@@ -128,7 +134,7 @@ export default function LoginPage() {
                   </label>
                 </div>
                 <div className="text-sm">
-                  <a href="#" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+                  <a href="/admin-forget-password" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
                     Forgot password?
                   </a>
                 </div>

@@ -40,7 +40,8 @@ const AboutYourselfStep = forwardRef((props, ref: ForwardedRef<{ validate: () =>
     const validateField = (field: string, value: any) => {
       let error = ''
       
-      if (!value) {
+      // Check if value is empty (but allow 0 or false as valid values)
+      if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) {
         error = `${field.replace(/([A-Z])/g, ' $1').toLowerCase()} is required`
       } else {
         // Add phone number validation
@@ -48,19 +49,28 @@ const AboutYourselfStep = forwardRef((props, ref: ForwardedRef<{ validate: () =>
           error = 'Phone number must be exactly 10 digits'
         }
         
-        // Add city validation
+        // Add city/address validation
         if (field === 'city') {
-          const wordCount = value.trim().split(/\s+/).filter(Boolean).length
-          if (wordCount > 20) {
-            error = 'City must be maximum 30 words'
+          if (value.trim().length < 2) {
+            error = 'Address must be at least 2 characters'
+          }
+          else if(value.trim().length > 30){
+            error = 'Address must be at most 30 characters'
           }
         }
         
         // Add aboutMe validation
-        if (field === 'aboutMe') {
-          const wordCount = value.trim().split(/\s+/).filter(Boolean).length
-          if (wordCount > 100) {
-            error = 'About me must be maximum 100 words'
+        if (field === 'aboutMe' && typeof value === 'string') {
+          const trimmedValue = value.trim()
+          if (trimmedValue === '') {
+            error = 'About me is required'
+          } else {
+            const wordCount = trimmedValue.split(/\s+/).filter(Boolean).length
+            if (wordCount < 2) {
+              error = 'About me must be at least 2 words'
+            } else if (wordCount > 100) {
+              error = 'About me must be maximum 300 words'
+            }
           }
         }
       }
@@ -308,6 +318,7 @@ const AboutYourselfStep = forwardRef((props, ref: ForwardedRef<{ validate: () =>
             </Label>
             <Input
               id="postalCode"
+              maxLength={6}
               value={formData.postalCode}
               onChange={(e) => handleInputChange("postalCode", e.target.value)}
               placeholder="Enter postal code"
@@ -322,8 +333,8 @@ const AboutYourselfStep = forwardRef((props, ref: ForwardedRef<{ validate: () =>
           <Label htmlFor="aboutMe">
             About Me <span className="text-red-500">*</span>
           </Label>
-          <div className="border rounded-lg">
-            <div className="flex items-center space-x-2 p-2 border-b bg-gray-50 rounded-t-lg">
+          <div className="border rounded-lg w-full max-w-full overflow-hidden">
+            {/* <div className="flex items-center space-x-2 p-2 border-b bg-gray-50 rounded-t-lg">
               <Button
                 type="button"
                 variant="ghost"
@@ -351,18 +362,22 @@ const AboutYourselfStep = forwardRef((props, ref: ForwardedRef<{ validate: () =>
               >
                 <Underline className="w-4 h-4" />
               </Button>
-            </div>
+            </div> */}
             
             <Textarea
               id="aboutMe"
+              maxLength={200}
               value={formData.aboutMe}
               onChange={(e) => handleInputChange("aboutMe", e.target.value)}
               placeholder="eg. Secure a responsible career opportunity to fully utilize my training and skills, while making a significant contribution to success of the company."
-              className="border-0 rounded-t-none min-h-[120px] resize-none focus-visible:ring-0"
+              className="border-0 rounded-t-none min-h-[120px] max-w-3xl resize-none focus-visible:ring-0 w-full"
               style={{
                 fontWeight: textFormat.bold ? "bold" : "normal",
                 fontStyle: textFormat.italic ? "italic" : "normal",
                 textDecoration: textFormat.underline ? "underline" : "none",
+                wordWrap: "break-word",
+                overflowWrap: "break-word",
+                whiteSpace: "pre-wrap"
               }}
             />
           </div>

@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerCompany, login, getAllCompanies, getCompany, updateCompany, deleteCompany, getDeletedJobsByCompanyId, getAllCompanyCount} from '../controllers/company.controller.js';
+import { registerCompany, login, getAllCompanies, getCompany, updateCompany, deleteCompany, getDeletedJobsByCompanyId, getAllCompanyCount } from '../controllers/company.controller.js';
 import { singleUpload } from '../middlewares/multer.js';
 
 const router = express.Router();

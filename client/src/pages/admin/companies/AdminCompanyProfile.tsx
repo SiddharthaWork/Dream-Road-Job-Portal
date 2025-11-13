@@ -39,7 +39,14 @@ const AdminCompanyProfile = () => {
     logo: '',
   });
 
-  const { id } = useParams<any>();
+  const params = useParams<any>();
+  const id = params?.id;
+
+    useEffect(() => {
+      if (!id) {
+        return;
+      }
+    }, [id]);
 
   useEffect(() => {
     const fetchCompanyData = async () => {

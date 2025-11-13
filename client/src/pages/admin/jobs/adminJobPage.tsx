@@ -201,7 +201,7 @@ export default function AdminJobPage() {
                   />
                 </div>
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              {/* <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
@@ -240,7 +240,7 @@ export default function AdminJobPage() {
               <Button variant="outline" size="sm">
                 <Filter className="h-4 w-4 mr-2" />
                 More Filters
-              </Button>
+              </Button> */}
             </div>
           </CardContent>
         </Card>

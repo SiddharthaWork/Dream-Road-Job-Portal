@@ -10,9 +10,11 @@ interface LocationInputProps {
   onChange: (value: string) => void;
   placeholder?: string;
   id?: string;
+  maxLength?: number;
+  minLength?: number;
 }
 
-const LocationInput = ({ value, onChange, placeholder, id }: LocationInputProps) => {
+const LocationInput = ({ value, onChange, placeholder, id, maxLength, minLength }: LocationInputProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState(value);
   const { suggestions, isLoading, searchLocations, clearSuggestions } = useLocationAutocomplete();
@@ -73,6 +75,8 @@ const LocationInput = ({ value, onChange, placeholder, id }: LocationInputProps)
           onFocus={handleFocus}
           placeholder={placeholder}
           className="pl-10"
+          maxLength={maxLength}
+          minLength={minLength}
           required
         />
         <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />

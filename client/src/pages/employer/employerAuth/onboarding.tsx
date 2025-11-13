@@ -78,6 +78,12 @@ const Onboarding = () => {
     if (!companyData.name.trim()) {
       newErrors.name = 'Company name is required';
       isValid = false;
+    } else if (companyData.name.trim().length < 4) {
+      newErrors.name = 'Company name must be at least 4 characters';
+      isValid = false;
+    } else if (companyData.name.trim().length > 30) {
+      newErrors.name = 'Company name must be at most 30 characters';
+      isValid = false;
     }
 
     // Validate email
@@ -115,14 +121,20 @@ const Onboarding = () => {
     if (!companyData.password) {
       newErrors.password = 'Password is required';
       isValid = false;
-    } else if (companyData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else if (companyData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+      isValid = false;
+    } else if (companyData.password.length > 20) {
+      newErrors.password = 'Password must be at most 20 characters';
       isValid = false;
     }
 
     // Validate website
     if (!companyData.website) {
       newErrors.website = 'Website is required';
+      isValid = false;
+    } else if (companyData.website.length < 4) {
+      newErrors.website = 'Website must be at least 4 characters';
       isValid = false;
     } else {
       const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z]{2,6})([\/\w \.-]*)*\/?$/;
@@ -141,6 +153,12 @@ const Onboarding = () => {
     // Validate description
     if (!companyData.description) {
       newErrors.description = 'Description is required';
+      isValid = false;
+    } else if (companyData.description.length < 4) {
+      newErrors.description = 'Description must be at least 4 characters';
+      isValid = false;
+    } else if (companyData.description.length > 100) {
+      newErrors.description = 'Description must be at most 100 characters';
       isValid = false;
     }
 

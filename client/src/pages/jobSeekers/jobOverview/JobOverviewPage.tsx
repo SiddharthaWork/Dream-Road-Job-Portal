@@ -32,7 +32,14 @@ import { BookmarkCheck } from "lucide-react"
 import toast from "react-hot-toast"
 
 export default function JobOverviewPage() {
-  const { id } = useParams() as { id: string };
+  const params = useParams<any>();
+  const id = params?.id;
+
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+  }, [id]);
 
   const [job, setJob] = useState<any>(null);
   const [similarJobs, setSimilarJobs] = useState<any>(null);
@@ -309,7 +316,7 @@ export default function JobOverviewPage() {
               </Card>
 
               {/* Job Description */}
-              <Card>
+              <Card className="overflow-auto">
                 <CardHeader>
                   <CardTitle className="text-lg">Job Description</CardTitle>
                 </CardHeader>
@@ -338,7 +345,7 @@ export default function JobOverviewPage() {
               </Card>
 
               {/* Key Skills */}
-              <Card>
+              <Card className="overflow-auto">
                 <CardHeader>
                   <CardTitle className="text-lg">Key Skills</CardTitle>
                   <p className="text-sm text-gray-600">Skills highlighted with '*' are preferred keyskills</p>

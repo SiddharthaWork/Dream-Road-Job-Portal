@@ -26,6 +26,10 @@ const SkillsStep = forwardRef((props, ref: ForwardedRef<{ validate: () => boolea
         setError('Please add at least 5 skills');
         return false;
       }
+      if (formData.skills.length > 30) {
+        setError('Maximum 30 skills allowed');
+        return false;
+      }
       setError(null);
       return true;
     };
@@ -37,9 +41,15 @@ const SkillsStep = forwardRef((props, ref: ForwardedRef<{ validate: () => boolea
     }));
 
     const handleAddSkill = () => {
+      if (formData.skills.length >= 30) {
+        setError('Maximum 30 skills allowed');
+        return;
+      }
+      
       if (newSkill.trim() && !formData.skills.includes(newSkill.trim())) {
         updateFormData({ skills: [...formData.skills, newSkill.trim()] })
         setNewSkill("")
+        setError(null);
       }
     }
 
@@ -47,6 +57,7 @@ const SkillsStep = forwardRef((props, ref: ForwardedRef<{ validate: () => boolea
       updateFormData({
         skills: formData.skills.filter((skill) => skill !== skillToRemove),
       })
+      setError(null); // Clear error when removing skills
     }
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -59,8 +70,15 @@ const SkillsStep = forwardRef((props, ref: ForwardedRef<{ validate: () => boolea
     return (
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Skills</h2>
-          <p className="text-gray-600">Add your technical and soft skills.</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Skills</h2>
+              <p className="text-gray-600">Add your technical and soft skills.</p>
+            </div>
+            <span className="text-sm text-gray-500">
+              {formData.skills.length}/30 skills
+            </span>
+          </div>
         </div>
 
         <div className="space-y-4 px-4">
@@ -75,10 +93,15 @@ const SkillsStep = forwardRef((props, ref: ForwardedRef<{ validate: () => boolea
                 onKeyPress={handleKeyPress}
                 placeholder="Enter a skill (e.g., JavaScript, Communication)"
                 className="rounded-lg mt-4"
+                disabled={formData.skills.length >= 30}
               />
             </div>
             <div className="flex items-end">
-              <Button onClick={handleAddSkill} className="bg-[#255cf4] hover:bg-[#255cf4]/80 text-white">
+              <Button 
+                onClick={handleAddSkill} 
+                className="bg-[#255cf4] hover:bg-[#255cf4]/80 text-white"
+                disabled={formData.skills.length >= 30}
+              >
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
@@ -101,7 +124,7 @@ const SkillsStep = forwardRef((props, ref: ForwardedRef<{ validate: () => boolea
                   >
                     <Badge
                       variant="secondary"
-                      className="bg-[#255cf4] text-white hover:bg-purple-200 px-3 py-1 text-sm"
+                      className="bg-[#255cf4] text-white hover:bg-[#255cf4]/80 px-3 py-1 text-sm"
                     >
                       {skill}
                       <button onClick={() => handleRemoveSkill(skill)} className="ml-2 hover:text-[#255cf4]">

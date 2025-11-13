@@ -4,12 +4,15 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { AppProvider } from '@/contexts/AppContext';
 import { Toaster } from 'react-hot-toast';
 import AdminBlockWrapper from '@/components/shared/AdminBlockWrapper';
+import { checkOptionalCompany } from '@/components/auth/ServerSideAuth';
 
-export default function EmployerLayout({
+export default async function EmployerLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    await checkOptionalCompany();
+        
     return (
         <AdminBlockWrapper>
             <AppProvider>

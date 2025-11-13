@@ -49,10 +49,8 @@ const JobPortal = () => {
 
         </div>
         <div className="space-y-6">
-          {/* How It Works */}
           <HowItWorks />
 
-          {/* Recent Earners */}
           <RecentJobPosts />
 
           {/* Recent Activity */}

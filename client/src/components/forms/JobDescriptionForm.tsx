@@ -22,6 +22,7 @@ const JobDescriptionForm = ({ register, errors }: JobDescriptionFormProps) => {
           <Label htmlFor="description">Job Description *</Label>
           <Textarea
             id="description"
+            maxLength={600}
             placeholder="Describe the role, responsibilities, and what the candidate will be working on..."
             rows={6}
             {...register('description', { required: 'Job description is required' })}
@@ -35,6 +36,7 @@ const JobDescriptionForm = ({ register, errors }: JobDescriptionFormProps) => {
           <Label htmlFor="requirements">Requirements *</Label>
           <Textarea
             id="requirements"
+            maxLength={600}
             placeholder="List the required skills, experience, and qualifications..."
             rows={4}
             {...register('requirements', { required: 'Requirements are required' })}
@@ -48,6 +50,7 @@ const JobDescriptionForm = ({ register, errors }: JobDescriptionFormProps) => {
           <Label htmlFor="benefits">Benefits & Perks *</Label>
           <Textarea
             id="benefits"
+            maxLength={600}
             placeholder="Describe the benefits, perks, and what makes your company great..."
             rows={4}
             {...register('benefits', { required: 'Benefits are required' })}

@@ -28,6 +28,7 @@ interface CompanyData {
 const CompanyProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
 
   // Get company data from localStorage (mock data)
   const [companyData, setCompanyData] = useState<CompanyData>({
@@ -46,6 +47,29 @@ const CompanyProfile = () => {
 
   const [formData, setFormData] = useState<CompanyData>(companyData);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+
+  // Website validation function
+  const validateWebsite = (website: string): string | null => {
+    if (!website.trim()) {
+      return 'Website is required';
+    }
+    
+    if (website.length < 4) {
+      return 'Website must be at least 4 characters';
+    }
+    
+    if (website.length > 20) {
+      return 'Website must be at most 20 characters';
+    }
+    
+    // Basic URL validation pattern
+    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
+    if (!urlPattern.test(website)) {
+      return 'Please enter a valid website URL';
+    }
+    
+    return null;
+  };
 
   useEffect(() => {
     const fetchCompanyData = async () => {
@@ -87,8 +111,26 @@ const CompanyProfile = () => {
     fetchCompanyData();
   }, []);
 
+  // Sync formData with companyData when entering edit mode
+  useEffect(() => {
+    if (isEditing) {
+      setFormData(companyData);
+      setValidationErrors({}); // Clear any validation errors when entering edit mode
+    }
+  }, [isEditing, companyData]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Validate website field in real-time
+    if (name === 'website') {
+      const error = validateWebsite(value);
+      setValidationErrors(prev => ({
+        ...prev,
+        website: error || ''
+      }));
+    }
   };
 
   const handleSelectChange = (name: keyof CompanyData, value: string) => {
@@ -97,19 +139,46 @@ const CompanyProfile = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setLogoFile(e.target.files[0]);
+      const file = e.target.files[0];
+      
+      // Validate file type
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Please select a valid logo file (PNG, JPG, JPEG, SVG, or WebP)');
+        e.target.value = ''; // Clear the input
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (file.size > maxSize) {
+        toast.error('Logo file size must be less than 5MB');
+        e.target.value = ''; // Clear the input
+        return;
+      }
+      
+      setLogoFile(file);
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
           setFormData((prev) => ({ ...prev, logo: event?.target?.result as string }));
         }
       };
-      reader.readAsDataURL(e.target.files[0]);
+      reader.readAsDataURL(file);
     }
   };
 
   const handleSave = async () => {
     setIsLoading(true);
+
+    // Validate website
+    const websiteError = validateWebsite(formData.website);
+    if (websiteError) {
+      setValidationErrors(prev => ({ ...prev, website: websiteError }));
+      toast.error('Please fix the website validation errors');
+      setIsLoading(false);
+      return;
+    }
 
     // Validate required fields
     const requiredFields: (keyof CompanyData)[] = ['website', 'industry', 'size'];
@@ -298,12 +367,21 @@ const CompanyProfile = () => {
             <div className="space-y-2">
               <Label htmlFor="website">Website</Label>
               {isEditing ? (
-                <Input
-                  id="website"
-                  name="website"
-                  value={formData.website}
-                  onChange={handleInputChange}
-                />
+                <>
+                  <Input
+                    id="website"
+                    name="website"
+                    value={formData.website}
+                    onChange={handleInputChange}
+                    minLength={4}
+                    maxLength={20}
+                    placeholder="e.g. example.com"
+                    className={validationErrors.website ? 'border-red-500' : ''}
+                  />
+                  {validationErrors.website && (
+                    <p className="text-sm text-red-600">{validationErrors.website}</p>
+                  )}
+                </>
               ) : (
                 <p className="text-sm p-2 bg-gray-50 rounded">{companyData.website}</p>
               )}
@@ -316,15 +394,15 @@ const CompanyProfile = () => {
               {isEditing ? (
                 <Select value={formData.industry} onValueChange={(value) => handleSelectChange('industry', value)}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select industry" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Technology">Technology</SelectItem>
-                    <SelectItem value="Finance">Finance</SelectItem>
-                    <SelectItem value="Healthcare">Healthcare</SelectItem>
-                    <SelectItem value="Education">Education</SelectItem>
-                    <SelectItem value="Retail">Retail</SelectItem>
-                    <SelectItem value="Manufacturing">Manufacturing</SelectItem>
+                    <SelectItem value="technology">Technology</SelectItem>
+                    <SelectItem value="finance">Finance</SelectItem>
+                    <SelectItem value="healthcare">Healthcare</SelectItem>
+                    <SelectItem value="education">Education</SelectItem>
+                    <SelectItem value="retail">Retail</SelectItem>
+                    <SelectItem value="manufacturing">Manufacturing</SelectItem>
                   </SelectContent>
                 </Select>
               ) : (
@@ -336,7 +414,7 @@ const CompanyProfile = () => {
               {isEditing ? (
                 <Select value={formData.size} onValueChange={(value) => handleSelectChange('size', value)}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select company size" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1-10">1-10 employees</SelectItem>
@@ -377,7 +455,11 @@ const CompanyProfile = () => {
                 id="logo"
                 name="logo"
                 onChange={handleFileChange}
+                accept=".png,.jpg,.jpeg,.svg,.webp,image/png,image/jpeg,image/jpg,image/svg+xml,image/webp"
               />
+              <p className="text-sm text-gray-500">
+                Upload your company logo (PNG, JPG, JPEG, SVG, or WebP, max 5MB)
+              </p>
               </>
             ) : (
               // <img src={companyData.logo || '/placeholder.png'} alt="logo" className="h-16 w-16 rounded-full" />

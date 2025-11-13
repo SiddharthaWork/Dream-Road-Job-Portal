@@ -113,7 +113,6 @@ export default function RecentJobPosts({ jobPosts = [], onViewAllJobs }: RecentJ
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <h4 className="font-semibold truncate">{post.companyName}</h4>
-                  <p className="text-sm text-gray-500 truncate">{post.latestJobTitle}</p>
                 </div>
                 <div className="flex items-center gap-1">
                   <Briefcase className="text-[#255cf4] w-4 h-4" />

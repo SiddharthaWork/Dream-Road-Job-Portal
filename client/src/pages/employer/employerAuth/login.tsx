@@ -44,6 +44,12 @@ const Login = () => {
       localStorage.setItem('isLoggedIn', data.isLoggedIn.toString());
       localStorage.setItem('companyName', data.company.name);
 
+      // save cookies to match middleware expectations
+      document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
+      document.cookie = `userId=${data.company._id}; path=/; max-age=${7 * 24 * 60 * 60}`;
+      document.cookie = `role=company; path=/; max-age=${7 * 24 * 60 * 60}`;
+
+
       toast.success("Login successful");
       router.push('/employer/dashboard');
     } catch (error: any) {
@@ -120,7 +126,7 @@ const Login = () => {
               </div>
 
               <div className="text-center">
-                <Link href="/forgot-password" className="text-blue-600 hover:underline text-sm">
+                <Link href="/company-forget-password" className="text-blue-600 hover:underline text-sm">
                   Forgot password?
                 </Link>
               </div>

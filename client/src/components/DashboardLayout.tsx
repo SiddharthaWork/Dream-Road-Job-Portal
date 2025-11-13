@@ -60,6 +60,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       title: "Logged out successfully",
       description: "See you next time!",
     });
+    // remove cookies too
+    document.cookie.split(";").forEach(function (cookie) {
+      document.cookie = cookie.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
     router.push('/employer/login');
   };
 
