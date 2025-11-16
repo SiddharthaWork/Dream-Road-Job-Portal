@@ -1,5 +1,5 @@
 import express from "express";
-import { login, register, getAllUser, getAllCompany, getAllJobs, deleteJob, blockUser, unblockUser, blockCompany, unblockCompany, checkBlockUser, checkBlockCompany } from "../controllers/admin.controller.js";
+import { login, register, getAllUser, getAllCompany, getAllJobs, deleteJob, blockUser, unblockUser, blockCompany, unblockCompany, checkBlockUser, checkBlockCompany, approveCompany, rejectCompany } from "../controllers/admin.controller.js";
 
 const router = express.Router();    
 
@@ -21,7 +21,10 @@ router.route("/checkBlockUser/:id").get(checkBlockUser);
 router.route("/checkBlockCompany/:id").get(checkBlockCompany);    
 
 router.route("/getAllJobs").get(getAllJobs);    
-router.route("/deleteJob/:id").delete(deleteJob);    
+router.route("/deleteJob/:id").delete(deleteJob);  
+
+router.route("/approveCompany/:id").put(approveCompany);    
+router.route("/rejectCompany/:id").put(rejectCompany);    
 
 export default router;
 
@@ -38,9 +41,10 @@ export default router;
 // localhost:4000/api/admin/unblockCompany/:id
 
 // localhost:4000/api/admin/checkBlockUser/:id
-//  :id
-
-// localhost:4000/api/admin/getAllJobs
 // localhost:4000/api/admin/deleteJob/:id
+
+
+// localhost:4000/api/admin/approveCompany/:id
+// localhost:4000/api/admin/rejectCompany/:id
 
 

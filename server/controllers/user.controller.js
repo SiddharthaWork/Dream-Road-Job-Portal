@@ -69,6 +69,7 @@ export const login = async (req,res) => {
             profile:user.profile,
             profileCompleted:user.profileCompleted,
             isLoggedIn:true,
+            adminApproved:user.adminApproved,
             token
         }
 

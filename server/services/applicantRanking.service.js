@@ -1,5 +1,3 @@
-
-
 const APPLICANT_SCORING_WEIGHTS = {
   skillsMatch: 0.40,        
   experienceMatch: 0.25,    
@@ -9,7 +7,6 @@ const APPLICANT_SCORING_WEIGHTS = {
   certificationsMatch: 0.05 
 };
 
-// Calculate skills match between applicant and job requirements
 function calculateApplicantSkillsScore(applicantSkills, jobSkills) {
   if (!applicantSkills || !applicantSkills.length || !jobSkills || !jobSkills.length) {
     return 0;
@@ -24,7 +21,6 @@ function calculateApplicantSkillsScore(applicantSkills, jobSkills) {
     )
   ).length;
   
-  // Score based on percentage of job requirements met
   const requirementsCoverage = matchedSkills / jobSkillsLower.length;
   
   const skillsBonus = Math.min(applicantSkillsLower.length / jobSkillsLower.length, 1.5);
@@ -32,7 +28,6 @@ function calculateApplicantSkillsScore(applicantSkills, jobSkills) {
   return Math.min(requirementsCoverage * skillsBonus, 1);
 }
 
-// Extract years of experience from experience string
 function extractExperienceYears(experienceString) {
   if (!experienceString) return 0;
   
@@ -61,7 +56,6 @@ function calculateTotalExperience(experiences) {
   return Math.round(totalMonths / 12 * 10) / 10; // Round to 1 decimal place
 }
 
-// Calculate experience match score
 function calculateApplicantExperienceScore(applicantExperiences, jobExperience, jobTitle) {
   if (!applicantExperiences || !applicantExperiences.length) {
     return jobExperience ? 0 : 0.5; // If no experience required, give moderate score
@@ -70,7 +64,6 @@ function calculateApplicantExperienceScore(applicantExperiences, jobExperience, 
   const totalYears = calculateTotalExperience(applicantExperiences);
   const requiredYears = extractExperienceYears(jobExperience);
   
-  // Check for relevant job titles
   const relevantExperience = applicantExperiences.filter(exp => {
     if (!exp.jobTitle || !jobTitle) return false;
     
@@ -86,7 +79,6 @@ function calculateApplicantExperienceScore(applicantExperiences, jobExperience, 
   
   let experienceScore = 0;
   
-  // Base score from years of experience
   if (totalYears >= requiredYears) {
     experienceScore += 0.7;
   } else if (totalYears >= requiredYears * 0.8) {

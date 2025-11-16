@@ -127,6 +127,36 @@ export const unblockCompany = async (req,res) => {
     }
 }
 
+// approveCompany
+export const approveCompany = async (req,res) => {
+    try{
+        const company = await Company.findById(req.params.id);
+        if(!company){
+            return res.status(400).json({message:"Company not found",success:false});
+        }
+        company.adminApproved = true;
+        await company.save();
+        return res.status(200).json({message:"Company approved successfully",success:true});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}
+
+// rejectCompany
+export const rejectCompany = async (req,res) => {
+    try{
+        const company = await Company.findById(req.params.id);
+        if(!company){
+            return res.status(400).json({message:"Company not found",success:false});
+        }
+        company.adminApproved = false;
+        await company.save();
+        return res.status(200).json({message:"Company rejected successfully",success:true});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false});   
+    }
+}
+
 
 // check block or not of user
 export const checkBlockUser = async (req,res) => {

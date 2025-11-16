@@ -14,13 +14,8 @@ export const getJobRecommendations = async (userId) => {
   try {
     const user = await User.findById(userId);
     
-    // Check if user exists and profile has essential data
     if (!user || !user.profileCompleted || 
         !user.profile?.skills?.length 
-        // || !user.profile?.sectors?.length || 
-        // !user.profile?.designation || 
-        // !user.profile?.city || 
-        // !user.profile?.experiences?.length
       ) 
         {
       return [];

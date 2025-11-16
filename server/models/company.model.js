@@ -30,6 +30,10 @@ const companySchema = new mongoose.Schema({
     },
     resetPasswordExpiry: {
         type: Date
+    },
+    adminApproved:{
+        type:Boolean,
+        default:false
     }
 },{timestamps:true});
 
