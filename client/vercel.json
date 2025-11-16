@@ -1,3 +1,9 @@
 {
-  "buildCommand": "npm install --legacy-peer-deps && npm run build"
+  "build": {
+    "env": {},
+    "commands": {
+      "install": "npm install --force",
+      "build": "NEXT_EXPERIMENTAL_OPTIMIZE_FONTS=false npm run build"
+    }
+  }
 }
