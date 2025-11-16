@@ -24,7 +24,7 @@ export default function AppliedShortlistPage() {
         }
 
         const response = await axios.get(
-          `http://localhost:4000/api/application/getAppliedJobUsers/${userId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/getAppliedJobUsers/${userId}`
         );
         console.log(response.data)
         const applications = response.data.application;

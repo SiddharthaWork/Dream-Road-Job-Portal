@@ -38,14 +38,24 @@ const AdminCompanyProfile = () => {
     benefits: '',
     logo: '',
   });
+  const [verificationStatus, setVerificationStatus] = useState<any>();
 
-  const { id } = useParams<any>();
+  const params = useParams<any>();
+  const id = params?.id;
 
-  useEffect(() => {
+    useEffect(() => {
+      if (!id) {
+        return;
+      }
+      fetchCompanyData();
+    }, [id]);
+
     const fetchCompanyData = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/company/getcompany/${id}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/company/getcompany/${id}`);
         const data = response.data.data;
+        setVerificationStatus(response.data.data.adminApproved);
+
         setCompanyData({
           name: data.name,
           website: data.website,
@@ -64,10 +74,31 @@ const AdminCompanyProfile = () => {
       }
     };
 
-    fetchCompanyData();
-  }, [id]);
+  const approveCompany = async () => {
+    try {
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/approveCompany/${id}`);
+      const data = response.data.data;
+      toast.success("Company approved successfully");
+      fetchCompanyData();
 
-  const verificationStatus = 'pending';
+    } catch (error) {
+      console.error('Failed to approve company', error);
+      toast.error("Failed to approve company.");
+    }
+  };
+
+  const rejectCompany = async () => {
+    try {
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/rejectCompany/${id}`);
+      const data = response.data.data;
+      toast.success("Company rejected successfully");
+      fetchCompanyData();
+    } catch (error) {
+      console.error('Failed to reject company', error);
+      toast.error("Failed to reject company.");
+    }
+  };
+
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -76,6 +107,24 @@ const AdminCompanyProfile = () => {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Company Profile</h2>
           <p className="text-muted-foreground">View company information</p>
+        </div>
+        <div className="flex items-center gap-2" >
+          <Button
+            onClick={approveCompany}
+            className="bg-blue-500 hover:bg-blue-600 text-white"
+            disabled={verificationStatus}
+          >
+            <CheckCircle className="h-4 w-4 mr-2" />
+            Approve Company
+          </Button>
+
+          <Button
+            onClick={rejectCompany}
+            className="bg-red-500 hover:bg-red-600 text-white"
+          >
+            <X className="h-4 w-4 mr-2" />
+            Reject Company
+          </Button>
         </div>
       </div>
 

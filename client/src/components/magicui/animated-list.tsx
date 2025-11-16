@@ -10,11 +10,12 @@ export function AnimatedListItem({ children }: { children: React.ReactNode }) {
     animate: { scale: 1, opacity: 1, y: 0, rotateX: 0 },
     exit: { scale: 0.9, opacity: 0, y: -30, rotateX: -15 },
     
+    
     transition: {
       type: "spring",
       stiffness: 260,
       damping: 20,
-      duration: 0.6,
+      duration: 0,
     },
   }
   
@@ -24,6 +25,8 @@ export function AnimatedListItem({ children }: { children: React.ReactNode }) {
       animate={{ scale: 1, opacity: 1, y: 0, rotateX: 0 }}
       exit={{ scale: 0.9, opacity: 0, y: -30, rotateX: -15 }}
       transition={{ type: "spring", stiffness: 260, damping: 20, duration: 0.6 }}
+      // transition={{ duration: 0 }}
+      // className="mx-auto w-full"
       layout
       className="mx-auto w-full perspective-1000"
     >

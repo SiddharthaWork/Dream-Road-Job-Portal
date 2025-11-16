@@ -18,8 +18,7 @@ const userSchema = new mongoose.Schema({
         required:true
     },
     phoneNumber:{
-        type:String,
-        required:true
+        type:String
     },
     profile: {
         firstName: { type: String, default: '' },
@@ -96,7 +95,13 @@ const userSchema = new mongoose.Schema({
     block:{
         type:Boolean,
         default:false
-    } 
+    },
+    resetPasswordToken: {
+        type: String
+    },
+    resetPasswordExpiry: {
+        type: Date
+    }
 },{timestamps:true});
 
 export const User = mongoose.model('User',userSchema);

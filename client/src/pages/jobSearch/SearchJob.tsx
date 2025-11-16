@@ -51,7 +51,7 @@ export default function SearchJob() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/job/getalljobs');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getalljobs`);
         if (response.data.success) {
           setJobs(response.data.data);
           console.log("here is the jobs", response.data.data)
@@ -325,12 +325,12 @@ export default function SearchJob() {
                 <div>
                   <h4 className="text-sm font-medium mb-3">Quick Filters</h4>
                   <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
+                    {/* <div className="flex items-center space-x-2">
                       <Checkbox id="remote" checked={showRemoteOnly} onCheckedChange={(checked) => setShowRemoteOnly(Boolean(checked))} />
                       <label htmlFor="remote" className="text-sm">
                         Remote Only
                       </label>
-                    </div>
+                    </div> */}
                     <div className="flex items-center space-x-2">
                       <Checkbox id="highSalary" checked={showHighSalaryOnly} onCheckedChange={(checked) => setShowHighSalaryOnly(Boolean(checked))} />
                       <label htmlFor="highSalary" className="text-sm">

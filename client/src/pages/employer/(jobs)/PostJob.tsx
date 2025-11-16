@@ -28,6 +28,11 @@ const PostJob = () => {
   const [skillsError, setSkillsError] = useState<string | null>(null);
 
   const handleAddSkill = () => {
+    if (skills.length >= 30) {
+      setSkillsError('Maximum 30 skills allowed');
+      return;
+    }
+    
     if (newSkill.trim() && !skills.includes(newSkill.trim())) {
       const updatedSkills = [...skills, newSkill.trim()];
       setSkills(updatedSkills);
@@ -62,7 +67,7 @@ const PostJob = () => {
     try {
       const companyId = localStorage.getItem('companyId');
       
-      const response = await axios.post('http://localhost:4000/api/job/createJob', {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/createJob`, {
         ...data,
         location: location,
         deadline: hasDeadline ? deadline : undefined,
@@ -107,7 +112,12 @@ const PostJob = () => {
           
           
           <Card className="space-y-4 bg-white p-6">
-            <h3 className="text-lg font-medium">Required Skills</h3>
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-medium">Required Skills</h3>
+              <span className="text-sm text-muted-foreground">
+                {skills.length}/30 skills
+              </span>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="newSkill">Add Skills</Label>
               <div className="flex gap-2 items-end">
@@ -117,11 +127,13 @@ const PostJob = () => {
                   onChange={(e) => setNewSkill(e.target.value)}
                   onKeyDown={handleKeyPress}
                   placeholder="Enter a skill (e.g., JavaScript, Communication)"
+                  disabled={skills.length >= 30}
                 />
                 <Button 
                   type="button" 
                   onClick={handleAddSkill}
                   className="bg-primary hover:bg-primary/90 text-white"
+                  disabled={skills.length >= 30}
                 >
                   +
                 </Button>

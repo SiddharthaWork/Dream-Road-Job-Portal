@@ -54,9 +54,9 @@ export default function DashboardPage() {
     const fetchStats = async () => {
       try {
         const [usersRes, companiesRes, jobsRes] = await Promise.all([
-          axios.get('http://localhost:4000/api/user/getallusercount'),
-          axios.get('http://localhost:4000/api/company/getallcompanycount'),
-          axios.get('http://localhost:4000/api/job/getalljobcount')
+          axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getallusercount`),
+          axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/company/getallcompanycount`),
+          axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getalljobcount`)
         ]);
 
         setStats({
@@ -71,7 +71,7 @@ export default function DashboardPage() {
 
     const fetchJobCategories = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/job/getjobcountbydepartment');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getjobcountbydepartment`);
         if (response.data.success) {
           const data = response.data.data;
           const transformedData = Object.entries(data).map(([name, value]) => ({
@@ -93,24 +93,18 @@ export default function DashboardPage() {
     {
       title: 'Total Job Seekers',
       value: stats.totalUsers.toString(),
-      change: '+10.2%',
-      trend: 'up',
       icon: Users,
       description: 'Registered job seekers'
     },
     {
       title: 'Companies',
       value: stats.totalCompanies.toString(),
-      change: '+3.4%',
-      trend: 'up',
       icon: Building2,
       description: 'Verified companies'
     },
     {
       title: 'Active Jobs',
       value: stats.activeJobs.toString(),
-      change: '-2.1%',
-      trend: 'down',
       icon: BriefcaseIcon,
       description: 'Currently posted jobs'
     }
@@ -145,17 +139,8 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+              <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
               <div className="flex items-center text-sm mt-1">
-                {stat.trend === 'up' ? (
-                  <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                ) : (
-                  <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-                )}
-                <span className={stat.trend === 'up' ? 'text-green-600' : 'text-red-600'}>
-                  {stat.change}
-                </span>
-                <span className="text-gray-500 ml-1">from last month</span>
               </div>
             </CardContent>
           </Card>

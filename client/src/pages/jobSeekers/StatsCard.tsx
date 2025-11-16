@@ -35,7 +35,7 @@ export default function StatsCards({ stats = [] }: StatsCardsProps) {
   // api for value
   const getAppliedJobCount = async () => {
     try {
-      const response = await axios.get(`http://localhost:4000/api/application/getAppliedJobCount/${localStorage.getItem('userId')}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/application/getAppliedJobCount/${localStorage.getItem('userId')}`);
       
       // Ensure we always have a valid number
       const count = response.data?.success ? response.data.application : 0;
@@ -50,7 +50,7 @@ export default function StatsCards({ stats = [] }: StatsCardsProps) {
 
   const getShortlistedJobCount = async () => {
     try {
-      const response = await axios.get(`http://localhost:4000/api/application/getShortlistedJobCount/${localStorage.getItem('userId')}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/application/getShortlistedJobCount/${localStorage.getItem('userId')}`);
       
       // Ensure we always have a valid number
       const count = response.data?.success ? response.data.application : 0;

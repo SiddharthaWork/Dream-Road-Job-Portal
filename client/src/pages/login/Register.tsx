@@ -88,7 +88,7 @@ export default function RegisterForm() {
     console.log(formData);
 
     try {
-      const response = await fetch('http://localhost:4000/api/user/register', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -148,10 +148,11 @@ export default function RegisterForm() {
                   <User className="absolute left-3 top-4 h-4 w-4 text-gray-400" />
                   <Input
                     id="firstName"
+                    minLength={4}
                     type="text"
                     value={formData.firstName}
                     onChange={(e) => handleInputChange("firstName", e.target.value)}
-                    maxLength={30}
+                    maxLength={20}
                     className={cn(
                       "pl-10 h-12 border-gray-300 focus:border-[#255cf4] focus:ring-[#255cf4] transition-all duration-200",
                       errors.firstName && "border-red-500 focus:border-red-500 focus:ring-red-500",
@@ -179,7 +180,8 @@ export default function RegisterForm() {
                     type="text"
                     value={formData.lastName}
                     onChange={(e) => handleInputChange("lastName", e.target.value)}
-                    maxLength={30}
+                    minLength={4}
+                    maxLength={20}
                     className={cn(
                       "pl-10 h-12 border-gray-300 focus:border-[#255cf4] focus:ring-[#255cf4] transition-all duration-200",
                       errors.lastName && "border-red-500 focus:border-red-500 focus:ring-red-500",
@@ -208,6 +210,8 @@ export default function RegisterForm() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
+                  minLength={4}
+                  maxLength={40}
                   className={cn(
                     "pl-10 h-12 border-gray-300 focus:border-[#255cf4] focus:ring-[#255cf4] transition-all duration-200",
                     errors.email && "border-red-500 focus:border-red-500 focus:ring-red-500",

@@ -91,9 +91,12 @@ export default function AddressStep() {
 
     const validateExperience = () => {
       const errors = {
-        jobTitle: !newExperience.jobTitle ? 'Job title is required' : '',
-        company: !newExperience.company ? 'Company name is required' : '',
-        location: !newExperience.location ? 'Location is required' : '',
+        jobTitle: !newExperience.jobTitle ? 'Job title is required' : 
+          newExperience.jobTitle.trim().length < 4 ? 'Job title must be at least 4 characters' : '',
+        company: !newExperience.company ? 'Company name is required' : 
+          newExperience.company.trim().length < 4 ? 'Company name must be at least 4 characters' : '',
+        location: !newExperience.location ? 'Location is required' : 
+          newExperience.location.trim().length < 4 ? 'Location must be at least 4 characters' : '',
         startDate: !newExperience.startDate ? 'Start date is required' : 
           new Date(newExperience.startDate) > new Date() ? 'Start date cannot be in the future' : '',
         endDate: !newExperience.endDate && !newExperience.currentlyWorking 
@@ -169,6 +172,8 @@ export default function AddressStep() {
               <Label>Job Title</Label>
               <Input
                 value={newExperience.jobTitle}
+                minLength={4}
+                maxLength={100}
                 onChange={(e) => handleExperienceChange('jobTitle', e.target.value)}
                 placeholder="Enter job title"
                 className="rounded-lg"
@@ -179,6 +184,8 @@ export default function AddressStep() {
               <Label>Company</Label>
               <Input
                 value={newExperience.company}
+                minLength={4}
+                maxLength={100}
                 onChange={(e) => handleExperienceChange('company', e.target.value)}
                 placeholder="Enter company name"
                 className="rounded-lg"
@@ -192,6 +199,8 @@ export default function AddressStep() {
               <Label>Location</Label>
               <Input
                 value={newExperience.location}
+                minLength={4}
+                maxLength={100}
                 onChange={(e) => handleExperienceChange('location', e.target.value)}
                 placeholder="Enter location"
                 className="rounded-lg"
@@ -236,6 +245,8 @@ export default function AddressStep() {
             <Label>Description</Label>
             <Textarea
               value={newExperience.description}
+              minLength={4}
+              maxLength={500}
               onChange={(e) => handleExperienceChange('description', e.target.value)}
               placeholder="Describe your role and responsibilities"
               className="rounded-lg"

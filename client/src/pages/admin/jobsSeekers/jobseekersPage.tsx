@@ -69,7 +69,7 @@ export default function JobseekersPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/admin/getAllUser');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/getAllUser`);
         setUser(response.data.data);
       } catch (error) {
         console.error('Error fetching jobseekers:', error);
@@ -102,10 +102,6 @@ export default function JobseekersPage() {
                 />
               </div>
             </div>
-            <Button variant="outline" size="sm">
-              <Filter className="h-4 w-4 mr-2" />
-              More Filters
-            </Button>
           </CardContent>
         </Card>
 
@@ -237,10 +233,10 @@ export default function JobseekersPage() {
                 try {
                   if (selectedUser.block) {
                     // Unblock user
-                    await axios.put(`http://localhost:4000/api/admin/unblockUser/${selectedUser._id}`);
+                    await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/unblockUser/${selectedUser._id}`);
                   } else {
                     // Block user
-                    await axios.put(`http://localhost:4000/api/admin/blockUser/${selectedUser._id}`);
+                    await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/blockUser/${selectedUser._id}`);
                   }
                   // Update the user state to reflect the change
                   setUser((prev: any) => prev.map((user: any) => 

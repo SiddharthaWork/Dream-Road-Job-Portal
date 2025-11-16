@@ -1,7 +1,9 @@
 import LandingPage from '@/pages/employer/LandingPage'
 import React from 'react'
+// import { requireCompany } from '@/components/auth/ServerSideAuth'
 
-const page = () => {
+const page = async () => {
+  // await requireCompany()
   
   return (
     <>

@@ -35,8 +35,10 @@ export default function ProjectsStep() {
 
     const validateProject = () => {
       const errors = {
-        title: !newProject.title ? 'Project title is required' : '',
-        description: !newProject.description ? 'Description is required' : '',
+        title: !newProject.title ? 'Project title is required' : 
+          newProject.title.trim().length < 4 ? 'Project title must be at least 4 characters' : '',
+        description: !newProject.description ? 'Description is required' : 
+          newProject.description.trim().length < 4 ? 'Description must be at least 4 characters' : '',
         startDate: !newProject.startDate ? 'Start date is required' : 
           new Date(newProject.startDate) > new Date() ? 'Start date cannot be in the future' : '',
         endDate: !newProject.endDate 
@@ -126,6 +128,8 @@ export default function ProjectsStep() {
                 onChange={(e) => handleInputChange("title", e.target.value)}
                 placeholder="Enter project title"
                 className="rounded-lg"
+                minLength={4}
+                maxLength={100}
               />
               {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
             </div>
@@ -136,7 +140,9 @@ export default function ProjectsStep() {
                 value={newProject.description}
                 onChange={(e) => handleInputChange("description", e.target.value)}
                 placeholder="Describe your project"
-                className="rounded-lg min-h-[100px]"
+                className="rounded-lg min-h-[100px] max-w-3xl"
+                minLength={4}
+                maxLength={400}
               />
               {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
             </div>
@@ -174,6 +180,7 @@ export default function ProjectsStep() {
                 onChange={(e) => handleInputChange("projectLink", e.target.value)}
                 placeholder="https://example.com"
                 className="rounded-lg"
+                maxLength={100}
               />
             </div>
 

@@ -224,3 +224,13 @@ export const getAllCompanyCount = async (req,res) => {
         return res.status(500).json({message:"Internal server error",success:false});   
     }
 }
+
+// get all companies names and logo and job count
+// export const getAllCompaniesNamesAndLogo = async (req,res) => {
+//     try {
+//         const companies = await Company.find({}, { name: 1, logo: 1});        
+//         return res.status(200).json({message:"Companies names and logo fetched successfully",success:true,data:companies});
+//     } catch (error) {
+//         return res.status(500).json({message:"Internal server error",success:false});   
+//     }
+// }

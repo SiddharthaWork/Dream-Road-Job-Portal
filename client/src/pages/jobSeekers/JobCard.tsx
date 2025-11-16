@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { Job } from "@/types/job"
 import { format, formatDistanceToNow } from 'date-fns';
+import { useRouter } from "next/navigation"
 
 interface JobCardProps {
   job: Job
@@ -21,10 +22,11 @@ export default function JobCard({ job, onJobClick, onApply, onSave }: JobCardPro
   const [isSaved, setIsSaved] = useState(false)
   if (!job) return null;
 
+  const router = useRouter();
 
   const handleApply = (e: React.MouseEvent) => {
     e.stopPropagation()
-    onApply?.(job.id)
+    router.push(`/job/${job._id}`)
   }
 
   const handleSave = (e: React.MouseEvent) => {
@@ -91,7 +93,7 @@ export default function JobCard({ job, onJobClick, onApply, onSave }: JobCardPro
               <Send className="w-4 h-4 mr-2" />
               Apply Now
             </Button>
-            <Button
+            {/* <Button
               size="sm"
               variant="outline"
               onClick={handleSave}
@@ -102,7 +104,7 @@ export default function JobCard({ job, onJobClick, onApply, onSave }: JobCardPro
               }`}
             >
               <Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
-            </Button>
+            </Button> */}
           </div>
         </div>
       </CardContent>

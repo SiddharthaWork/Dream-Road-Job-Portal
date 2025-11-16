@@ -25,7 +25,7 @@ const JobPosts = () => {
         if (!companyId) {
           throw new Error('Company ID not found');
         }
-        const response = await axios.get(`http://localhost:4000/api/job/getjobbycompany/${companyId}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getjobbycompany/${companyId}`);
         if (response.data.success) {
           setJobs(response.data.data);
         }
@@ -94,7 +94,7 @@ const JobPosts = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            {/* <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
@@ -104,7 +104,7 @@ const JobPosts = () => {
                 <SelectItem value="closed">Closed</SelectItem>
                 <SelectItem value="draft">Draft</SelectItem>
               </SelectContent>
-            </Select>
+            </Select> */}
           </div>
         </CardContent>
       </Card>

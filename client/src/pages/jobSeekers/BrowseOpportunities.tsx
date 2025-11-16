@@ -24,10 +24,9 @@ const BrowseOpportunities: React.FC<BrowseOpportunitiesProps> = ({
   const industries = [
     "All",
     "Engineering",
-    "Product",
     "Design",
     "Marketing",
-  
+    "Finance",
   ];
 
   const handleIndustryChange = (industry: string) => {
@@ -40,7 +39,7 @@ const BrowseOpportunities: React.FC<BrowseOpportunitiesProps> = ({
   };
 
   const filteredJobs = selectedIndustry 
-    ? jobs.filter(job => job?.department === selectedIndustry)
+    ? jobs.filter(job => job?.department?.toLowerCase() === selectedIndustry.toLowerCase())
     : jobs;
 
   const indexOfLastJob = currentPage * jobsPerPage;
@@ -52,7 +51,7 @@ const BrowseOpportunities: React.FC<BrowseOpportunitiesProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/job/getalljobs');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getalljobs`);
         if (response.data.success) {
           setJobs(response.data.data);
           console.log("here is the jobs", response.data.data)

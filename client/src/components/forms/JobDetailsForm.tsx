@@ -19,7 +19,9 @@ import { z } from 'zod';
 const jobDetailsSchema = z.object({
   title: z.string().min(1, 'Job title is required'),
   department: z.string().min(1, 'Department is required'),
-  location: z.string().min(1, 'Location is required'),
+  location: z.string()
+    .min(5, 'Location must be at least 5 characters')
+    .max(40, 'Location must be at most 40 characters'),
   type: z.string().min(1, 'Employment type is required'),
   experience: z.string().min(1, 'Experience level is required'),
   salaryMin: z.number().min(0, 'Salary must be positive').refine(val => val >= 0, {
@@ -98,6 +100,7 @@ const JobDetailsForm = ({
         <div className="space-y-2">
           <Label htmlFor="title">Job Title *</Label>
           <Input
+            maxLength={30}
             id="title"
             placeholder="e.g. Senior React Developer"
             {...register('title', { 
@@ -149,7 +152,9 @@ const JobDetailsForm = ({
               id="location"
               value={location}
               onChange={handleLocationChange}
-              placeholder="e.g. Kathmandu, CA or Remote"
+              placeholder="e.g. Kathmandu, Nepal"
+              minLength={5}
+              maxLength={40}
             />
             {errors.location && (
               <p className="text-sm text-red-600">{errors.location.message}</p>
@@ -216,7 +221,7 @@ const JobDetailsForm = ({
               id="salaryMin"
               type="number"
               placeholder="Minimum"
-              min="0"
+              min="1000"
               {...register('salaryMin', { 
                 required: 'Minimum salary is required',
                 valueAsNumber: true,
@@ -233,7 +238,7 @@ const JobDetailsForm = ({
               id="salaryMax"
               type="number"
               placeholder="Maximum"
-              min="0"
+              min="1000"
               {...register('salaryMax', {
                 required: 'Maximum salary is required',
                 valueAsNumber: true,

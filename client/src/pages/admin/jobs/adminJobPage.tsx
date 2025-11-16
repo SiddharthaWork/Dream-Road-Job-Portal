@@ -78,9 +78,9 @@ export default function AdminJobPage() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/admin/getAllJobs');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/getAllJobs`);
         if (response.data.success) {
-          setJobs(response.data.data);
+          setJobs(response.data.data);  
           setTotalJobs(response.data.data.length);
         } else {
           setError('Failed to fetch jobs');
@@ -132,7 +132,7 @@ export default function AdminJobPage() {
   const handleDeleteJob = async () => {
     if (!deleteJobId) return;
     try {
-      const response = await axios.delete(`http://localhost:4000/api/admin/deleteJob/${deleteJobId}`);
+      const response = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/deleteJob/${deleteJobId}`);
       if (response.data.success) {
         // Remove the job from the state
         setJobs(jobs.filter((job: any) => job._id !== deleteJobId));
@@ -201,7 +201,7 @@ export default function AdminJobPage() {
                   />
                 </div>
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              {/* <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
@@ -240,7 +240,7 @@ export default function AdminJobPage() {
               <Button variant="outline" size="sm">
                 <Filter className="h-4 w-4 mr-2" />
                 More Filters
-              </Button>
+              </Button> */}
             </div>
           </CardContent>
         </Card>

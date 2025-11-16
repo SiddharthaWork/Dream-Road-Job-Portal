@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, login, logout, getAllUser, getUserById, updateProfile, saveProfile,getUserByIdforAppliedJobs ,getUserProfileLogo, getRecommendations, getAllUserCount } from "../controllers/user.controller.js";
+import { registerUser, login, logout, getAllUser, getUserById, updateProfile, saveProfile,getUserByIdforAppliedJobs ,getUserProfileLogo, getRecommendations, getAllUserCount, deleteUser, forgotPassword, resetPassword } from "../controllers/user.controller.js";
 import { profileUpload } from "../middlewares/multer.js";
 const router = express.Router();
 
@@ -14,6 +14,9 @@ router.route("/getuserappliedjobs/:id").get(getUserByIdforAppliedJobs);
 router.route("/getuserprofilelogo/:id").get(getUserProfileLogo);
 router.get('/recommendations/:id', getRecommendations);
 router.route("/getallusercount").get(getAllUserCount);  
+router.route("/deleteuser/:id").delete(deleteUser);  
+router.route("/forgot-password").post(forgotPassword);
+router.route("/reset-password").post(resetPassword);
 
 // to test use
 // localhost:4000/api/user/register
@@ -26,6 +29,9 @@ router.route("/getallusercount").get(getAllUserCount);
 // localhost:4000/api/user/getuserappliedjobs/:id
 // localhost:4000/api/user/getuserprofilelogo/:id
 // localhost:4000/api/user/recommendations/:id  
-// localhost:4000/api/user/getallusercount  
+// localhost:4000/api/user/getallusercount 
+// localhost:4000/api/user/deleteuser/:id 
+// localhost:4000/api/user/forgot-password
+// localhost:4000/api/user/reset-password 
 
 export default router;  

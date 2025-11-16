@@ -1,6 +1,7 @@
 import { Job } from "../models/job.model.js";
 import { Application } from "../models/application.model.js";
 import { User } from "../models/user.model.js";
+import { getSemanticJobRecommendations } from "../services/jobrecommendation.service.js";
 
 // export const postJob = async (req,res) => {
 //     try {
@@ -41,7 +42,6 @@ export const createJob = async (req, res) => {
 
     const salaryMin = Number(jobData.salaryMin);
     const salaryMax = Number(jobData.salaryMax);
-
     if (isNaN(salaryMin) || isNaN(salaryMax)) {
       return res.status(400).json({
         message: "Salary values must be numbers.",
@@ -187,6 +187,20 @@ export const getAllJobs = async (req,res) => {
           path: "createdBy",
           model: "Company"
         }).sort({createdAt:-1});
+        return res.status(200).json({message:"Jobs fetched successfully",success:true,data:jobs});
+    } catch (error) {
+        console.error("Population error:", error);
+        return res.status(500).json({message:"Internal server error",success:false, error: error.message});   
+    }
+}
+
+// get latest 9 jobs
+export const getLatestJobs = async (req,res) => {
+    try {
+        const jobs = await Job.find().populate({
+          path: "createdBy",
+          model: "Company"
+        }).sort({createdAt:-1}).limit(9);
         return res.status(200).json({message:"Jobs fetched successfully",success:true,data:jobs});
     } catch (error) {
         console.error("Population error:", error);
@@ -391,3 +405,68 @@ export const checkSavedJob = async (req,res) => {
         return res.status(500).json({message:"Internal server error",success:false, error: error.message});   
     }
 } 
+
+// get all jobs count of all company with their name and logo
+export const getAllJobsCountByCompany = async (req,res) => {
+    try {
+        const jobs = await Job.aggregate([
+            {
+                $lookup: {
+                    from: "companies",
+                    let: { companyId: "$company" },
+                    pipeline: [
+                        { $match: { $expr: { $eq: ["$_id", "$$companyId"] } } },
+                        { $project: { name: 1, logo: 1 } }
+                    ],
+                    as: "company"
+                }
+            },
+            { $unwind: "$company" },
+            {
+                $group: {
+                    _id: "$company._id",
+                    name: { $first: "$company.name" },
+                    logo: { $first: "$company.logo" },
+                    jobCount: { $sum: 1 }
+                }
+            }
+        ]);
+        return res.status(200).json({message:"Jobs count fetched successfully",success:true,data:jobs});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error",success:false, error: error.message});   
+    }
+}
+    
+
+// Semantic job recommendations using vector embeddings
+export const getSemanticRecommendations = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        
+        if (!userId) {
+            return res.status(400).json({
+                message: "User ID is required",
+                success: false
+            });
+        }
+        
+        console.log(`Fetching recommendations for user: ${userId}`);
+        
+        const recommendations = await getSemanticJobRecommendations(userId);
+        
+        return res.status(200).json({
+            message: "Semantic recommendations fetched successfully",
+            success: true,
+            data: recommendations,
+            count: recommendations.length
+        });
+    } catch (error) {
+        console.error('Error in getSemanticRecommendations:', error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false,
+            error: error.message
+        });
+    }
+};
+    

@@ -61,12 +61,18 @@ const UserProfile = () => {
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const { id } = useParams<any>();
+  const params = useParams<any>();
+  const id = params?.id;
 
   useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:4000/api/user/getuser/${id}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getuser/${id}`);
         const data = await response.json();
         
         if (data.success && data.data?.profile) {
@@ -81,7 +87,7 @@ const UserProfile = () => {
     };
 
     fetchProfile();
-  }, []);
+  }, [id]);
 
   if (loading) {
     return (

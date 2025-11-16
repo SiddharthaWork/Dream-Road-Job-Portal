@@ -153,7 +153,7 @@ export default function CompanyOverview() {
       try {
         setLoading(true)
         const response = await axios.get(
-          `http://localhost:4000/api/job/getjobbycompany/${params.id}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getjobbycompany/${params.id}`
         )
         
         if (response.data.success) {

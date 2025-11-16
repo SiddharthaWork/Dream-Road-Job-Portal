@@ -17,7 +17,7 @@ export default function AdminBlockWrapper({ children }: { children: React.ReactN
         return;
       }
       try {
-        const response = await fetch(`http://localhost:4000/api/admin/checkBlockCompany/${companyId}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/checkBlockCompany/${companyId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch block status');
         }

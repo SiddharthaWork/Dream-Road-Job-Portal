@@ -59,8 +59,9 @@ export default function CompanyListings({ onCompanyClick }: CompanyListingsProps
   const filteredCompanies = companies.filter(company => {
     const matchesName = companyNameSearch === '' || company.name.toLowerCase().includes(companyNameSearch.toLowerCase())
     const matchesLocation = selectedLocations.length === 0 || selectedLocations.includes(company.location)
+    const matchesIndustry = selectedIndustries.length === 0 || selectedIndustries.includes(company.industry)
     const hasJobs = company.jobCount > 0
-    return matchesName && matchesLocation && hasJobs
+    return matchesName && matchesLocation && matchesIndustry && hasJobs
   })
 
   const renderStars = (rating: number) => {
@@ -84,7 +85,7 @@ export default function CompanyListings({ onCompanyClick }: CompanyListingsProps
     const fetchCompanies = async () => {
       try {
         setLoading(true)
-        const response = await axios.get('http://localhost:4000/api/company/getallcompanies')
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/company/getallcompanies`)
         console.log(response.data);
         if (response.data.success) {
           setCompanies(response.data.data)

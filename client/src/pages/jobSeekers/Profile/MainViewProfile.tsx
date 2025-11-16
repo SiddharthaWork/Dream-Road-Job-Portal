@@ -87,7 +87,7 @@ const MainViewProfile = () => {
     if (profileComplete === 'true') {
       const fetchProfile = async () => {
         try {
-          const response = await fetch(`http://localhost:4000/api/user/getuser/${userId}`);
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getuser/${userId}`);
           const data = await response.json();
           
           if (data.success && data.data?.profile) {

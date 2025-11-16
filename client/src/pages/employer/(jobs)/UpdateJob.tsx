@@ -19,11 +19,13 @@ type JobData = JobFormData & {
 };
 
 const UpdateJob = () => {
-  const { id } = useParams() as { id: string };
+  const params = useParams();
+  const id = params?.id as string;
   const router = useRouter();
   const [job, setJob] = useState<JobData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isClient, setIsClient] = useState(false);
 
   const [location, setLocation] = useState<string>('');
   const [hasDeadline, setHasDeadline] = useState<boolean>(false);
@@ -38,13 +40,18 @@ const UpdateJob = () => {
     watch,
   } = useForm<JobFormData>();
 
+  // Initialize client-side rendering
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   // Fetch job data
   useEffect(() => {
-    if (!id) return;
+    if (!id || !isClient) return;
     
     const fetchJob = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/job/getjobbyid/${id}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getjobbyid/${id}`);
         if (response.data.success) {
           const jobData = response.data.data;
           setJob(jobData);
@@ -72,7 +79,7 @@ const UpdateJob = () => {
     };
 
     fetchJob();
-  }, [id, setValue]);
+  }, [id, isClient, setValue]);
 
   const onSubmit = async (data: JobFormData) => {
     try {
@@ -123,7 +130,7 @@ const UpdateJob = () => {
     }
   };
 
-  if (loading) {
+  if (!isClient || loading) {
     return <div className="flex justify-center items-center h-screen">Loading job details...</div>;
   }
 
@@ -149,7 +156,23 @@ const UpdateJob = () => {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <JobDetailsForm 
-          register={register} 
+          register={(name, options) => register(name, {
+            ...options,
+            ...(name === 'title' && {
+              minLength: { value: 5, message: 'Job title must be at least 5 characters' },
+              maxLength: { value: 30, message: 'Job title must be at most 30 characters' }
+            }),
+            ...(name === 'location' && {
+              minLength: { value: 5, message: 'Location must be at least 5 characters' },
+              maxLength: { value: 40, message: 'Location must be at most 40 characters' }
+            }),
+            ...(name === 'salaryMin' && {
+              min: { value: 1000, message: 'Minimum salary must be at least 1000' }
+            }),
+            ...(name === 'salaryMax' && {
+              min: { value: 1000, message: 'Maximum salary must be at least 1000' }
+            })
+          })}
           errors={errors} 
           setValue={setValue}
           watch={watch}
@@ -168,7 +191,28 @@ const UpdateJob = () => {
         />
         
         <JobRequirementsForm 
-          register={register} 
+          register={(name, options) => register(name, {
+            ...options,
+            ...(name === 'description' && {
+              minLength: { value: 4, message: 'Description must be at least 4 characters' },
+              maxLength: { value: 400, message: 'Description must be at most 400 characters' }
+            }),
+            ...(name === 'requirements' && {
+              minLength: { value: 4, message: 'Requirements must be at least 4 characters' },
+              maxLength: { value: 400, message: 'Requirements must be at most 400 characters' }
+            }),
+            ...(name === 'benefits' && {
+              minLength: { value: 4, message: 'Benefits must be at least 4 characters' },
+              maxLength: { value: 400, message: 'Benefits must be at most 400 characters' }
+            }),
+            ...(name === 'skills' && {
+              validate: (value:any) => {
+                if (!value || value.length === 0) return 'At least one skill is required';
+                if (value.length > 30) return 'Maximum 30 skills allowed';
+                return true;
+              }
+            })
+          })}
           errors={errors} 
           setValue={setValue}
           watch={watch}

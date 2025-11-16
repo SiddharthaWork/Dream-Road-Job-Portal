@@ -35,7 +35,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     const companyId = localStorage.getItem('companyId');
     if (!companyId) return;
     try {
-      const response = await axios.get(`http://localhost:4000/api/company/getdeletedjobs/${companyId}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/company/getdeletedjobs/${companyId}`);
       if (response.data.success) {
         setDeletedJobs(response.data.data);
       }
@@ -59,6 +59,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     toast({
       title: "Logged out successfully",
       description: "See you next time!",
+    });
+    // remove cookies too
+    document.cookie.split(";").forEach(function (cookie) {
+      document.cookie = cookie.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
     router.push('/employer/login');
   };

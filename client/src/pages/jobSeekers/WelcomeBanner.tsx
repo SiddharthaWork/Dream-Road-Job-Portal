@@ -21,7 +21,7 @@ export default function WelcomeBanner({ userName, platformName }: WelcomeBannerP
             
       const fetchProfile = async () => {
         try {
-          const response = await fetch(`http://localhost:4000/api/user/getuserprofilelogo/${userId}`);
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getuserprofilelogo/${userId}`);
           const data = await response.json();
           // console.log(data,"data");
           

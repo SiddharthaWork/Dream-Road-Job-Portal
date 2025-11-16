@@ -30,7 +30,7 @@ const Dashboard = () => {
           throw new Error('Company ID not found');
         }
         
-        const response = await fetch(`http://localhost:4000/api/job/getjobcount/${companyId}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getjobcount/${companyId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch job count');
         }
@@ -72,61 +72,9 @@ const Dashboard = () => {
       icon: Users,
       color: 'text-green-600',
     },
-    // {
-    //   title: 'Profile Views',
-    //   value: '1,429',
-    //   change: '+5.2% this month',
-    //   icon: Eye,
-    //   color: 'text-purple-600',
-    // },
-    // {
-    //   title: 'Hire Rate',
-    //   value: '23%',
-    //   change: '+3% this month',
-    //   icon: TrendingUp,
-    //   color: 'text-orange-600',
-    // },
   ];
 
-  const recentJobs = [
-    {
-      id: 1,
-      title: 'Full Stack Developer',
-      location: 'Kathmandu, Bāgmatī, Nepal',
-      applicants: 1,
-      posted: '2 days ago',
-      status: 'active',
-    },
- 
-  ];
 
-  const recentApplicants = [
-    {
-      id: 1,
-      name: 'Siddhartha Shrestha',
-      role: 'Full Stack Developer',
-      applied: '1 days ago',
-      status: 'new',
-    },
-
-  ];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800';
-      case 'closed':
-        return 'bg-gray-100 text-gray-800';
-      case 'new':
-        return 'bg-blue-100 text-blue-800';
-      case 'reviewed':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'shortlisted':
-        return 'bg-purple-100 text-purple-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   return (
     <div className="space-y-8">

@@ -1,16 +1,12 @@
-// Weighted scoring algorithm for ranking job applicants
-// This service helps companies find the best-fit candidates for specific jobs
-
 const APPLICANT_SCORING_WEIGHTS = {
-  skillsMatch: 0.40,        // Most critical for job fit
-  experienceMatch: 0.25,    // Very important
-  educationMatch: 0.15,     // Important for certain roles
-  locationMatch: 0.10,      // Moderate (remote work considerations)
-  projectsMatch: 0.05,      // Nice to have
-  certificationsMatch: 0.05 // Additional value
+  skillsMatch: 0.40,        
+  experienceMatch: 0.25,    
+  educationMatch: 0.15,     
+  locationMatch: 0.10,      
+  projectsMatch: 0.05,      
+  certificationsMatch: 0.05 
 };
 
-// Calculate skills match between applicant and job requirements
 function calculateApplicantSkillsScore(applicantSkills, jobSkills) {
   if (!applicantSkills || !applicantSkills.length || !jobSkills || !jobSkills.length) {
     return 0;
@@ -25,16 +21,13 @@ function calculateApplicantSkillsScore(applicantSkills, jobSkills) {
     )
   ).length;
   
-  // Score based on percentage of job requirements met
   const requirementsCoverage = matchedSkills / jobSkillsLower.length;
   
-  // Bonus for having additional relevant skills
   const skillsBonus = Math.min(applicantSkillsLower.length / jobSkillsLower.length, 1.5);
   
   return Math.min(requirementsCoverage * skillsBonus, 1);
 }
 
-// Extract years of experience from experience string
 function extractExperienceYears(experienceString) {
   if (!experienceString) return 0;
   
@@ -42,7 +35,6 @@ function extractExperienceYears(experienceString) {
   return match ? parseInt(match[1]) : 0;
 }
 
-// Calculate total years of experience from user's experience array
 function calculateTotalExperience(experiences) {
   if (!experiences || !experiences.length) return 0;
   
@@ -64,7 +56,6 @@ function calculateTotalExperience(experiences) {
   return Math.round(totalMonths / 12 * 10) / 10; // Round to 1 decimal place
 }
 
-// Calculate experience match score
 function calculateApplicantExperienceScore(applicantExperiences, jobExperience, jobTitle) {
   if (!applicantExperiences || !applicantExperiences.length) {
     return jobExperience ? 0 : 0.5; // If no experience required, give moderate score
@@ -73,7 +64,6 @@ function calculateApplicantExperienceScore(applicantExperiences, jobExperience, 
   const totalYears = calculateTotalExperience(applicantExperiences);
   const requiredYears = extractExperienceYears(jobExperience);
   
-  // Check for relevant job titles
   const relevantExperience = applicantExperiences.filter(exp => {
     if (!exp.jobTitle || !jobTitle) return false;
     
@@ -89,7 +79,6 @@ function calculateApplicantExperienceScore(applicantExperiences, jobExperience, 
   
   let experienceScore = 0;
   
-  // Base score from years of experience
   if (totalYears >= requiredYears) {
     experienceScore += 0.7;
   } else if (totalYears >= requiredYears * 0.8) {
@@ -185,9 +174,8 @@ function calculateCertificationsScore(applicantCertificates, jobSkills) {
   return Math.min(relevantCerts / jobSkills.length, 1);
 }
 
-// Main function to calculate weighted score for an applicant
 export function calculateApplicantScore(applicant, job) {
-  const user = applicant.user; // From populated application
+  const user = applicant.user; 
   
   if (!user || !user.profile) {
     return {
@@ -225,14 +213,13 @@ export function calculateApplicantScore(applicant, job) {
     )
   };
   
-  // Calculate weighted total
   let weightedScore = 0;
   for (const [criterion, score] of Object.entries(scores)) {
     weightedScore += score * APPLICANT_SCORING_WEIGHTS[criterion];
   }
   
   return {
-    totalScore: Math.round(weightedScore * 100) / 100, // Round to 2 decimal places
+    totalScore: Math.round(weightedScore * 100) / 100, 
     breakdown: scores,
     weights: APPLICANT_SCORING_WEIGHTS
   };

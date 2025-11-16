@@ -48,7 +48,7 @@ interface UserData {
 }
 
 
-const ApplicantProfile = () => {
+const ApplicantProfileContent = () => {
   const params = useParams();
   const id = params?.id as string;
   const router = useRouter();
@@ -75,7 +75,7 @@ const ApplicantProfile = () => {
       }
 
       try {
-        const response = await axios.get(`http://localhost:4000/api/user/getuserappliedjobs/${id}?jobId=${jobId}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getuserappliedjobs/${id}?jobId=${jobId}`);
         if (response.data.success) {
           setUser(response.data.data);
           console.log("here is some data",response.data.data)
@@ -112,7 +112,7 @@ const ApplicantProfile = () => {
     setUpdatingStatus(true);
     
     try {
-      const response = await axios.put(`http://localhost:4000/api/application/updateStatus/${applicationId}`, {
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/application/updateStatus/${applicationId}`, {
         status: "shortlisted",
       });
       
@@ -134,7 +134,7 @@ const ApplicantProfile = () => {
     setUpdatingStatus(true);
     
     try {
-      const response = await axios.put(`http://localhost:4000/api/application/updateStatus/${applicationId}`, {
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/application/updateStatus/${applicationId}`, {
         status: "rejected",
       });
       
@@ -485,12 +485,34 @@ const ApplicantProfile = () => {
   );
 };
 
-export default ApplicantProfile;
+// Main component wrapped with AppProvider for SSR compatibility
+const ApplicantProfile = () => {
+  const [isClient, setIsClient] = useState(false);
 
-export const ApplicantsProflePreview = () => {
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="text-center py-12">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Loading...</h3>
+            <p className="text-gray-500 mb-4">
+              Please wait while we load the applicant profile.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <AppProvider>
-      <ApplicantProfile/>
+      <ApplicantProfileContent />
     </AppProvider>
-  )
-}
+  );
+};
+
+export default ApplicantProfile;

@@ -32,7 +32,14 @@ import { BookmarkCheck } from "lucide-react"
 import toast from "react-hot-toast"
 
 export default function JobOverviewPage() {
-  const { id } = useParams() as { id: string };
+  const params = useParams<any>();
+  const id = params?.id;
+
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+  }, [id]);
 
   const [job, setJob] = useState<any>(null);
   const [similarJobs, setSimilarJobs] = useState<any>(null);
@@ -45,15 +52,20 @@ export default function JobOverviewPage() {
   const [showProfileCompletionModal, setShowProfileCompletionModal] = useState(false)
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
-  // so the appliedUsersContain bollean
-  
+  // Initialize client-side rendering
   useEffect(() => {
-    const profile = localStorage.getItem('profile');
-    // Properly handle 'false' string from localStorage
-    setProfileCompleted(profile === 'true');
-  }, [])
-  const userId = localStorage.getItem('userId');
+    setIsClient(true);
+    if (typeof window !== 'undefined') {
+      const profile = localStorage.getItem('profile');
+      const storedUserId = localStorage.getItem('userId');
+      // Properly handle 'false' string from localStorage
+      setProfileCompleted(profile === 'true');
+      setUserId(storedUserId);
+    }
+  }, []);
   
   console.log(profileCompleted,"profileCompleted");
 
@@ -62,7 +74,7 @@ export default function JobOverviewPage() {
       if (!job || !userId) return;
       
       try {
-        const response = await axios.get(`http://localhost:4000/api/job/checksavedjob/${userId}/${job._id}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/checksavedjob/${userId}/${job._id}`);
         if (response.data.success) {
           setIsSaved(response.data.data);
         }
@@ -75,9 +87,11 @@ export default function JobOverviewPage() {
   }, [job]);
 
   const fetchJob = async () => {
+    if (!isClient || !userId) return;
+    
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:4000/api/job/getjobbyid/${id}?userId=${localStorage.getItem('userId')}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getjobbyid/${id}?userId=${userId}`);
       if (response.data.success) {
         setJob(response.data.data);
         setSimilarJobs(response.data.similarJobs);
@@ -93,9 +107,9 @@ export default function JobOverviewPage() {
   };
 
   useEffect(() => {
-    if (!id) return;
+    if (!id || !isClient || !userId) return;
     fetchJob();
-  }, []);
+  }, [id, isClient, userId]);
 
   const handleApplied = () => {
     setApplied(true);
@@ -119,7 +133,7 @@ export default function JobOverviewPage() {
     
     setIsSaving(true);
     try {
-      const response = await axios.post('http://localhost:4000/api/job/savejob', {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/savejob`, {
         jobId: job._id,
         userId: userId,
       });
@@ -137,7 +151,7 @@ export default function JobOverviewPage() {
     }
   };
 
-  if (loading) {
+  if (!isClient || loading) {
     return <div>
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -309,7 +323,7 @@ export default function JobOverviewPage() {
               </Card>
 
               {/* Job Description */}
-              <Card>
+              <Card className="overflow-auto">
                 <CardHeader>
                   <CardTitle className="text-lg">Job Description</CardTitle>
                 </CardHeader>
@@ -338,7 +352,7 @@ export default function JobOverviewPage() {
               </Card>
 
               {/* Key Skills */}
-              <Card>
+              <Card className="overflow-auto">
                 <CardHeader>
                   <CardTitle className="text-lg">Key Skills</CardTitle>
                   <p className="text-sm text-gray-600">Skills highlighted with '*' are preferred keyskills</p>

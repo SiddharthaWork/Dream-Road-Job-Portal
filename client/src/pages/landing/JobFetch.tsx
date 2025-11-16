@@ -12,7 +12,7 @@ export default function JobListingsDemo() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/job/getlatestjobs');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getlatestjobs`);
         const result = await response.json();
         if (result.success) {
           const jobsData = result.data.map((job: any) => ({

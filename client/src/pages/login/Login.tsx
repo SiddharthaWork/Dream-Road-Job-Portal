@@ -60,7 +60,7 @@ export default function LoginForm() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:4000/api/user/login', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,13 +78,18 @@ export default function LoginForm() {
         throw new Error(data.message || 'Login failed');
       }
 
-      // Save user data to localStorage
+      // Save user data to localStorage and cookies
       localStorage.setItem('token', data.data.token);
       localStorage.setItem('userId', data.data.id);
       localStorage.setItem('role', data.data.role);
       localStorage.setItem('isLoggedIn', data.data.isLoggedIn.toString()); 
       localStorage.setItem('fullname', data.data.fullname);
       localStorage.setItem('profile', JSON.stringify(data.data.profileCompleted));
+
+      // Set cookies for server-side middleware access
+      document.cookie = `token=${data.data.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
+      document.cookie = `role=${data.data.role}; path=/; max-age=${7 * 24 * 60 * 60}`;
+      document.cookie = `userId=${data.data.id}; path=/; max-age=${7 * 24 * 60 * 60}`;
 
       toast.success("Login successful!");
       router.push("/");
@@ -191,6 +196,7 @@ export default function LoginForm() {
               <button
                 type="button"
                 className="text-sm text-gray-600 hover:text-[#255cf4] underline transition-colors"
+                onClick={() => router.push('/forget-password')}
               >
                 Forgot password?
               </button>

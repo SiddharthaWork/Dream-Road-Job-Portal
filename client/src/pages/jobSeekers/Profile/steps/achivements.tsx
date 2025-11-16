@@ -18,18 +18,38 @@ export default function AchievementsStep() {
     const { formData, addAchievement, removeAchievement, addCertificate, removeCertificate } = useFormContext()
     const [newAchievement, setNewAchievement] = useState({ title: "", description: "" })
     const [newCertificate, setNewCertificate] = useState({ title: "", description: "" })
+    const [achievementErrors, setAchievementErrors] = useState({ title: '', description: '' })
+    const [certificateErrors, setCertificateErrors] = useState({ title: '', description: '' })
 
     const handleAddAchievement = () => {
-      if (newAchievement.title && newAchievement.description) {
+      const errors = {
+        title: !newAchievement.title ? 'Title is required' : 
+          newAchievement.title.trim().length < 4 ? 'Title must be at least 4 characters' : '',
+        description: !newAchievement.description ? 'Description is required' : 
+          newAchievement.description.trim().length < 4 ? 'Description must be at least 4 characters' : ''
+      }
+      setAchievementErrors(errors)
+      
+      if (!errors.title && !errors.description) {
         addAchievement(newAchievement)
         setNewAchievement({ title: "", description: "" })
+        setAchievementErrors({ title: '', description: '' })
       }
     }
 
     const handleAddCertificate = () => {
-      if (newCertificate.title && newCertificate.description) {
+      const errors = {
+        title: !newCertificate.title ? 'Title is required' : 
+          newCertificate.title.trim().length < 4 ? 'Title must be at least 4 characters' : '',
+        description: !newCertificate.description ? 'Description is required' : 
+          newCertificate.description.trim().length < 4 ? 'Description must be at least 4 characters' : ''
+      }
+      setCertificateErrors(errors)
+      
+      if (!errors.title && !errors.description) {
         addCertificate(newCertificate)
         setNewCertificate({ title: "", description: "" })
+        setCertificateErrors({ title: '', description: '' })
       }
     }
 
@@ -87,7 +107,10 @@ export default function AchievementsStep() {
                     onChange={(e) => setNewAchievement((prev) => ({ ...prev, title: e.target.value }))}
                     placeholder="Enter achievement title"
                     className="rounded-lg"
+                    minLength={4}
+                    maxLength={100}
                   />
+                  {achievementErrors.title && <p className="text-red-500 text-sm">{achievementErrors.title}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Description</Label>
@@ -95,8 +118,11 @@ export default function AchievementsStep() {
                     value={newAchievement.description}
                     onChange={(e) => setNewAchievement((prev) => ({ ...prev, description: e.target.value }))}
                     placeholder="Describe your achievement"
-                    className="rounded-lg min-h-[80px]"
+                    className="rounded-lg min-h-[80px] max-w-3xl"
+                    minLength={4}
+                    maxLength={400}
                   />
+                  {achievementErrors.description && <p className="text-red-500 text-sm">{achievementErrors.description}</p>}
                 </div>
                 <Button onClick={handleAddAchievement} className="bg-[#255cf4] text-white">
                   <Plus className="w-4 h-4 mr-2" />
@@ -141,7 +167,10 @@ export default function AchievementsStep() {
                     onChange={(e) => setNewCertificate((prev) => ({ ...prev, title: e.target.value }))}
                     placeholder="Enter certificate title"
                     className="rounded-lg"
+                    minLength={4}
+                    maxLength={100}
                   />
+                  {certificateErrors.title && <p className="text-red-500 text-sm">{certificateErrors.title}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Description</Label>
@@ -149,8 +178,11 @@ export default function AchievementsStep() {
                     value={newCertificate.description}
                     onChange={(e) => setNewCertificate((prev) => ({ ...prev, description: e.target.value }))}
                     placeholder="Describe your certificate"
-                    className="rounded-lg min-h-[80px]"
+                    className="rounded-lg min-h-[80px] max-w-3xl"
+                    minLength={4}
+                    maxLength={400}
                   />
+                  {certificateErrors.description && <p className="text-red-500 text-sm">{certificateErrors.description}</p>}
                 </div>
                 <Button onClick={handleAddCertificate} className="bg-blue-500 hover:bg-blue-600 text-white">
                   <Plus className="w-4 h-4 mr-2" />

@@ -13,23 +13,27 @@ import toast from 'react-hot-toast';
 
 interface CompanyData {
   name: string;
-  website: string;
+  website?: string;
   email: string;
   industry: string;
   size: string;
-  description: string;
-  location: string;
-  founded: string;
-  employees: string;
-  benefits: string;
-  logo: string;
+  description?: string;
+  location?: string;
+  founded?: string;
+  employees?: string;
+  benefits?: string;
+  logo?: string;
+  phoneNumber?: string;
 }
 
 const CompanyProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+  const [isClient, setIsClient] = useState(false);
+  const [companyId, setCompanyId] = useState<string | null>(null);
 
-  // Get company data from localStorage (mock data)
+  // Get company data from API
   const [companyData, setCompanyData] = useState<CompanyData>({
     name: '',
     website: '',
@@ -42,42 +46,68 @@ const CompanyProfile = () => {
     employees: '',
     benefits: '',
     logo: '',
+    phoneNumber: '',
   });
 
   const [formData, setFormData] = useState<CompanyData>(companyData);
   const [logoFile, setLogoFile] = useState<File | null>(null);
 
+  // Website validation function
+  const validateWebsite = (website: string): string | null => {
+    // Website is optional, so allow empty values
+    if (!website.trim()) {
+      return null;
+    }
+    
+    if (website.length < 4) {
+      return 'Website must be at least 4 characters';
+    }
+    
+    if (website.length > 100) {
+      return 'Website must be at most 100 characters';
+    }
+    
+    // Basic URL validation pattern
+    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
+    if (!urlPattern.test(website)) {
+      return 'Please enter a valid website URL';
+    }
+    
+    return null;
+  };
+
+  // Initialize client-side rendering
   useEffect(() => {
+    setIsClient(true);
+    if (typeof window !== 'undefined') {
+      setCompanyId(localStorage.getItem('companyId'));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isClient || !companyId) return;
+    
     const fetchCompanyData = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/company/getcompany/${localStorage.getItem('companyId')}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/company/getcompany/${companyId}`);
         const data = response.data.data;
-        setCompanyData({
-          name: data.name,
-          website: data.website,
-          email: data.email,
-          industry: data.industry,
-          size: data.size,
-          description: data.description,
-          location: data.location,
-          founded: data.founded,
-          employees: data.employees,
-          benefits: data.benefits,
-          logo: data.logo,
-        });
-        setFormData({
-          name: data.name,
-          website: data.website,
-          email: data.email,
-          industry: data.industry,
-          size: data.size,
-          description: data.description,
-          location: data.location,
-          founded: data.founded,
-          employees: data.employees,
-          benefits: data.benefits,
-          logo: data.logo,
-        });
+        const companyInfo = {
+          name: data.name || '',
+          website: data.website || '',
+          email: data.email || '',
+          industry: data.industry || '',
+          size: data.size || '',
+          description: data.description || '',
+          location: data.location || '',
+          founded: data.founded || '',
+          employees: data.employees || '',
+          benefits: data.benefits || '',
+          logo: data.logo || '',
+          phoneNumber: data.phoneNumber || '',
+        };
+        
+        setCompanyData(companyInfo);
+        setFormData(companyInfo);
       } catch (error) {
         console.error('Failed to fetch company data', error);
         toast.error("Failed to fetch company data.");
@@ -85,10 +115,28 @@ const CompanyProfile = () => {
     };
 
     fetchCompanyData();
-  }, []);
+  }, [isClient, companyId]);
+
+  // Sync formData with companyData when entering edit mode
+  useEffect(() => {
+    if (isEditing) {
+      setFormData(companyData);
+      setValidationErrors({}); // Clear any validation errors when entering edit mode
+    }
+  }, [isEditing, companyData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Validate website field in real-time
+    if (name === 'website') {
+      const error = validateWebsite(value);
+      setValidationErrors(prev => ({
+        ...prev,
+        website: error || ''
+      }));
+    }
   };
 
   const handleSelectChange = (name: keyof CompanyData, value: string) => {
@@ -97,22 +145,49 @@ const CompanyProfile = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setLogoFile(e.target.files[0]);
+      const file = e.target.files[0];
+      
+      // Validate file type
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Please select a valid logo file (PNG, JPG, JPEG, SVG, or WebP)');
+        e.target.value = ''; // Clear the input
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (file.size > maxSize) {
+        toast.error('Logo file size must be less than 5MB');
+        e.target.value = ''; // Clear the input
+        return;
+      }
+      
+      setLogoFile(file);
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
           setFormData((prev) => ({ ...prev, logo: event?.target?.result as string }));
         }
       };
-      reader.readAsDataURL(e.target.files[0]);
+      reader.readAsDataURL(file);
     }
   };
 
   const handleSave = async () => {
     setIsLoading(true);
 
-    // Validate required fields
-    const requiredFields: (keyof CompanyData)[] = ['website', 'industry', 'size'];
+    // Validate website
+    const websiteError = validateWebsite(formData.website || '');
+    if (websiteError) {
+      setValidationErrors(prev => ({ ...prev, website: websiteError }));
+      toast.error('Please fix the website validation errors');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate required fields (only require fields that exist in API)
+    const requiredFields: (keyof CompanyData)[] = ['name', 'email', 'industry', 'size'];
     const missingFields = requiredFields.filter(field => !formData[field]);
 
     if (missingFields.length > 0) {
@@ -122,8 +197,8 @@ const CompanyProfile = () => {
     }
 
     // Validate description length
-    if (formData.description.length > 200) {
-      toast.error('Description must be 200 characters or less');
+    if (formData.description && formData.description.length > 500) {
+      toast.error('Description must be 500 characters or less');
       setIsLoading(false);
       return;
     }
@@ -131,9 +206,11 @@ const CompanyProfile = () => {
     try {
       const formDataToSend = new FormData();
 
-      // Append all fields to the form data
+      // Append all fields to the form data (only non-empty values)
       Object.entries(formData).forEach(([key, value]) => {
-        formDataToSend.append(key, value as string);
+        if (value && value.toString().trim()) {
+          formDataToSend.append(key, value as string);
+        }
       });
 
       // Append logo file if changed
@@ -142,7 +219,7 @@ const CompanyProfile = () => {
       }
 
       const response = await axios.put(
-        `http://localhost:4000/api/company/updatecompany/${localStorage.getItem('companyId')}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/company/updatecompany/${companyId}`,
         formDataToSend,
         {
           headers: {
@@ -197,6 +274,14 @@ const CompanyProfile = () => {
   //   }
   // };
 
+  if (!isClient) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
@@ -234,10 +319,12 @@ const CompanyProfile = () => {
               </div>
               <div>
                 <CardTitle className="text-2xl">{companyData.name}</CardTitle>
-                <CardDescription className="flex items-center gap-2 mt-1">
-                  <Globe className="h-4 w-4" />
-                  {companyData.website}
-                </CardDescription>
+                {companyData.website && (
+                  <CardDescription className="flex items-center gap-2 mt-1">
+                    <Globe className="h-4 w-4" />
+                    {companyData.website}
+                  </CardDescription>
+                )}
                 <CardDescription className="flex items-center gap-2 mt-1">
                   <Mail className="h-4 w-4" />
                   {companyData.email}
@@ -289,7 +376,6 @@ const CompanyProfile = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  disabled={isEditing}
                 />
               ) : (
                 <p className="text-sm p-2 bg-gray-50 rounded">{companyData.name}</p>
@@ -298,12 +384,21 @@ const CompanyProfile = () => {
             <div className="space-y-2">
               <Label htmlFor="website">Website</Label>
               {isEditing ? (
-                <Input
-                  id="website"
-                  name="website"
-                  value={formData.website}
-                  onChange={handleInputChange}
-                />
+                <>
+                  <Input
+                    id="website"
+                    name="website"
+                    value={formData.website || ''}
+                    onChange={handleInputChange}
+                    minLength={4}
+                    maxLength={100}
+                    placeholder="e.g. https://example.com (optional)"
+                    className={validationErrors.website ? 'border-red-500' : ''}
+                  />
+                  {validationErrors.website && (
+                    <p className="text-sm text-red-600">{validationErrors.website}</p>
+                  )}
+                </>
               ) : (
                 <p className="text-sm p-2 bg-gray-50 rounded">{companyData.website}</p>
               )}
@@ -316,15 +411,15 @@ const CompanyProfile = () => {
               {isEditing ? (
                 <Select value={formData.industry} onValueChange={(value) => handleSelectChange('industry', value)}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select industry" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Technology">Technology</SelectItem>
-                    <SelectItem value="Finance">Finance</SelectItem>
-                    <SelectItem value="Healthcare">Healthcare</SelectItem>
-                    <SelectItem value="Education">Education</SelectItem>
-                    <SelectItem value="Retail">Retail</SelectItem>
-                    <SelectItem value="Manufacturing">Manufacturing</SelectItem>
+                    <SelectItem value="technology">Technology</SelectItem>
+                    <SelectItem value="finance">Finance</SelectItem>
+                    <SelectItem value="healthcare">Healthcare</SelectItem>
+                    <SelectItem value="education">Education</SelectItem>
+                    <SelectItem value="retail">Retail</SelectItem>
+                    <SelectItem value="manufacturing">Manufacturing</SelectItem>
                   </SelectContent>
                 </Select>
               ) : (
@@ -336,7 +431,7 @@ const CompanyProfile = () => {
               {isEditing ? (
                 <Select value={formData.size} onValueChange={(value) => handleSelectChange('size', value)}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select company size" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1-10">1-10 employees</SelectItem>
@@ -377,7 +472,11 @@ const CompanyProfile = () => {
                 id="logo"
                 name="logo"
                 onChange={handleFileChange}
+                accept=".png,.jpg,.jpeg,.svg,.webp,image/png,image/jpeg,image/jpg,image/svg+xml,image/webp"
               />
+              <p className="text-sm text-gray-500">
+                Upload your company logo (PNG, JPG, JPEG, SVG, or WebP, max 5MB)
+              </p>
               </>
             ) : (
               // <img src={companyData.logo || '/placeholder.png'} alt="logo" className="h-16 w-16 rounded-full" />

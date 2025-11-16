@@ -20,7 +20,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:4000/api/company/login', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/company/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -37,6 +37,11 @@ const Login = () => {
         throw new Error(data.message || 'Login failed');
       }
 
+      if(data.company.adminApproved === false){
+        router.push('/employer/review');   
+      }
+
+      if(data.company.adminApproved === true){
       // Save company data to localStorage
       localStorage.setItem('token', data.token);
       localStorage.setItem('companyId', data.company._id);
@@ -44,8 +49,16 @@ const Login = () => {
       localStorage.setItem('isLoggedIn', data.isLoggedIn.toString());
       localStorage.setItem('companyName', data.company.name);
 
+      // save cookies to match middleware expectations
+      document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
+      document.cookie = `userId=${data.company._id}; path=/; max-age=${7 * 24 * 60 * 60}`;
+      document.cookie = `role=company; path=/; max-age=${7 * 24 * 60 * 60}`;
+
+
       toast.success("Login successful");
-      router.push('/employer/dashboard');
+      router.push('/employer/dashboard');         
+      }
+    
     } catch (error: any) {
       toast.error(error.message || 'An error occurred during login');
     } finally {
@@ -120,7 +133,7 @@ const Login = () => {
               </div>
 
               <div className="text-center">
-                <Link href="/forgot-password" className="text-blue-600 hover:underline text-sm">
+                <Link href="/company-forget-password" className="text-blue-600 hover:underline text-sm">
                   Forgot password?
                 </Link>
               </div>

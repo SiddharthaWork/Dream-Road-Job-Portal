@@ -103,7 +103,7 @@ export default function ViewProfilePage() {
     }
 
     try {
-      const response = await fetch('http://localhost:4000/api/user/save-profile', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/save-profile`, {
         method: 'PUT',
         body: formDataToSend,
       });
@@ -166,7 +166,7 @@ export default function ViewProfilePage() {
     const fetchProfile = async () => {
       if (userId) {
         try {
-          const response = await fetch(`http://localhost:4000/api/user/getuser/${userId}`);
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getuser/${userId}`);
           const data = await response.json();
           console.log(data);
           if (data.success) {
@@ -260,13 +260,51 @@ export default function ViewProfilePage() {
             </div>
             <div>
               <label className="block mb-1">Date of Birth</label>
-              <input type="date" className="w-full p-2 border rounded" {...register('dateOfBirth', { required: true })} />
-              {errors.dateOfBirth && <p className="text-red-500">Date of birth is required</p>}
+              <input 
+                type="date" 
+                className="w-full p-2 border rounded" 
+                {...register('dateOfBirth', { 
+                  required: 'Date of birth is required',
+                  validate: {
+                    notFuture: (value) => {
+                      const selectedDate = new Date(value);
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      return selectedDate <= today || 'Date of birth cannot be in the future';
+                    },
+                    minimumAge: (value) => {
+                      const selectedDate = new Date(value);
+                      const today = new Date();
+                      const age = today.getFullYear() - selectedDate.getFullYear();
+                      const monthDiff = today.getMonth() - selectedDate.getMonth();
+                      const dayDiff = today.getDate() - selectedDate.getDate();
+                      const actualAge = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? age - 1 : age;
+                      return actualAge >= 18 || 'You must be at least 18 years old';
+                    }
+                  }
+                })} 
+              />
+              {errors.dateOfBirth && <p className="text-red-500 text-sm mt-1">{errors.dateOfBirth.message}</p>}
             </div>
             <div className="col-span-2">
               <label className="block mb-1">About Me</label>
-              <textarea className="w-full p-2 border rounded" {...register('aboutMe', { required: true })} rows={3} />
-              {errors.aboutMe && <p className="text-red-500">About me is required</p>}
+              <textarea 
+                className="w-full p-2 border rounded" 
+                {...register('aboutMe', { 
+                  required: 'About me is required',
+                  validate: {
+                    wordCount: (value) => {
+                      const words = value.trim().split(/\s+/).filter(word => word.length > 0);
+                      const wordCount = words.length;
+                      if (wordCount < 10) return 'About me must be at least 10 words';
+                      if (wordCount > 100) return 'About me must not exceed 100 words';
+                      return true;
+                    }
+                  }
+                })} 
+                rows={3} 
+              />
+              {errors.aboutMe && <p className="text-red-500 text-sm mt-1">{errors.aboutMe.message}</p>}
             </div>
           </div>
         </div>
@@ -277,15 +315,50 @@ export default function ViewProfilePage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block mb-1">City</label>
-              <input className="w-full p-2 border rounded" {...register('city')} />
+              <input 
+                className="w-full p-2 border rounded" 
+                {...register('city', {
+                  minLength: {
+                    value: 2,
+                    message: 'City must be at least 2 characters'
+                  },
+                  maxLength: {
+                    value: 30,
+                    message: 'City must not exceed 30 characters'
+                  }
+                })} 
+              />
+              {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city.message}</p>}
             </div>
-            <div>
+            {/* <div>
               <label className="block mb-1">Current Address</label>
-              <input className="w-full p-2 border rounded" {...register('currentAddress')} />
-            </div>
+              <input 
+                className="w-full p-2 border rounded" 
+                {...register('currentAddress', {
+                  minLength: {
+                    value: 2,
+                    message: 'Current address must be at least 2 characters'
+                  },
+                  maxLength: {
+                    value: 30,
+                    message: 'Current address must not exceed 30 characters'
+                  }
+                })} 
+              />
+              {errors.currentAddress && <p className="text-red-500 text-sm mt-1">{errors.currentAddress.message}</p>}
+            </div> */}
             <div>
               <label className="block mb-1">Postal Code</label>
-              <input className="w-full p-2 border rounded" {...register('postalCode')} />
+              <input 
+                className="w-full p-2 border rounded" 
+                {...register('postalCode', {
+                  maxLength: {
+                    value: 8,
+                    message: 'Postal code must not exceed 8 characters'
+                  }
+                })} 
+              />
+              {errors.postalCode && <p className="text-red-500 text-sm mt-1">{errors.postalCode.message}</p>}
             </div>
             {/* <div>
               <label className="block mb-1">Province</label>
@@ -306,24 +379,79 @@ export default function ViewProfilePage() {
             <div key={field.id} className="border p-4 rounded mb-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block mb-1">College Type</label>
-                  <input className="w-full p-2 border rounded" {...register(`education.${index}.collegeType`)} />
+                  <label className="block mb-1">College Type <span className="text-red-500">*</span></label>
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    {...register(`education.${index}.collegeType`, {
+                      required: 'College type is required'
+                    })} 
+                  />
+                  {errors.education?.[index]?.collegeType && (
+                    <p className="text-red-500 text-sm mt-1">{errors.education[index]?.collegeType?.message}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block mb-1">Degree</label>
-                  <input className="w-full p-2 border rounded" {...register(`education.${index}.degree`)} />
+                  <label className="block mb-1">Degree <span className="text-red-500">*</span></label>
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    {...register(`education.${index}.degree`, {
+                      required: 'Degree is required'
+                    })} 
+                  />
+                  {errors.education?.[index]?.degree && (
+                    <p className="text-red-500 text-sm mt-1">{errors.education[index]?.degree?.message}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block mb-1">Name</label>
-                  <input className="w-full p-2 border rounded" {...register(`education.${index}.city`)} />
+                  <label className="block mb-1">Name <span className="text-red-500">*</span></label>
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    {...register(`education.${index}.city`, {
+                      required: 'Name is required'
+                    })} 
+                  />
+                  {errors.education?.[index]?.city && (
+                    <p className="text-red-500 text-sm mt-1">{errors.education[index]?.city?.message}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block mb-1">Start Date</label>
-                  <input type="date" className="w-full p-2 border rounded" {...register(`education.${index}.startDate`)} />
+                  <input 
+                    type="date" 
+                    max={new Date().toISOString().split('T')[0]}
+                    className="w-full p-2 border rounded" 
+                    {...register(`education.${index}.startDate`, {
+                      required: 'Start date is required',
+                      validate: (value) => {
+                        if (value && new Date(value) > new Date()) {
+                          return 'Start date cannot be in the future';
+                        }
+                        return true;
+                      }
+                    })} 
+                  />
+                  {errors.education?.[index]?.startDate && (
+                    <p className="text-red-500 text-sm mt-1">{errors.education[index]?.startDate?.message}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block mb-1">Graduation Date</label>
-                  <input type="date" className="w-full p-2 border rounded" {...register(`education.${index}.graduationDate`)} />
+                  <input 
+                    type="date" 
+                    max={new Date().toISOString().split('T')[0]}
+                    className="w-full p-2 border rounded" 
+                    {...register(`education.${index}.graduationDate`, {
+                      validate: (value) => {
+                        if (value && new Date(value) > new Date()) {
+                          return 'Graduation date cannot be in the future';
+                        }
+                        return true;
+                      }
+                    })} 
+                  />
+                  {errors.education?.[index]?.graduationDate && (
+                    <p className="text-red-500 text-sm mt-1">{errors.education[index]?.graduationDate?.message}</p>
+                  )}
                 </div>
                 <div className="flex items-center">
                   <input type="checkbox" className="mr-2" {...register(`education.${index}.currentlyStudying`)} />
@@ -355,12 +483,33 @@ export default function ViewProfilePage() {
             <div key={field.id} className="border p-4 rounded mb-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block mb-1">Title</label>
-                  <input className="w-full p-2 border rounded" {...register(`achievements.${index}.title`)} />
+                  <label className="block mb-1">Title <span className="text-red-500">*</span></label>
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    {...register(`achievements.${index}.title`, {
+                      required: 'Title is required',
+                      maxLength: {
+                        value: 40,
+                        message: 'Title must not exceed 40 characters'
+                      }
+                    })} 
+                  />
+                  {errors.achievements?.[index]?.title && (
+                    <p className="text-red-500 text-sm mt-1">{errors.achievements[index]?.title?.message}</p>
+                  )}
                 </div>
                 <div className="col-span-2">
-                  <label className="block mb-1">Description</label>
-                  <textarea className="w-full p-2 border rounded" {...register(`achievements.${index}.description`)} rows={3} />
+                  <label className="block mb-1">Description <span className="text-red-500">*</span></label>
+                  <textarea 
+                    className="w-full p-2 border rounded" 
+                    {...register(`achievements.${index}.description`, {
+                      required: 'Description is required'
+                    })} 
+                    rows={3} 
+                  />
+                  {errors.achievements?.[index]?.description && (
+                    <p className="text-red-500 text-sm mt-1">{errors.achievements[index]?.description?.message}</p>
+                  )}
                 </div>
               </div>
               <button type="button" onClick={() => removeAchievement(index)} className="mt-2 bg-red-500 text-white px-4 py-2 rounded">
@@ -383,19 +532,77 @@ export default function ViewProfilePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block mb-1">Title</label>
-                  <input className="w-full p-2 border rounded" {...register(`certificates.${index}.title`)} />
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    {...register(`certificates.${index}.title`, {
+                      maxLength: {
+                        value: 40,
+                        message: 'Title must not exceed 40 characters'
+                      },
+                      validate: (value, formValues) => {
+                        const issueDate = formValues.certificates?.[index]?.issueDate;
+                        const expirationDate = formValues.certificates?.[index]?.expirationDate;
+                        if ((issueDate || expirationDate) && (!value || !value.trim())) {
+                          return 'Title is required when dates are provided';
+                        }
+                        return true;
+                      }
+                    })} 
+                  />
+                  {errors.certificates?.[index]?.title && (
+                    <p className="text-red-500 text-sm mt-1">{errors.certificates[index]?.title?.message}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block mb-1">Issued By</label>
-                  <input className="w-full p-2 border rounded" {...register(`certificates.${index}.issuedBy`)} />
+                  <label className="block mb-1">Issued By <span className="text-red-500">*</span></label>
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    {...register(`certificates.${index}.issuedBy`, {
+                      required: 'Issued by is required'
+                    })} 
+                  />
+                  {errors.certificates?.[index]?.issuedBy && (
+                    <p className="text-red-500 text-sm mt-1">{errors.certificates[index]?.issuedBy?.message}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block mb-1">Issue Date</label>
-                  <input type="date" className="w-full p-2 border rounded" {...register(`certificates.${index}.issueDate`)} />
+                  <input 
+                    type="date" 
+                    max={new Date().toISOString().split('T')[0]}
+                    className="w-full p-2 border rounded" 
+                    {...register(`certificates.${index}.issueDate`, {
+                      required: 'Issue date is required',
+                      validate: (value) => {
+                        if (value && new Date(value) > new Date()) {
+                          return 'Issue date cannot be in the future';
+                        }
+                        return true;
+                      }
+                    })} 
+                  />
+                  {errors.certificates?.[index]?.issueDate && (
+                    <p className="text-red-500 text-sm mt-1">{errors.certificates[index]?.issueDate?.message}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block mb-1">Expiration Date</label>
-                  <input type="date" className="w-full p-2 border rounded" {...register(`certificates.${index}.expirationDate`)} />
+                  <input 
+                    type="date" 
+                    className="w-full p-2 border rounded" 
+                    {...register(`certificates.${index}.expirationDate`, {
+                      validate: (value, formValues) => {
+                        const issueDate = formValues.certificates?.[index]?.issueDate;
+                        if (value && issueDate && new Date(value) < new Date(issueDate)) {
+                          return 'Expiration date cannot be earlier than issue date';
+                        }
+                        return true;
+                      }
+                    })} 
+                  />
+                  {errors.certificates?.[index]?.expirationDate && (
+                    <p className="text-red-500 text-sm mt-1">{errors.certificates[index]?.expirationDate?.message}</p>
+                  )}
                 </div>
               </div>
               <button type="button" onClick={() => removeCertificate(index)} className="mt-2 bg-red-500 text-white px-4 py-2 rounded">
@@ -418,31 +625,111 @@ export default function ViewProfilePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block mb-1">Job Title</label>
-                  <input className="w-full p-2 border rounded" {...register(`experiences.${index}.jobTitle`)} />
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    {...register(`experiences.${index}.jobTitle`, {
+                      maxLength: {
+                        value: 40,
+                        message: 'Job title must not exceed 40 characters'
+                      },
+                      validate: (value, formValues) => {
+                        const startDate = formValues.experiences?.[index]?.startDate;
+                        const endDate = formValues.experiences?.[index]?.endDate;
+                        if ((startDate || endDate) && (!value || !value.trim())) {
+                          return 'Job title is required when dates are provided';
+                        }
+                        return true;
+                      }
+                    })} 
+                  />
+                  {errors.experiences?.[index]?.jobTitle && (
+                    <p className="text-red-500 text-sm mt-1">{errors.experiences[index]?.jobTitle?.message}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block mb-1">Company</label>
-                  <input className="w-full p-2 border rounded" {...register(`experiences.${index}.company`)} />
+                  <label className="block mb-1">Company <span className="text-red-500">*</span></label>
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    {...register(`experiences.${index}.company`, {
+                      required: 'Company is required'
+                    })} 
+                  />
+                  {errors.experiences?.[index]?.company && (
+                    <p className="text-red-500 text-sm mt-1">{errors.experiences[index]?.company?.message}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block mb-1">Start Date</label>
-                  <input type="date" className="w-full p-2 border rounded" {...register(`experiences.${index}.startDate`)} />
+                  <input 
+                    type="date" 
+                    max={new Date().toISOString().split('T')[0]}
+                    className="w-full p-2 border rounded" 
+                    {...register(`experiences.${index}.startDate`, {
+                      required: 'Start date is required',
+                      validate: (value) => {
+                        if (value && new Date(value) > new Date()) {
+                          return 'Start date cannot be in the future';
+                        }
+                        return true;
+                      }
+                    })} 
+                  />
+                  {errors.experiences?.[index]?.startDate && (
+                    <p className="text-red-500 text-sm mt-1">{errors.experiences[index]?.startDate?.message}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block mb-1">End Date</label>
-                  <input type="date" className="w-full p-2 border rounded" {...register(`experiences.${index}.endDate`)} />
+                  <input 
+                    type="date" 
+                    max={new Date().toISOString().split('T')[0]}
+                    className="w-full p-2 border rounded" 
+                    {...register(`experiences.${index}.endDate`, {
+                      validate: (value, formValues) => {
+                        const startDate = formValues.experiences?.[index]?.startDate;
+                        const currentlyWorking = formValues.experiences?.[index]?.currentlyWorking;
+                        if (value && new Date(value) > new Date()) {
+                          return 'End date cannot be in the future';
+                        }
+                        if (value && startDate && !currentlyWorking && new Date(value) < new Date(startDate)) {
+                          return 'End date cannot be earlier than start date';
+                        }
+                        return true;
+                      }
+                    })} 
+                  />
+                  {errors.experiences?.[index]?.endDate && (
+                    <p className="text-red-500 text-sm mt-1">{errors.experiences[index]?.endDate?.message}</p>
+                  )}
                 </div>
                 <div className="flex items-center">
                   <input type="checkbox" className="mr-2" {...register(`experiences.${index}.currentlyWorking`)} />
                   <label>Currently Working</label>
                 </div>
                 <div>
-                  <label className="block mb-1">Location</label>
-                  <input className="w-full p-2 border rounded" {...register(`experiences.${index}.location`)} />
+                  <label className="block mb-1">Location <span className="text-red-500">*</span></label>
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    {...register(`experiences.${index}.location`, {
+                      required: 'Location is required'
+                    })} 
+                  />
+                  {errors.experiences?.[index]?.location && (
+                    <p className="text-red-500 text-sm mt-1">{errors.experiences[index]?.location?.message}</p>
+                  )}
                 </div>
                 <div className="col-span-2">
-                  <label className="block mb-1">Description</label>
-                  <textarea className="w-full p-2 border rounded" {...register(`experiences.${index}.description`)} rows={3} />
+                  <label className="block mb-1">Description <span className="text-red-500">*</span></label>
+                  <textarea 
+                    className="w-full p-2 border rounded" 
+                    {...register(`experiences.${index}.description`, {
+                      required: 'Description is required'
+                    })} 
+                    rows={3} 
+                  />
+                  {errors.experiences?.[index]?.description && (
+                    <p className="text-red-500 text-sm mt-1">{errors.experiences[index]?.description?.message}</p>
+                  )}
                 </div>
               </div>
               <button type="button" onClick={() => removeExperience(index)} className="mt-2 bg-red-500 text-white px-4 py-2 rounded">
@@ -465,19 +752,82 @@ export default function ViewProfilePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block mb-1">Title</label>
-                  <input className="w-full p-2 border rounded" {...register(`projects.${index}.title`)} />
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    {...register(`projects.${index}.title`, {
+                      maxLength: {
+                        value: 40,
+                        message: 'Title must not exceed 40 characters'
+                      },
+                      validate: (value, formValues) => {
+                        const startDate = formValues.projects?.[index]?.startDate;
+                        const endDate = formValues.projects?.[index]?.endDate;
+                        if ((startDate || endDate) && (!value || !value.trim())) {
+                          return 'Title is required when dates are provided';
+                        }
+                        return true;
+                      }
+                    })} 
+                  />
+                  {errors.projects?.[index]?.title && (
+                    <p className="text-red-500 text-sm mt-1">{errors.projects[index]?.title?.message}</p>
+                  )}
                 </div>
                 <div className="col-span-2">
-                  <label className="block mb-1">Description</label>
-                  <textarea className="w-full p-2 border rounded" {...register(`projects.${index}.description`)} rows={3} />
+                  <label className="block mb-1">Description <span className="text-red-500">*</span></label>
+                  <textarea 
+                    className="w-full p-2 border rounded" 
+                    {...register(`projects.${index}.description`, {
+                      required: 'Description is required'
+                    })} 
+                    rows={3} 
+                  />
+                  {errors.projects?.[index]?.description && (
+                    <p className="text-red-500 text-sm mt-1">{errors.projects[index]?.description?.message}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block mb-1">Start Date</label>
-                  <input type="date" className="w-full p-2 border rounded" {...register(`projects.${index}.startDate`)} />
+                  <input 
+                    type="date" 
+                    max={new Date().toISOString().split('T')[0]}
+                    className="w-full p-2 border rounded" 
+                    {...register(`projects.${index}.startDate`, {
+                      required: 'Start date is required',
+                      validate: (value) => {
+                        if (value && new Date(value) > new Date()) {
+                          return 'Start date cannot be in the future';
+                        }
+                        return true;
+                      }
+                    })} 
+                  />
+                  {errors.projects?.[index]?.startDate && (
+                    <p className="text-red-500 text-sm mt-1">{errors.projects[index]?.startDate?.message}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block mb-1">End Date</label>
-                  <input type="date" className="w-full p-2 border rounded" {...register(`projects.${index}.endDate`)} />
+                  <input 
+                    type="date" 
+                    max={new Date().toISOString().split('T')[0]}
+                    className="w-full p-2 border rounded" 
+                    {...register(`projects.${index}.endDate`, {
+                      validate: (value, formValues) => {
+                        const startDate = formValues.projects?.[index]?.startDate;
+                        if (value && new Date(value) > new Date()) {
+                          return 'End date cannot be in the future';
+                        }
+                        if (value && startDate && new Date(value) < new Date(startDate)) {
+                          return 'End date cannot be earlier than start date';
+                        }
+                        return true;
+                      }
+                    })} 
+                  />
+                  {errors.projects?.[index]?.endDate && (
+                    <p className="text-red-500 text-sm mt-1">{errors.projects[index]?.endDate?.message}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block mb-1">Project Link</label>

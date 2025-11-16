@@ -43,9 +43,10 @@ interface Job {
   createdAt: string;
 }
 
-const JobApplicants = () => {
+const JobApplicantsContent = () => {
   const params = useParams();
-  const jobId = params?.id as string;
+  // const jobId = params?.id as string;
+  const jobId = params?.id;
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -54,14 +55,19 @@ const JobApplicants = () => {
   const [loading, setLoading] = useState(true);
   const [bestMatches, setBestMatches] = useState<any[]>([]);
   const [loadingBestMatches, setLoadingBestMatches] = useState(true);
+  
+  // Use the hook safely within the provider
   const { getJob, getApplicantsForJob, toggleShortlist, updateApplicant } = useApp();
 
   useEffect(() => { 
     const fetchData = async () => {
+      if (!jobId) {
+        return;
+      }
       setLoading(true);
       try {
         const response = await axios.get(
-          `http://localhost:4000/api/application/getApplicants/${jobId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/getApplicants/${jobId}`
         );
         
         if (response.data.success) {
@@ -111,7 +117,7 @@ const JobApplicants = () => {
     const fetchBestMatches = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/api/application/getRankedApplicants/${jobId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/getRankedApplicants/${jobId}`
         );
         if (response.data.job && response.data.job.applications) {
           setBestMatches(response.data.job.applications);
@@ -216,9 +222,10 @@ const JobApplicants = () => {
           {(application.applicantScore * 100).toFixed(0)}%
         </div>
       </TableCell>
-      <TableCell>
+      {/* <TableCell>
         {application.summary?.strengths?.join(', ') || 'N/A'}
-      </TableCell>
+        N/A
+      </TableCell> */}
       <TableCell>
         {new Date(application.createdAt).toLocaleDateString()}
       </TableCell>
@@ -408,7 +415,7 @@ const JobApplicants = () => {
                     <TableRow>
                       <TableHead>Candidate</TableHead>
                       <TableHead>Match Score</TableHead>
-                      <TableHead>Strengths</TableHead>
+                      {/* <TableHead>Strengths</TableHead> */}
                       <TableHead>Applied Date</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Actions</TableHead>
@@ -505,12 +512,34 @@ const JobApplicants = () => {
   );
 };
 
-export default JobApplicants;
+// Main component wrapped with AppProvider for SSR compatibility
+const JobApplicants = () => {
+  const [isClient, setIsClient] = useState(false);
 
-export const ApplicantsProflePreview = () => {
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="text-center py-12">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Loading...</h3>
+            <p className="text-gray-500 mb-4">
+              Please wait while we load the applicants.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <AppProvider>
-      <JobApplicants />
+      <JobApplicantsContent />
     </AppProvider>
-  )
-}
+  );
+};
+
+export default JobApplicants;
