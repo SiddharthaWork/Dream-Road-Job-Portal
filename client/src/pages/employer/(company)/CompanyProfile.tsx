@@ -13,24 +13,27 @@ import toast from 'react-hot-toast';
 
 interface CompanyData {
   name: string;
-  website: string;
+  website?: string;
   email: string;
   industry: string;
   size: string;
-  description: string;
-  location: string;
-  founded: string;
-  employees: string;
-  benefits: string;
-  logo: string;
+  description?: string;
+  location?: string;
+  founded?: string;
+  employees?: string;
+  benefits?: string;
+  logo?: string;
+  phoneNumber?: string;
 }
 
 const CompanyProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+  const [isClient, setIsClient] = useState(false);
+  const [companyId, setCompanyId] = useState<string | null>(null);
 
-  // Get company data from localStorage (mock data)
+  // Get company data from API
   const [companyData, setCompanyData] = useState<CompanyData>({
     name: '',
     website: '',
@@ -43,6 +46,7 @@ const CompanyProfile = () => {
     employees: '',
     benefits: '',
     logo: '',
+    phoneNumber: '',
   });
 
   const [formData, setFormData] = useState<CompanyData>(companyData);
@@ -50,16 +54,17 @@ const CompanyProfile = () => {
 
   // Website validation function
   const validateWebsite = (website: string): string | null => {
+    // Website is optional, so allow empty values
     if (!website.trim()) {
-      return 'Website is required';
+      return null;
     }
     
     if (website.length < 4) {
       return 'Website must be at least 4 characters';
     }
     
-    if (website.length > 20) {
-      return 'Website must be at most 20 characters';
+    if (website.length > 100) {
+      return 'Website must be at most 100 characters';
     }
     
     // Basic URL validation pattern
@@ -71,37 +76,38 @@ const CompanyProfile = () => {
     return null;
   };
 
+  // Initialize client-side rendering
   useEffect(() => {
+    setIsClient(true);
+    if (typeof window !== 'undefined') {
+      setCompanyId(localStorage.getItem('companyId'));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isClient || !companyId) return;
+    
     const fetchCompanyData = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/company/getcompany/${localStorage.getItem('companyId')}`);
+        const response = await axios.get(`http://localhost:4000/api/company/getcompany/${companyId}`);
         const data = response.data.data;
-        setCompanyData({
-          name: data.name,
-          website: data.website,
-          email: data.email,
-          industry: data.industry,
-          size: data.size,
-          description: data.description,
-          location: data.location,
-          founded: data.founded,
-          employees: data.employees,
-          benefits: data.benefits,
-          logo: data.logo,
-        });
-        setFormData({
-          name: data.name,
-          website: data.website,
-          email: data.email,
-          industry: data.industry,
-          size: data.size,
-          description: data.description,
-          location: data.location,
-          founded: data.founded,
-          employees: data.employees,
-          benefits: data.benefits,
-          logo: data.logo,
-        });
+        const companyInfo = {
+          name: data.name || '',
+          website: data.website || '',
+          email: data.email || '',
+          industry: data.industry || '',
+          size: data.size || '',
+          description: data.description || '',
+          location: data.location || '',
+          founded: data.founded || '',
+          employees: data.employees || '',
+          benefits: data.benefits || '',
+          logo: data.logo || '',
+          phoneNumber: data.phoneNumber || '',
+        };
+        
+        setCompanyData(companyInfo);
+        setFormData(companyInfo);
       } catch (error) {
         console.error('Failed to fetch company data', error);
         toast.error("Failed to fetch company data.");
@@ -109,7 +115,7 @@ const CompanyProfile = () => {
     };
 
     fetchCompanyData();
-  }, []);
+  }, [isClient, companyId]);
 
   // Sync formData with companyData when entering edit mode
   useEffect(() => {
@@ -172,7 +178,7 @@ const CompanyProfile = () => {
     setIsLoading(true);
 
     // Validate website
-    const websiteError = validateWebsite(formData.website);
+    const websiteError = validateWebsite(formData.website || '');
     if (websiteError) {
       setValidationErrors(prev => ({ ...prev, website: websiteError }));
       toast.error('Please fix the website validation errors');
@@ -180,8 +186,8 @@ const CompanyProfile = () => {
       return;
     }
 
-    // Validate required fields
-    const requiredFields: (keyof CompanyData)[] = ['website', 'industry', 'size'];
+    // Validate required fields (only require fields that exist in API)
+    const requiredFields: (keyof CompanyData)[] = ['name', 'email', 'industry', 'size'];
     const missingFields = requiredFields.filter(field => !formData[field]);
 
     if (missingFields.length > 0) {
@@ -191,8 +197,8 @@ const CompanyProfile = () => {
     }
 
     // Validate description length
-    if (formData.description.length > 200) {
-      toast.error('Description must be 200 characters or less');
+    if (formData.description && formData.description.length > 500) {
+      toast.error('Description must be 500 characters or less');
       setIsLoading(false);
       return;
     }
@@ -200,9 +206,11 @@ const CompanyProfile = () => {
     try {
       const formDataToSend = new FormData();
 
-      // Append all fields to the form data
+      // Append all fields to the form data (only non-empty values)
       Object.entries(formData).forEach(([key, value]) => {
-        formDataToSend.append(key, value as string);
+        if (value && value.toString().trim()) {
+          formDataToSend.append(key, value as string);
+        }
       });
 
       // Append logo file if changed
@@ -211,7 +219,7 @@ const CompanyProfile = () => {
       }
 
       const response = await axios.put(
-        `http://localhost:4000/api/company/updatecompany/${localStorage.getItem('companyId')}`,
+        `http://localhost:4000/api/company/updatecompany/${companyId}`,
         formDataToSend,
         {
           headers: {
@@ -266,6 +274,14 @@ const CompanyProfile = () => {
   //   }
   // };
 
+  if (!isClient) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
@@ -303,10 +319,12 @@ const CompanyProfile = () => {
               </div>
               <div>
                 <CardTitle className="text-2xl">{companyData.name}</CardTitle>
-                <CardDescription className="flex items-center gap-2 mt-1">
-                  <Globe className="h-4 w-4" />
-                  {companyData.website}
-                </CardDescription>
+                {companyData.website && (
+                  <CardDescription className="flex items-center gap-2 mt-1">
+                    <Globe className="h-4 w-4" />
+                    {companyData.website}
+                  </CardDescription>
+                )}
                 <CardDescription className="flex items-center gap-2 mt-1">
                   <Mail className="h-4 w-4" />
                   {companyData.email}
@@ -358,7 +376,6 @@ const CompanyProfile = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  disabled={isEditing}
                 />
               ) : (
                 <p className="text-sm p-2 bg-gray-50 rounded">{companyData.name}</p>
@@ -371,11 +388,11 @@ const CompanyProfile = () => {
                   <Input
                     id="website"
                     name="website"
-                    value={formData.website}
+                    value={formData.website || ''}
                     onChange={handleInputChange}
                     minLength={4}
-                    maxLength={20}
-                    placeholder="e.g. example.com"
+                    maxLength={100}
+                    placeholder="e.g. https://example.com (optional)"
                     className={validationErrors.website ? 'border-red-500' : ''}
                   />
                   {validationErrors.website && (

@@ -43,7 +43,7 @@ interface Job {
   createdAt: string;
 }
 
-const JobApplicants = () => {
+const JobApplicantsContent = () => {
   const params = useParams();
   // const jobId = params?.id as string;
   const jobId = params?.id;
@@ -55,6 +55,8 @@ const JobApplicants = () => {
   const [loading, setLoading] = useState(true);
   const [bestMatches, setBestMatches] = useState<any[]>([]);
   const [loadingBestMatches, setLoadingBestMatches] = useState(true);
+  
+  // Use the hook safely within the provider
   const { getJob, getApplicantsForJob, toggleShortlist, updateApplicant } = useApp();
 
   useEffect(() => { 
@@ -510,12 +512,34 @@ const JobApplicants = () => {
   );
 };
 
-export default JobApplicants;
+// Main component wrapped with AppProvider for SSR compatibility
+const JobApplicants = () => {
+  const [isClient, setIsClient] = useState(false);
 
-export const ApplicantsProflePreview = () => {
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="text-center py-12">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Loading...</h3>
+            <p className="text-gray-500 mb-4">
+              Please wait while we load the applicants.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <AppProvider>
-      <JobApplicants />
+      <JobApplicantsContent />
     </AppProvider>
-  )
-}
+  );
+};
+
+export default JobApplicants;

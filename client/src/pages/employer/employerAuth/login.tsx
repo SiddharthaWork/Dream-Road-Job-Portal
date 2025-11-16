@@ -37,6 +37,11 @@ const Login = () => {
         throw new Error(data.message || 'Login failed');
       }
 
+      if(data.company.adminApproved === false){
+        router.push('/employer/review');   
+      }
+
+      if(data.company.adminApproved === true){
       // Save company data to localStorage
       localStorage.setItem('token', data.token);
       localStorage.setItem('companyId', data.company._id);
@@ -51,7 +56,9 @@ const Login = () => {
 
 
       toast.success("Login successful");
-      router.push('/employer/dashboard');
+      router.push('/employer/dashboard');         
+      }
+    
     } catch (error: any) {
       toast.error(error.message || 'An error occurred during login');
     } finally {

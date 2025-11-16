@@ -19,11 +19,13 @@ type JobData = JobFormData & {
 };
 
 const UpdateJob = () => {
-  const { id } = useParams() as { id: string };
+  const params = useParams();
+  const id = params?.id as string;
   const router = useRouter();
   const [job, setJob] = useState<JobData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isClient, setIsClient] = useState(false);
 
   const [location, setLocation] = useState<string>('');
   const [hasDeadline, setHasDeadline] = useState<boolean>(false);
@@ -38,9 +40,14 @@ const UpdateJob = () => {
     watch,
   } = useForm<JobFormData>();
 
+  // Initialize client-side rendering
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   // Fetch job data
   useEffect(() => {
-    if (!id) return;
+    if (!id || !isClient) return;
     
     const fetchJob = async () => {
       try {
@@ -72,7 +79,7 @@ const UpdateJob = () => {
     };
 
     fetchJob();
-  }, [id, setValue]);
+  }, [id, isClient, setValue]);
 
   const onSubmit = async (data: JobFormData) => {
     try {
@@ -123,7 +130,7 @@ const UpdateJob = () => {
     }
   };
 
-  if (loading) {
+  if (!isClient || loading) {
     return <div className="flex justify-center items-center h-screen">Loading job details...</div>;
   }
 

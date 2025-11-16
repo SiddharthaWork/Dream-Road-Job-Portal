@@ -1,5 +1,5 @@
 "use client";
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import WelcomeBanner from './WelcomeBanner'
 import StatsCards from './StatsCard'
 import { categoriesData, jobsData, statsData, recentActivityData, sampleJobPosts, reommendedjobsData } from '@/data/mockData'
@@ -12,15 +12,31 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@iconify/react/dist/iconify.js';
 
 const JobPortal = () => {
-
   const router = useRouter();
   const isProfileComplete = true; // Set to true when the user completes their profile
+  const [userName, setUserName] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    if (typeof window !== 'undefined') {
+      setUserName(localStorage.getItem('fullname'));
+    }
+  }, []);
+
+  if (!isClient) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className='w-full h-full max-w-7xl mx-auto py-8 overflow-hidden'>
       <div className='w-full h-full grid grid-cols-3 gap-6'>
         <div className='col-span-2 space-y-6'>
-          <WelcomeBanner userName={localStorage.getItem('fullname')} platformName="Dreamroad" />
+          <WelcomeBanner userName={userName} platformName="Dreamroad" />
           <StatsCards stats={statsData} />
 
           <BrowseOpportunities 

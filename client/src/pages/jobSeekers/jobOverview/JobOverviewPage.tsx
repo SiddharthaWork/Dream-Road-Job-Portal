@@ -52,15 +52,20 @@ export default function JobOverviewPage() {
   const [showProfileCompletionModal, setShowProfileCompletionModal] = useState(false)
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
-  // so the appliedUsersContain bollean
-  
+  // Initialize client-side rendering
   useEffect(() => {
-    const profile = localStorage.getItem('profile');
-    // Properly handle 'false' string from localStorage
-    setProfileCompleted(profile === 'true');
-  }, [])
-  const userId = localStorage.getItem('userId');
+    setIsClient(true);
+    if (typeof window !== 'undefined') {
+      const profile = localStorage.getItem('profile');
+      const storedUserId = localStorage.getItem('userId');
+      // Properly handle 'false' string from localStorage
+      setProfileCompleted(profile === 'true');
+      setUserId(storedUserId);
+    }
+  }, []);
   
   console.log(profileCompleted,"profileCompleted");
 
@@ -82,9 +87,11 @@ export default function JobOverviewPage() {
   }, [job]);
 
   const fetchJob = async () => {
+    if (!isClient || !userId) return;
+    
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:4000/api/job/getjobbyid/${id}?userId=${localStorage.getItem('userId')}`);
+      const response = await axios.get(`http://localhost:4000/api/job/getjobbyid/${id}?userId=${userId}`);
       if (response.data.success) {
         setJob(response.data.data);
         setSimilarJobs(response.data.similarJobs);
@@ -100,9 +107,9 @@ export default function JobOverviewPage() {
   };
 
   useEffect(() => {
-    if (!id) return;
+    if (!id || !isClient || !userId) return;
     fetchJob();
-  }, []);
+  }, [id, isClient, userId]);
 
   const handleApplied = () => {
     setApplied(true);
@@ -144,7 +151,7 @@ export default function JobOverviewPage() {
     }
   };
 
-  if (loading) {
+  if (!isClient || loading) {
     return <div>
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
