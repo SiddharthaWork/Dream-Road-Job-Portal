@@ -63,7 +63,7 @@ export default function AdminJobOverview() {
   const fetchJob = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:4000/api/job/getjobbyid/${id}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getjobbyid/${id}`);
       if (response.data.success) {
         setJob(response.data.data);
         setSimilarJobs(response.data.similarJobs);

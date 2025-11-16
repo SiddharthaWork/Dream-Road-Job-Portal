@@ -132,7 +132,7 @@ export default function MultiStepForm() {
         formDataToSend.append('resumeUrl', resume);
       }
 
-      const response = await fetch('http://localhost:4000/api/user/save-profile', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/save-profile`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`

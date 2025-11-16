@@ -51,7 +51,7 @@ const UpdateJob = () => {
     
     const fetchJob = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/job/getjobbyid/${id}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getjobbyid/${id}`);
         if (response.data.success) {
           const jobData = response.data.data;
           setJob(jobData);

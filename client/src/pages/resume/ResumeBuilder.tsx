@@ -46,7 +46,7 @@ const ResumeBuilder = () => {
     const fetchUserData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:4000/api/user/getuser/${userId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getuser/${userId}`
         );
         const data: UserApiResponse = await response.json();
         if (data.success) {

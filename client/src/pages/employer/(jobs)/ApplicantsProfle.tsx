@@ -75,7 +75,7 @@ const ApplicantProfileContent = () => {
       }
 
       try {
-        const response = await axios.get(`http://localhost:4000/api/user/getuserappliedjobs/${id}?jobId=${jobId}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getuserappliedjobs/${id}?jobId=${jobId}`);
         if (response.data.success) {
           setUser(response.data.data);
           console.log("here is some data",response.data.data)
@@ -112,7 +112,7 @@ const ApplicantProfileContent = () => {
     setUpdatingStatus(true);
     
     try {
-      const response = await axios.put(`http://localhost:4000/api/application/updateStatus/${applicationId}`, {
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/application/updateStatus/${applicationId}`, {
         status: "shortlisted",
       });
       
@@ -134,7 +134,7 @@ const ApplicantProfileContent = () => {
     setUpdatingStatus(true);
     
     try {
-      const response = await axios.put(`http://localhost:4000/api/application/updateStatus/${applicationId}`, {
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/application/updateStatus/${applicationId}`, {
         status: "rejected",
       });
       

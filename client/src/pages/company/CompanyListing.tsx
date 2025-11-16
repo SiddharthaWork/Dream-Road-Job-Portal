@@ -85,7 +85,7 @@ export default function CompanyListings({ onCompanyClick }: CompanyListingsProps
     const fetchCompanies = async () => {
       try {
         setLoading(true)
-        const response = await axios.get('http://localhost:4000/api/company/getallcompanies')
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/company/getallcompanies`)
         console.log(response.data);
         if (response.data.success) {
           setCompanies(response.data.data)

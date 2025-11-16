@@ -23,7 +23,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
 
-    axios.post('http://localhost:4000/api/admin/login',{
+    axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/login`,{
       email,
       password
     })

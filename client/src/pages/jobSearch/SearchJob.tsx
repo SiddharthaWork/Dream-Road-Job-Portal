@@ -51,7 +51,7 @@ export default function SearchJob() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/job/getalljobs');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getalljobs`);
         if (response.data.success) {
           setJobs(response.data.data);
           console.log("here is the jobs", response.data.data)

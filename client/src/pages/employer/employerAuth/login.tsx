@@ -20,7 +20,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:4000/api/company/login', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/company/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

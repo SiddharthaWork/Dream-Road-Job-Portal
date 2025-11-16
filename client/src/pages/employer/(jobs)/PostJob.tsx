@@ -67,7 +67,7 @@ const PostJob = () => {
     try {
       const companyId = localStorage.getItem('companyId');
       
-      const response = await axios.post('http://localhost:4000/api/job/createJob', {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/createJob`, {
         ...data,
         location: location,
         deadline: hasDeadline ? deadline : undefined,

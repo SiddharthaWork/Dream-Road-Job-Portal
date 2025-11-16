@@ -72,7 +72,7 @@ const UserProfile = () => {
 
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:4000/api/user/getuser/${id}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getuser/${id}`);
         const data = await response.json();
         
         if (data.success && data.data?.profile) {

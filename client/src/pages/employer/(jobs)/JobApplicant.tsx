@@ -67,7 +67,7 @@ const JobApplicantsContent = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `http://localhost:4000/api/application/getApplicants/${jobId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/getApplicants/${jobId}`
         );
         
         if (response.data.success) {
@@ -117,7 +117,7 @@ const JobApplicantsContent = () => {
     const fetchBestMatches = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/api/application/getRankedApplicants/${jobId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/getRankedApplicants/${jobId}`
         );
         if (response.data.job && response.data.job.applications) {
           setBestMatches(response.data.job.applications);

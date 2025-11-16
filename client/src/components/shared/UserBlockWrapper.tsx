@@ -20,7 +20,7 @@ export default function UserBlockWrapper({ children }: { children: React.ReactNo
         return;
       }
       try {
-        const response = await fetch(`http://localhost:4000/api/admin/checkBlockUser/${userId}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/checkBlockUser/${userId}`);
         const data = await response.json();
         if (data.success) {
           setIsBlocked(data.data);

@@ -293,10 +293,10 @@ export default function CompaniesPage() {
                 try {
                   if (selectedCompany.block) {
                     // Unblock user
-                    await axios.put(`http://localhost:4000/api/admin/unblockCompany/${selectedCompany._id}`);
+                    await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/unblockCompany/${selectedCompany._id}`);
                   } else {
                     // Block user
-                    await axios.put(`http://localhost:4000/api/admin/blockCompany/${selectedCompany._id}`);
+                    await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/blockCompany/${selectedCompany._id}`);
                   }
                   // Update the user state to reflect the change
                   setCompanies((prev: any) => prev.map((company: any) => 

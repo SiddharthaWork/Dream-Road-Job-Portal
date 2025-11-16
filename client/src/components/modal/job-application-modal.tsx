@@ -69,7 +69,7 @@ export default function JobApplicationModal({ jobId, userId, onApplied, onClose,
       }
       
       const response = await axios.post(
-        `http://localhost:4000/api/application/applyJob/${jobId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/application/applyJob/${jobId}`,
         formData,
         {
           headers: {

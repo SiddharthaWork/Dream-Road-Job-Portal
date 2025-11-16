@@ -52,7 +52,7 @@ const AdminCompanyProfile = () => {
 
     const fetchCompanyData = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/company/getcompany/${id}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/company/getcompany/${id}`);
         const data = response.data.data;
         setVerificationStatus(response.data.data.adminApproved);
 

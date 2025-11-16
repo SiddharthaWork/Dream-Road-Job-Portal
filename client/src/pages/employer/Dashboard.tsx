@@ -30,7 +30,7 @@ const Dashboard = () => {
           throw new Error('Company ID not found');
         }
         
-        const response = await fetch(`http://localhost:4000/api/job/getjobcount/${companyId}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getjobcount/${companyId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch job count');
         }

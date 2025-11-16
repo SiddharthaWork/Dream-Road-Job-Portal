@@ -74,7 +74,7 @@ export default function JobOverviewPage() {
       if (!job || !userId) return;
       
       try {
-        const response = await axios.get(`http://localhost:4000/api/job/checksavedjob/${userId}/${job._id}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/checksavedjob/${userId}/${job._id}`);
         if (response.data.success) {
           setIsSaved(response.data.data);
         }
@@ -91,7 +91,7 @@ export default function JobOverviewPage() {
     
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:4000/api/job/getjobbyid/${id}?userId=${userId}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getjobbyid/${id}?userId=${userId}`);
       if (response.data.success) {
         setJob(response.data.data);
         setSimilarJobs(response.data.similarJobs);
@@ -133,7 +133,7 @@ export default function JobOverviewPage() {
     
     setIsSaving(true);
     try {
-      const response = await axios.post('http://localhost:4000/api/job/savejob', {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/savejob`, {
         jobId: job._id,
         userId: userId,
       });

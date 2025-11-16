@@ -30,7 +30,7 @@ const SavedJobPage = () => {
 
             try {
                 setLoading(true);
-                const response = await axios.get(`http://localhost:4000/api/job/getsavedjob/${storedUserId}`);
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getsavedjob/${storedUserId}`);
                 if (response.data.success) {
                     setSavedJobs(response.data.data);
                 } else {

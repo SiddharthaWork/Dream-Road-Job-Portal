@@ -42,7 +42,7 @@ export default function UserSendMailPage() {
 
     try {
       // Make API call to forgot password endpoint
-      const response = await fetch("http://localhost:4000/api/user/forgot-password", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/forgot-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

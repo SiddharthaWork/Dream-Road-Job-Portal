@@ -89,7 +89,7 @@ const CompanyProfile = () => {
     
     const fetchCompanyData = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/company/getcompany/${companyId}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/company/getcompany/${companyId}`);
         const data = response.data.data;
         const companyInfo = {
           name: data.name || '',
@@ -219,7 +219,7 @@ const CompanyProfile = () => {
       }
 
       const response = await axios.put(
-        `http://localhost:4000/api/company/updatecompany/${companyId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/company/updatecompany/${companyId}`,
         formDataToSend,
         {
           headers: {

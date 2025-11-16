@@ -54,9 +54,9 @@ export default function DashboardPage() {
     const fetchStats = async () => {
       try {
         const [usersRes, companiesRes, jobsRes] = await Promise.all([
-          axios.get('http://localhost:4000/api/user/getallusercount'),
-          axios.get('http://localhost:4000/api/company/getallcompanycount'),
-          axios.get('http://localhost:4000/api/job/getalljobcount')
+          axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getallusercount`),
+          axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/company/getallcompanycount`),
+          axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getalljobcount`)
         ]);
 
         setStats({
@@ -71,7 +71,7 @@ export default function DashboardPage() {
 
     const fetchJobCategories = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/job/getjobcountbydepartment');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getjobcountbydepartment`);
         if (response.data.success) {
           const data = response.data.data;
           const transformedData = Object.entries(data).map(([name, value]) => ({

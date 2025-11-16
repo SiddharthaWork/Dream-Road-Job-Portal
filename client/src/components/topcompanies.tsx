@@ -53,7 +53,7 @@ export default function TopCompaniesMarquee() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/job/getalljobscountbycompany');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/job/getalljobscountbycompany`);
         const data = await response.json();
         if (data.success) {
           setCompanies(data.data.map((company: any) => ({

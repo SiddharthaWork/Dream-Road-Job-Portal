@@ -191,7 +191,7 @@ const Onboarding = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:4000/api/company/register', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/company/register`, {
         method: 'POST',
         body: formDataToSend,
       });

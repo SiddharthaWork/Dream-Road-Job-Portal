@@ -35,7 +35,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     const companyId = localStorage.getItem('companyId');
     if (!companyId) return;
     try {
-      const response = await axios.get(`http://localhost:4000/api/company/getdeletedjobs/${companyId}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/company/getdeletedjobs/${companyId}`);
       if (response.data.success) {
         setDeletedJobs(response.data.data);
       }

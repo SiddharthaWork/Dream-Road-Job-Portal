@@ -49,10 +49,10 @@ export default function RecommendedJobs({
         }
 
         const response = await axios.get(
-          `http://localhost:4000/api/user/recommendations/${userId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/recommendations/${userId}`
         );
         // const response = await axios.get(
-        //   `http://localhost:4000/api/job/semanticrecommendations/${userId}`
+        //   `${process.env.NEXT_PUBLIC_BACKEND_URL}/job/semanticrecommendations/${userId}`
         // );
 
         const data = response.data;
