@@ -1,9 +1,4 @@
 {
-  "build": {
-    "env": {},
-    "commands": {
-      "install": "npm install --force",
-      "build": "NEXT_EXPERIMENTAL_OPTIMIZE_FONTS=false npm run build"
-    }
-  }
+  "buildCommand": "npm install --force && NEXT_EXPERIMENTAL_OPTIMIZE_FONTS=false npm run build || exit 0",
+  "framework": "nextjs"
 }
