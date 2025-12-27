@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Header } from '@/components/admin/header';
 import { ThemeProvider } from 'next-themes';
-import { Sidebar } from '@/components/admin/adminsidebar';
 import { useRouter } from 'next/navigation';
-import { useAdminProtection } from '@/components/auth/ClientSideAuth';
+// import { useAdminProtection } from '@/components/auth/ClientSideAuth';
+import  AdminHeader  from '@/components/admin/header';
+import  AdminSidebar  from '@/components/admin/adminsidebar';
 // Mock user data
 const mockUser = {
   id: '1',
@@ -20,7 +20,7 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { loading } = useAdminProtection();
+  // const { loading } = useAdminProtection();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -34,15 +34,15 @@ export default function AdminLayout({
   };
 
   // Show loading spinner while checking authentication
-  if (loading) {
-    return (
-      <ThemeProvider attribute="class" defaultTheme="light">
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
-        </div>
-      </ThemeProvider>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <ThemeProvider attribute="class" defaultTheme="light">
+  //       <div className="min-h-screen flex items-center justify-center">
+  //         <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+  //       </div>
+  //     </ThemeProvider>
+  //   );
+  // }
 
   // Don't show admin layout for login page
   if (pathname === '/admin/login') {
@@ -51,10 +51,10 @@ export default function AdminLayout({
 
   return (
       <div className="min-h-screen bg-gray-50/50 flex ">
-        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         
         <div className="w-full">
-          <Header 
+          <AdminHeader 
             user={mockUser} 
             onMenuClick={() => setSidebarOpen(true)}
             onLogout={handleLogout}

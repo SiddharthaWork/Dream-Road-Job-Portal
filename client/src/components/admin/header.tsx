@@ -38,7 +38,7 @@ interface HeaderProps {
 }
 
 
-export function Header({ user, onMenuClick, onLogout }: HeaderProps) {
+const AdminHeader = ({ user, onMenuClick, onLogout }: HeaderProps) => {
   
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 px-6">
@@ -125,3 +125,5 @@ export function Header({ user, onMenuClick, onLogout }: HeaderProps) {
     </header>
   );
 }
+
+export default AdminHeader;

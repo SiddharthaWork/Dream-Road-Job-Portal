@@ -90,7 +90,7 @@ const navigation = [
 //   }
 // ];
 
-export function Sidebar({ open, onClose }: SidebarProps) {
+const AdminSidebar = ({ open, onClose }: SidebarProps) => {
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
@@ -249,3 +249,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     </>
   );
 }
+
+export default AdminSidebar;
+
