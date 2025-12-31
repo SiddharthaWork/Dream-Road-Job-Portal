@@ -1,5 +1,5 @@
 const APPLICANT_SCORING_WEIGHTS = {
-  skillsMatch: 0.40,        
+  skillsMatch: 0.50,        
   experienceMatch: 0.25,    
   educationMatch: 0.15,     
   locationMatch: 0.10,      
